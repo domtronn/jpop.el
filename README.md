@@ -56,3 +56,8 @@ I'm trying to get this project in a nicer state for my own purposes, but this wi
 * `.gitignore` integration for filtering
 * Better integration for test running/finding/creation
 * Hosting on [Melpa](http://melpa.org/#/)
+* Ability to define projects as elisp objects _e.g._
+```elisp
+(:project "My Project"
+  :dirs '("path/one" "path/two") ...)
+```
