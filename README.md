@@ -55,3 +55,4 @@ If you enable `projectable-global-mode` you will have access to the following ke
 I'm trying to get this project in a nicer state for my own purposes, but this will eventually _(hopefully)_ come with
 * `.gitignore` integration for filtering
 * Better integration for test running/finding/creation
+* Hosting on [Melpa](http://melpa.org/#/)
