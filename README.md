@@ -46,7 +46,7 @@ The `tabs` property defines whether this projects uses **tabs** or **spaces**
 # Usage #
 If you enable `projectable-global-mode` you will have access to the following keybindings:
 | Key Binding | Command | Effect |
-|-------------|---------|--------|
+|-------------+---------+--------|
 | C-c p c     | `projectable-change` | Change to a new project file/directory |
 | C-c p r     | `projectable-refresh` | Refresh the list of files cached |
 | C-c p f     | `projectable-ido-find-file` | Open a file from the cache |
