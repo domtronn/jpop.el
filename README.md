@@ -32,7 +32,7 @@ An example JSON project file would look like this:
 	"testing":{
 		"path": "tests/specs",
 		"extension": "Spec.js"
-	}
+	},
 	"tabs":false,
 	"indent":2,
 }
@@ -45,11 +45,12 @@ The `tabs` property defines whether this projects uses **tabs** or **spaces**
 
 # Usage #
 If you enable `projectable-global-mode` you will have access to the following keybindings:
-| Key Binding | Command | Effect |
-|-------------+---------+--------|
-| C-c p c     | `projectable-change` | Change to a new project file/directory |
-| C-c p r     | `projectable-refresh` | Refresh the list of files cached |
-| C-c p f     | `projectable-ido-find-file` | Open a file from the cache |
+
+Key Binding | Command | Effect 
+--- | --- | ---
+C-c p c | `projectable-change` | Change to a new project file/directory 
+C-c p r | `projectable-refresh` | Refresh the list of files cached 
+C-c p f | `projectable-ido-find-file` | Open a file from the cache 
 
 ## Planned Features ##
 I'm trying to get this project in a nicer state for my own purposes, but this will eventually _(hopefully)_ come with
