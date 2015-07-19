@@ -1,9 +1,11 @@
-;;; emacs --- My project cacheing framework
+;;; emacs --- Lightweight project cacheing and navigation framework
 
-;; Copyright (C) 2015  Dominic Charlesworth <dgc336@gmail.com>
+;; Copyright © 2015  Dominic Charlesworth <dgc336@gmail.com>
 
 ;; Author: Dominic Charlesworth <dgc336@gmail.com>
-;; Keywords: internal
+;; URL: https://github.com/domtronn/projectable
+;; Version: 0.0.1
+;; Keywords: project, convenience
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License
