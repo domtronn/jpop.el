@@ -53,11 +53,11 @@ C-c p r | `projectable-refresh` | Refresh the list of files cached
 C-c p f | `projectable-ido-find-file` | Open a file from the cache 
 
 ## Planned Features ##
-I'm trying to get this project in a nicer state for my own purposes, but this will eventually _(hopefully)_ come with
-* `.gitignore` integration for filtering
-* Better integration for test running/finding/creation
-* Hosting on [Melpa](http://melpa.org/#/)
-* Ability to define projects as elisp objects _e.g._
+I'm trying to get this project in a nicer state for my own purposes, future features will include
+- [x] `.gitignore` integration for filtering
+- [ ] Better integration for test running/finding/creation
+- [ ] Hosting on [Melpa](http://melpa.org/#/)
+- [ ] Ability to define projects as elisp objects _e.g._
 ```elisp
 (:project "My Project"
   :dirs '("path/one" "path/two") ...)

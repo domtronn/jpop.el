@@ -283,6 +283,7 @@ t => tabs nil => spaces"
 	(projectable-message (format "Setting indent level to %s" level))
   t)
 
+;; Utility functions
 (defun projectable-message (string)
 	"Prints debug message STRING for the package."
 	(when projectable-verbose
@@ -301,6 +302,30 @@ t => tabs nil => spaces"
 	(setq ido-use-faces t)
 	(flx-ido-mode 0)
   (ido-vertical-mode 0))
+
+(defun find-file-upwards (file-to-find &optional starting-path)
+  "Recursively search parent directories for FILE-TO-FIND from STARTING-PATH.
+looking for a file with name file-to-find.  Returns the path to it
+or nil if not found.
+
+By default, it uses the `default-directory` as a starting point unless stated
+otherwise through the use of STARTING-PATH.
+
+This function is taken from
+http://www.emacswiki.org/emacs/EmacsTags#tags"
+  (cl-labels
+      ((find-file-r (path)
+                    (let* ((parent (file-name-directory path))
+                           (possible-file (concat parent file-to-find)))
+                      (cond
+                       ((file-exists-p possible-file) possible-file) ; Found
+                       ;; The parent of ~ is nil and the parent of / is itself.
+                       ;; Thus the terminating condition for not finding the file
+                       ;; accounts for both.
+                       ((or (null parent) (equal parent (directory-file-name parent))) nil) ; Not found
+                       (t (find-file-r (directory-file-name parent))))))) ; Continue
+    (find-file-r (if starting-path starting-path default-directory))))
+
 
 (defun projectable-ido-find-file (file)
   "Using ido, interactively open FILE from projectable alist.
