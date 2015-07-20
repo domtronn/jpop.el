@@ -1,6 +1,6 @@
 # projectable.el #
 
-A lightweight project framework I created for the main purpose of integration with my `JS-DEPENDENCY-INJECTOR` package, which requires associative lists of files with project ids and there locations.
+A lightweight project framework I created for the main purpose of integration with my `JS-DEPENDENCY-INJECTOR` package, which requires associative lists of files with project ids and their locations.
 
 # Installation #
 
@@ -52,7 +52,7 @@ Key Binding | Command | Effect
 `C-c p r` | `projectable-refresh` | Refresh the list of files cached 
 `C-c p f` | `projectable-ido-find-file` | Open a file from the cache 
 
-## Planned Features ##
+# Planned Features #
 I'm trying to get this project in a nicer state for my own purposes, future features will include
 - [x] `.gitignore` integration for filtering
 - [ ] Better integration for test running/finding/creation
