@@ -112,8 +112,6 @@ By default it looks in your Documents folder"
 (defvar projectable-id)
 (defvar projectable-indent-level
   2 "The level of indentation to be used.")
-(defvar projectable-indent-type
-  :tabs "Style of indentation to be used.")
 
 (defvar projectable-test-path
   nil "The root of test files for the project.")
@@ -224,8 +222,12 @@ This will just cache all of the files contained in that directory."
 	 t)
 
 (defun projectable-set-project-alist (&optional gitignore-filter-regexps)
+	"Set `projectable-project-alist` by usings `projectable-alist-cmd`.
+
+Can be passed a list GITIGNORE-FILTER-REGEXPS of regexps to append to
+the filter string set in the customisations."
   (let* ((json-object-type 'alist) (json-array-type 'list) (json-key-type 'string)
-				 (cmd (concat 
+				 (cmd (concat
 						 projectable-alist-cmd
 						 " "
 						 (expand-file-name projectable-current-project-path)
@@ -257,11 +259,10 @@ t => tabs nil => spaces"
   (if bool
       (progn
         (projectable-message (format "Using spaces for project [%s]" projectable-id))
-        (setq projectable-indent-type :spaces))
+        (setq-default indent-tabs-mode nil))
     (progn
       (projectable-message (format "Using tabs for project [%s]" projectable-id))
-      (setq projectable-indent-type :tabs))
-    )
+      (setq-default indent-tabs-mode t)))
   t)
 
 (defun projectable-set-indent-level (level)
