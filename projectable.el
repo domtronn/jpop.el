@@ -4,7 +4,7 @@
 
 ;; Author: Dominic Charlesworth <dgc336@gmail.com>
 ;; URL: https://github.com/domtronn/projectable
-;; Version: 0.0.1
+;; Version: 0.0.2
 ;; Keywords: project, convenience
 
 ;; This program is free software; you can redistribute it and/or
@@ -100,6 +100,10 @@ By default it looks in your Documents folder"
 	:group 'projectable
 	:type 'string)
 
+(defcustom projectable-use-gitignore t
+	"Whether to use gitignore for your regexp filters."
+	:group 'projectable
+	:type 'boolean)
 
 ;;; Variable Definitions
 (defvar projectable-current-project-path nil)
@@ -162,12 +166,23 @@ This will just cache all of the files contained in that directory."
   (let* ((json-object-type 'hash-table)
          (json-contents
           (shell-command-to-string (concat "cat " projectable-current-project-path)))
-         (json-hash (json-read-from-string json-contents)))
+         (json-hash (json-read-from-string json-contents))
+				 (gitignore-filter-regexp (list)))
     
     ;; Set project ID
     (let ((id (gethash "projectId" json-hash)))
 			(setq projectable-id id)
 			(projectable-message (format "Project ID: [%s]" id)))
+		
+		;; Set up the gitignore properties
+		(let ((project-list (gethash "project" json-hash)))
+				(mapc (lambda (x)
+								(let ((location (find-file-upwards ".gitignore" (concat (gethash "dir" x) "/"))))
+									(when location
+										(setq gitignore-filter-regexp
+													(-distinct
+													 (append gitignore-filter-regexp (projectable-get-gitignore-filter location)))))))
+							project-list))
     
     ;; Set the tabs/spaces indent type
     (when (gethash "tabs" json-hash)
@@ -182,7 +197,7 @@ This will just cache all of the files contained in that directory."
         (setq projectable-test-path (gethash "path" test-hash))
         (setq projectable-test-extension (gethash "extension" test-hash))))
 
-    (projectable-set-project-alist)
+    (projectable-set-project-alist gitignore-filter-regexp)
     (setq projectable-file-alist (cdr (assoc projectable-id projectable-project-alist))))
 	t)
 
@@ -201,25 +216,40 @@ This will just cache all of the files contained in that directory."
 	 (let ((id (file-name-base projectable-current-project-path)))
 		 (setq projectable-id id)
 		 (projectable-message (format "Project ID: [%s]" id)))
-
-	 (projectable-set-project-alist)
+	 
+	 (let ((gitignore-filter-regexps (projectable-get-gitignore-filter
+																		(find-file-upwards ".gitignore" (concat projectable-current-project-path "/") ))))
+		 (projectable-set-project-alist gitignore-filter-regexps))
 	 (setq projectable-file-alist projectable-project-alist)
 	 t)
 
-(defun projectable-set-project-alist ()
+(defun projectable-set-project-alist (&optional gitignore-filter-regexps)
   (let* ((json-object-type 'alist) (json-array-type 'list) (json-key-type 'string)
 				 (cmd (concat 
 						 projectable-alist-cmd
 						 " "
 						 (expand-file-name projectable-current-project-path)
 						 " \""
-						 (mapconcat 'identity projectable-filter-regexps ",")
+						 (mapconcat 'identity (append projectable-filter-regexps gitignore-filter-regexps) ",")
 						 " \"")))
-
     (setq projectable-project-alist
 					(json-read-from-string
 					 (shell-command-to-string cmd)))
 		t))
+
+(defun projectable-get-gitignore-filter (dir)
+	"Produce regexps filters by based on a .gitignore files found in DIR."
+	(with-temp-buffer
+		(insert-file-contents dir)
+		(goto-char (point-min))
+		(flush-lines "^[#]")
+		(flush-lines "^$")
+		(while (search-forward "*" nil t)
+			(replace-match ""))
+		(goto-char (point-min))
+		(while (search-forward "." nil t)
+			(replace-match "\\." nil t))
+		(split-string (buffer-string) "\n" t)))
 
 (defun projectable-set-indent-type (bool)
   "Set the indent type based on BOOL.

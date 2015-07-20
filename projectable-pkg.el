@@ -1,4 +1,4 @@
 (define-package
-  "projectable" "0.0.1"
+  "projectable" "0.0.2"
 	"Minor project framework for use with JS-DEPENDENCY-INJECTOR"
-	nil)
+	'('dash "20150704.253"))
