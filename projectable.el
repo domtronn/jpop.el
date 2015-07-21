@@ -392,7 +392,7 @@ nil or positive.  If ARG is `toggle', toggle `projectable-mode'.
 Otherwise behave as if called interactively.
 
 \\{projectile-mode-map}"
-	:lighter (concat "[P>" projectable-id "]")
+	:lighter (format "[P>%s]" (upcase projectable-id))
   :keymap projectable-mode-map
   :group 'projectable
   :require 'projectable)
