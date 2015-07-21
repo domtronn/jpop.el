@@ -155,8 +155,7 @@ this directory to the file cache"
 				(projectable-message
 				 (format "%s is not a file - Interpreting as directory"
 								 projectable-current-project-path))
-				(projectable-load-from-path))
-        )))
+				(projectable-load-from-path)))))
 
 (defun projectable-load-from-json ()
 	"Set the project based on a path.
