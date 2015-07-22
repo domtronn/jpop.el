@@ -108,6 +108,7 @@ By default it looks in your Documents folder"
 ;;; Variable Definitions
 (defvar projectable-current-project-path nil)
 (defvar projectable-project-alist nil)
+(defvar projectable-project-hash nil)
 (defvar projectable-file-alist nil)
 (defvar projectable-id)
 (defvar projectable-indent-level
@@ -115,6 +116,8 @@ By default it looks in your Documents folder"
 
 (defvar projectable-test-path
   nil "The root of test files for the project.")
+(defvar projectable-src-path
+  nil "The src path for tests.")
 (defvar projectable-test-extension
   nil "The extension of the test file e.g. ...Test.")
 
@@ -165,7 +168,9 @@ This will just cache all of the files contained in that directory."
           (shell-command-to-string (concat "cat " projectable-current-project-path)))
          (json-hash (json-read-from-string json-contents))
 				 (gitignore-filter-regexp (list)))
-    
+
+		(setq projectable-project-hash json-hash)
+		
     ;; Set project ID
     (let ((id (gethash "projectId" json-hash)))
 			(setq projectable-id id)
@@ -191,6 +196,8 @@ This will just cache all of the files contained in that directory."
 
     (when (gethash "testing" json-hash)
       (let ((test-hash (gethash "testing" json-hash)))
+				(when (gethash "sourcePath" test-hash)
+          (setq projectable-src-path (gethash "sourcePath" test-hash)))
         (setq projectable-test-path (gethash "path" test-hash))
         (setq projectable-test-extension (gethash "extension" test-hash))))
 
@@ -352,6 +359,38 @@ http://emacswiki.org/emacs/FileNameCache"
 		(when projectable-use-vertical-flx
 			(projectable-disable-vertical))))
 
+(defun projectable-toggle-open-test ()
+  "Open associated test class if it exists."
+  (interactive)
+  (let ((file-ext (file-name-extension (buffer-file-name)))
+        (src-path projectable-src-path)
+        (test-path projectable-test-path))
+    (when (not projectable-src-path)
+      (progn
+        (setq src-path (projectable-guess-source-path))
+        (setq test-path (format "%s/%s" src-path projectable-test-path))
+        (projectable-message (format  "Guessed the source path as [%s]" src-path))))
+    
+    (if (and src-path (string-match test-path (file-truename (buffer-file-name))))
+        ;; In a test class, go to source
+        (find-file (replace-regexp-in-string test-path src-path
+                                           (replace-regexp-in-string (format "%s\\\.%s" projectable-test-extension file-ext)
+                                                                     (format "\.%s" file-ext) (buffer-file-name))))
+      ;; In a source class, go to test
+      (find-file (replace-regexp-in-string src-path test-path
+                                           (replace-regexp-in-string (format "\\\.%s" file-ext)
+                                                                     (format "%s\.%s" projectable-test-extension file-ext) (buffer-file-name)))))
+    (projectable-message (format "Could not find test file for [%s]" buffer-file-name))))
+
+(defun projectable-guess-source-path ()
+  "Guess what the source path for files is."
+  (let ((result nil)
+        (projects (gethash "project" projectable-project-hash)))
+    (mapc #'(lambda (p) (let ((project-dir (expand-file-name (gethash "dir" p))))
+                     (when (string-match project-dir (file-truename (buffer-file-name)))
+                       (setq result project-dir)))) projects)
+    result))
+                    		
 (when (and (require 'flx-ido nil t)
 					 (require 'ido-vertical-mode nil t))
 	
@@ -369,6 +408,7 @@ http://emacswiki.org/emacs/FileNameCache"
     (define-key map (kbd "c") #'projectable-change)
     (define-key map (kbd "r") #'projectable-refresh)
     (define-key map (kbd "f") #'projectable-ido-find-file)
+    (define-key map (kbd "t") #'projectable-toggle-open-test)
     map)
   "Keymap for Projectable commands after `projectable-keymap-prefix'.")
 (fset 'projectable-command-map projectable-command-map)
