@@ -369,18 +369,22 @@ http://emacswiki.org/emacs/FileNameCache"
       (progn
         (setq src-path (projectable-guess-source-path))
         (setq test-path (format "%s/%s" src-path projectable-test-path))
-        (projectable-message (format  "Guessed the source path as [%s]" src-path))))
+        (if src-path (projectable-message (format  "Guessed the source path as [%s]" src-path)))))
     
-    (if (and src-path (string-match test-path (file-truename (buffer-file-name))))
+    
+		(if (and src-path (string-match test-path (file-truename (buffer-file-name))))
         ;; In a test class, go to source
         (find-file (replace-regexp-in-string test-path src-path
                                            (replace-regexp-in-string (format "%s\\\.%s" projectable-test-extension file-ext)
                                                                      (format "\.%s" file-ext) (buffer-file-name))))
-      ;; In a source class, go to test
-      (find-file (replace-regexp-in-string src-path test-path
-                                           (replace-regexp-in-string (format "\\\.%s" file-ext)
-                                                                     (format "%s\.%s" projectable-test-extension file-ext) (buffer-file-name)))))
-    (projectable-message (format "Could not find test file for [%s]" buffer-file-name))))
+		
+			(if (and src-path (string-match src-path (file-truename (buffer-file-name))))
+					;; In a source class, go to test
+					(find-file (replace-regexp-in-string src-path test-path
+																							 (replace-regexp-in-string (format "\\\.%s" file-ext)
+																																				 (format "%s\.%s" projectable-test-extension file-ext) (buffer-file-name))))
+				
+				(message (format "Could not find test file for [%s]" buffer-file-name))))))
 
 (defun projectable-guess-source-path ()
   "Guess what the source path for files is."
