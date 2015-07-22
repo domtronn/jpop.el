@@ -57,13 +57,11 @@ Key Binding | Command | Effect
 # Planned Features #
 I'm trying to get this project in a nicer state for my own purposes, future features will include
 - [x] `.gitignore` integration for filtering
-- [ ] Better integration for test running/finding/creation
+- [x] Better integration for test
+    - [x] opening
+    - [ ] running
 - [ ] Hosting on [Melpa](http://melpa.org/#/)
-- [ ] Ability to define projects as elisp objects _e.g._
-```elisp
-(:project "My Project"
-  :dirs '("path/one" "path/two") ...)
-```
+- [ ] Ability to define projects as elisp objects _e.g._ `(:project "My Project" :dirs '("path/one" "path/two") ...)`
 - [ ] Etags/Ctags integration
 
 
