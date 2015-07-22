@@ -31,7 +31,8 @@ An example JSON project file would look like this:
 	],
 	"testing":{
 		"path": "tests/specs",
-		"extension": "Spec.js"
+		"extension": "Spec",
+		"sourcePath": "src"          //Optional if files don't have an explicit source
 	},
 	"tabs":false,
 	"indent":2,
@@ -51,6 +52,7 @@ Key Binding | Command | Effect
 `C-c p c` | `projectable-change` | Change to a new project file/directory 
 `C-c p r` | `projectable-refresh` | Refresh the list of files cached 
 `C-c p f` | `projectable-ido-find-file` | Open a file from the cache 
+`C-c p t` | `projectable-toggle-open-test` | Try and find the related test to the current class
 
 # Planned Features #
 I'm trying to get this project in a nicer state for my own purposes, future features will include
