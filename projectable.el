@@ -255,10 +255,10 @@ the filter string set in the customisations."
            (shell-command-to-string cmd)))
     t))
 
-(defun projectable-get-gitignore-filter (dir)
-  "Produce regexps filters by based on a .gitignore files found in DIR."
+(defun projectable-get-gitignore-filter (gitignore-file)
+  "Produce regexps filters by based on a .gitignore files found in GITIGNORE-FILE."
   (with-temp-buffer
-    (insert-file-contents dir)
+    (insert-file-contents gitignore-file)
     (goto-char (point-min))
     (flush-lines "^[#]")
     (flush-lines "^$")
