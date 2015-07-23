@@ -179,9 +179,11 @@ Mainly for debugging of the package."
                    (projectable-enable-vertical))
                  (list (ido-read-file-name "Enter path to Project file: "
                                            projectable-project-directory))))
+	(setq tags-table-list nil)
   (setq projectable-current-project-path arg)
   (setq projectable-project-alist (make-hash-table :test 'equal))
   (setq projectable-file-alist (make-hash-table :test 'equal))
+
   (projectable-refresh)
   (when projectable-use-vertical-flx
     (projectable-disable-vertical))
@@ -213,8 +215,7 @@ This will just cache all of the files contained in that directory."
   (let* ((json-object-type 'hash-table)
          (json-contents
           (shell-command-to-string (concat "cat " projectable-current-project-path)))
-         (json-hash (json-read-from-string json-contents))
-         (gitignore-filter-regexp (list)))
+         (json-hash (json-read-from-string json-contents)))
 
     (setq projectable-project-hash json-hash)
     
@@ -223,48 +224,73 @@ This will just cache all of the files contained in that directory."
       (setq projectable-id id)
       (projectable-message (format "Project ID: [%s]" id)))
     
-    ;; Set up the gitignore properties
-    (let ((project-list (gethash "dirs" json-hash)))
-      (mapc (lambda (x)
-              (let ((location (find-file-upwards ".gitignore" (concat (gethash "dir" x) "/"))))
-                (when location
-                  (setq gitignore-filter-regexp
-                        (-distinct
-                         (append gitignore-filter-regexp (projectable-get-gitignore-filter location)))))))
-            project-list))
-
 		(when (gethash "libs" json-hash)
-			(let ((full-list (list (gethash "dirs" json-hash) (gethash "libs" json-hash))))
-				(mapc (lambda (hash)
-								(mapc (lambda (elt)
-												(let* ((dir (concat (gethash "dir" elt) "/"))
-															 (create-tags-p (not (eq :json-false (gethash "create-tags" elt)))))
-													(when create-tags-p
-														(projectable-message (format "Creating tags for [%s]" dir))
-														(projectable-create-tags-in-directory dir)))
-								) hash)) full-list)))
+			(projectable-create-tags (list (gethash "dirs" json-hash) (gethash "libs" json-hash))))
     
 		(when (gethash "style" json-hash)
-			(let ((style-hash (gethash "style" json-hash)))
-				;; Set the indent level
-				(when (gethash "indent" style-hash)
-					(projectable-set-indent-level (gethash "indent" style-hash)))
-				;; Set the tabs/spaces indent type
-				(when (gethash "tabs" style-hash)
-					(projectable-set-indent-object (eq :json-false (gethash "tabs" style-hash))))))
+			(projectable-set-styling (gethash "styling" json-hash)))
     
-
     (when (gethash "testing" json-hash)
-      (let ((test-hash (gethash "testing" json-hash)))
-        (when (gethash "sourcePath" test-hash)
-          (setq projectable-src-path (gethash "sourcePath" test-hash)))
-        (setq projectable-test-path (gethash "path" test-hash))
-        (setq projectable-test-extension (gethash "extension" test-hash))))
+      (projectable-set-testing (gethash "testing" json-hash)))
 		
-    (projectable-set-project-alist (when projectable-use-gitignore gitignore-filter-regexp))
-    (setq projectable-file-alist (cdr (assoc projectable-id projectable-project-alist)))
-		)
+		(projectable-set-project-alist
+		 (when projectable-use-gitignore (projectable-get-all-gitignore-filter (gethash "dirs" json-hash)))))
   t)
+
+(defun projectable-all-get-gitignore-filter (project-list)
+  "Get a distinct list of regexps to gitignore in the PROJECT-LIST files."
+	(let ((gitignore-filter-regexp (list)))
+		(mapc (lambda (x)
+						(let ((location (find-file-upwards ".gitignore" (concat (gethash "dir" x) "/"))))
+							(when location
+								(setq gitignore-filter-regexp
+											(-distinct
+											 (append gitignore-filter-regexp (projectable-get-gitignore-filter location)))))))
+					project-list)
+		gitignore-filter-regexp))
+
+(defun projectable-create-tags (hash-list)
+  "Create tags in the root projects based on a HASH-LIST of directories and flags."
+	(mapc (lambda (hash)
+					(mapc (lambda (elt)
+									(let* ((dir (concat (gethash "dir" elt) "/"))
+												 (create-tags-p (not (eq :json-false (gethash "create-tags" elt)))))
+										(when create-tags-p
+											
+											(projectable-message (format "Creating tags for [%s]" dir))
+											(projectable-create-tags-in-directory dir)
+											(when projectable-auto-visit-tags
+												(setq tags-table-list (append tags-table-list
+																											(list (format "%s%s" (file-truename dir) projectable-tags-file)))))))
+									) hash)) hash-list))
+
+(defun projectable-create-tags-in-directory (dir)
+  "Build and run the create tags command in DIR."
+	(let* ((cmd
+				 (format projectable-find-cmd-format
+								 dir
+								 (projectable-get-ctags-supported-languages)
+								 (projectable-get-filter-regexps)
+								 (format projectable-ctags-cmd-format dir)))
+				 (name (format "[projectable] Creating tags for [%s]" dir))
+				 (buffer-name (format "*create-tags[%s]*" dir)))
+		(start-process-shell-command name buffer-name cmd)))
+
+(defun projectable-set-styling (style-hash)
+	"Set up variables associated with the styling from a STYLE-HASH."
+	;; Set the indent level
+	(when (gethash "indent" style-hash)
+		(projectable-set-indent-level (gethash "indent" style-hash)))
+	;; Set the tabs/spaces indent type
+	(when (gethash "tabs" style-hash)
+		(projectable-set-indent-object (eq :json-false (gethash "tabs" style-hash)))))
+
+(defun projectable-set-testing (test-hash)
+	"Set up variables associated with testing from a TEST-HASH."
+	(when (gethash "sourcePath" test-hash)
+		(setq projectable-src-path (gethash "sourcePath" test-hash)))
+	(setq projectable-test-path (gethash "path" test-hash))
+	(setq projectable-test-extension (gethash "extension" test-hash)))
 
 (defun projectable-load-from-path ()
   "Load a project from a given directory."
@@ -285,7 +311,6 @@ This will just cache all of the files contained in that directory."
   (let ((gitignore-filter-regexps (projectable-get-gitignore-filter
                                    (find-file-upwards ".gitignore" (concat projectable-current-project-path "/") ))))
     (projectable-set-project-alist (when projectable-use-gitignore gitignore-filter-regexps)))
-  (setq projectable-file-alist projectable-project-alist)
   t)
 
 (defun projectable-set-project-alist (&optional gitignore-filter-regexps)
@@ -300,10 +325,10 @@ the filter string set in the customisations."
                (expand-file-name projectable-current-project-path)
                " \""
                (mapconcat 'identity (append projectable-filter-regexps gitignore-filter-regexps) ",")
-               " \"")))
-    (setq projectable-project-alist
-          (json-read-from-string
-           (shell-command-to-string cmd)))
+               " \""))
+				 (result (json-read-from-string (shell-command-to-string cmd))))
+    (setq projectable-project-alist result)
+		(setq projectable-file-alist (cdr (assoc projectable-id result)))
     t))
 
 (defun projectable-get-gitignore-filter (gitignore-file)
@@ -513,18 +538,6 @@ i.e.  If indent level was 4, the indent string would be '    '."
 (defun projectable-get-filter-regexps ()
 	"Flatten and concatenate all filter regexps for find command."
   (mapconcat #'(lambda (a) (format "%s" a)) projectable-filter-regexps "|"))
-
-(defun projectable-create-tags-in-directory (dir)
-  "Build and run the create tags command in DIR."
-	(let* ((cmd
-				 (format projectable-find-cmd-format
-								 dir
-								 (projectable-get-ctags-supported-languages)
-								 (projectable-get-filter-regexps)
-								 (format projectable-ctags-cmd-format dir)))
-				 (name (format "[projectable] Creating tags for [%s]" dir))
-				 (buffer-name (format "*create-tags[%s]*" dir)))
-		(start-process-shell-command name buffer-name cmd)))
 
 ;;; Projectable Mode
 ;;  Set up for the projectable minor-mode.

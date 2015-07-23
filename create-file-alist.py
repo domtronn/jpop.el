@@ -17,15 +17,13 @@ def create_from_path( path, filter_regexp ):
     result_dict = {}
     for f in resultant_files:
         if os.path.basename(f) in result_dict:
-                # if any(os.path.dirname(f) + "/" in f for f in result_dict[os.path.basename(f)]):
-                #     continue
             result_dict[os.path.basename(f)].append(os.path.dirname(f) + "/")
         else:
             result_dict[os.path.basename(f)] = [os.path.dirname(f) + "/"]
     result = {}
     result[os.path.basename(project_file)] = result_dict
     
-    print json.dumps(result_dict)
+    print json.dumps(result)
         
 def create_from_json( project_file, filter_regexp ):
     project_json = json.loads(open(project_file).read())
