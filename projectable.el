@@ -237,7 +237,7 @@ This will just cache all of the files contained in that directory."
 		 (when projectable-use-gitignore (projectable-get-all-gitignore-filter (gethash "dirs" json-hash)))))
   t)
 
-(defun projectable-all-get-gitignore-filter (project-list)
+(defun projectable-get-all-gitignore-filter (project-list)
   "Get a distinct list of regexps to gitignore in the PROJECT-LIST files."
 	(let ((gitignore-filter-regexp (list)))
 		(mapc (lambda (x)
