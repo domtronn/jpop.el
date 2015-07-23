@@ -211,7 +211,7 @@ This will just cache all of the files contained in that directory."
         (setq projectable-test-path (gethash "path" test-hash))
         (setq projectable-test-extension (gethash "extension" test-hash))))
 
-    (projectable-set-project-alist gitignore-filter-regexp)
+    (projectable-set-project-alist (when projectable-use-gitignore gitignore-filter-regexp))
     (setq projectable-file-alist (cdr (assoc projectable-id projectable-project-alist))))
   t)
 
@@ -233,7 +233,7 @@ This will just cache all of the files contained in that directory."
   
   (let ((gitignore-filter-regexps (projectable-get-gitignore-filter
                                    (find-file-upwards ".gitignore" (concat projectable-current-project-path "/") ))))
-    (projectable-set-project-alist gitignore-filter-regexps))
+    (projectable-set-project-alist (when projectable-use-gitignore gitignore-filter-regexps)))
   (setq projectable-file-alist projectable-project-alist)
   t)
 
