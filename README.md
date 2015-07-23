@@ -35,7 +35,7 @@ An example JSON project file would look like this:
 		"sourcePath": "src"          //Optional if files don't have an explicit source
 	},
 	"tabs":false,
-	"indent":2,
+	"indent":2
 }
 ```
 Where the two properties in the `project` array define paths required in that project. This is useful if you have multiple respositories for a single project.
