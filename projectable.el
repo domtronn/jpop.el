@@ -148,7 +148,7 @@ reformat that file to use the projects format settings."
   (projectable-refresh)
   (when projectable-use-vertical-flx
     (projectable-disable-vertical))
-  (projectable-message (format "New project is %s" arg) t))
+  (projectable-message (format "New project is [%s]" arg) t))
 
 (defun projectable-refresh ()
   "Parse a json project file to create a cache for that project.
@@ -163,7 +163,7 @@ this directory to the file cache"
       ;; A directory so load form directory
       (progn
         (projectable-message
-         (format "%s is not a file - Interpreting as directory" projectable-current-project-path))
+         (format "Interpreting as directory - [%s] is not a file" projectable-current-project-path))
         (projectable-load-from-path)))))
 
 (defun projectable-is-file (dir)
@@ -430,7 +430,7 @@ http://emacswiki.org/emacs/FileNameCache"
         (projectable-message
          (format "Reformatted file to use [%s]" (car projectable-indent-object)) t))
     (projectable-message
-     (format "Reformat aborted - Project does not contain [%s]" (file-name-nondirectory (buffer-file-name))) t)))
+     (format "Reformat aborted - [%s] is not part of project" (file-name-nondirectory (buffer-file-name))) t)))
 
 (defun projectable-build-space-string ()
   "Build the indent string of spaces.
