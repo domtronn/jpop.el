@@ -224,11 +224,12 @@ This will just cache all of the files contained in that directory."
       (setq projectable-id id)
       (projectable-message (format "Project ID: [%s]" id)))
     
-		(when (gethash "libs" json-hash)
-			(projectable-create-tags (list (gethash "dirs" json-hash) (gethash "libs" json-hash))))
+    ;; Create tags
+    (projectable-create-tags
+     (list (gethash "dirs" json-hash) (when (gethash "libs" json-hash) (gethash "libs" json-hash))))
     
 		(when (gethash "style" json-hash)
-			(projectable-set-styling (gethash "styling" json-hash)))
+			(projectable-set-styling (gethash "style" json-hash)))
     
     (when (gethash "testing" json-hash)
       (projectable-set-testing (gethash "testing" json-hash)))

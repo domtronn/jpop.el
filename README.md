@@ -24,25 +24,31 @@ If you load a *directory*, instead of a JSON file, it will just cache all of the
 An example JSON project file would look like this:
 ```JSON
 {
-	"projectId":"My Project",
-	"project":[
-		{ "dir":"~/path/to/project" },
-		{ "dir":"~/path/to/another/project" }
+	"id":"My Project",
+	"dirs":[
+		{ "dir":"~/path/to/project", "create-tags": true},
+		{ "dir":"~/path/to/another/project", "create-tags":false }
 	],
+    "libs":[
+        { "dir":"~/path/to/library", "create-tags": true, "id":"library-id"},
+    ],
 	"testing":{
 		"path": "tests/specs",
 		"extension": "Spec",
 		"sourcePath": "src"          //Optional if files don't have an explicit source
 	},
-	"tabs":false,
-	"indent":2
+    "style":{
+        "tabs":false,
+        "indent":2
+    }
 }
 ```
-Where the two properties in the `project` array define paths required in that project. This is useful if you have multiple respositories for a single project.
+Where the `id` property and the the `dirs/dir` property define paths required in that project. This is useful if you have multiple respositories for a single project.
 
 The `testing` block defines how to find your tests, *e.g.* they are found in `tests/specs` and would look like `originalFileSpec.js`
 
-The `tabs` property defines whether this projects uses **tabs** or **spaces**
+The `style` block, at the moment, defines how to indent the files within the project.
+The `tabs` property defines whether this projects uses **tabs** or **spaces** and the `indent` property sets the tab width/indent level of the project.
 
 # Usage #
 If you enable `projectable-global-mode` you will have access to the following keybindings:
@@ -56,15 +62,18 @@ Key Binding | Command | Effect
 `C-c p l` | `projectable-reformat-file` | Reformat the current file to use appropiate indentation
 `C-c p p` | `projectable-visit-project-file` | Open the current project file for editing
 
+It is well worth looking through `customize-grou RET projectable` to see what you can customise.
+
 # Planned Features #
 I'm trying to get this project in a nicer state for my own purposes, future features will include
 - [x] `.gitignore` integration for filtering
 - [x] Better integration for test
     - [x] opening
     - [ ] running
+- [x] Tags generation Integration
+    - [x] Ctags
+    - [ ] Etags
 - [ ] Hosting on [Melpa](http://melpa.org/#/)
-- [ ] Etags/Ctags integration
-
 
 #### Why not Projectile ####
 I'm aware that [projectile](https://github.com/bbatsov/projectile) does a lot of this already and I would actively encourage you to try that package out as well!

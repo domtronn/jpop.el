@@ -29,8 +29,9 @@ def create_from_json( project_file, filter_regexp ):
     project_json = json.loads(open(project_file).read())
 
     project_dict = { project_json['id']: project_json['dirs'] }
-    for lib in project_json['libs']:
-        project_dict[ lib['id'] ] = [ lib ]
+    if 'libs' in project_json:
+        for lib in project_json['libs']:
+            project_dict[ lib['id'] ] = [ lib ]
 
     resultant_dict = {}
     for project_id, project in project_dict.iteritems():
