@@ -31,7 +31,7 @@
 ;;; Code:
 
 ;; (defclass dir ()
-  ;; ((dir :initarg :dir
+;; ((dir :initarg :dir
 ;;         :documentation "The base path of the directory")
 ;;    (tags :initarg :create-tags
 ;;          :documentation "Whether to create tags from them")))
@@ -69,21 +69,21 @@ should return an associative list in the following form as json for now.
 By default, it uses the python script provided with this package."
   :group 'projectable
   :type 'string
-)
+  )
 
 (defcustom projectable-verbose nil
-	"Toggle verbose printing.
+  "Toggle verbose printing.
 Mainly for debugging of the package."
-	:group 'projectable
-	:type 'boolean)
+  :group 'projectable
+  :type 'boolean)
 
 (defcustom projectable-filter-regexps
-	(quote
-	 ("~$" "\\.o$" "\\.exe$" "\\.a$" "\\.elc$" "\\.output$" "\\.$" "#$" "\\.class$"
-		"\\/test.*\\.js$" "\\.png$" "\\.svn*" "\\/node_modules\\/*" "\\.gif$" "\\.gem$"
-		"\\.pdf$" "\\.swp$" "\\.iml$" "\\.jar$" "\\/build\\/" "Spec\\.js$"
-		"\\/script-tests\\/specs" "\\/jsdoc\\/" "\\.min\\.js$" "\\.tags$" "\\.filecache"
-		"\\.cache$" "\\/.git\\/" "report" "\\.gcov\\.html$" "\\.func.*\\.html$"))
+  (quote
+   ("~$" "\\.o$" "\\.exe$" "\\.a$" "\\.elc$" "\\.output$" "\\.$" "#$" "\\.class$"
+    "\\/test.*\\.js$" "\\.png$" "\\.svn*" "\\/node_modules\\/*" "\\.gif$" "\\.gem$"
+    "\\.pdf$" "\\.swp$" "\\.iml$" "\\.jar$" "\\/build\\/" "Spec\\.js$"
+    "\\/script-tests\\/specs" "\\/jsdoc\\/" "\\.min\\.js$" "\\.tags$" "\\.filecache"
+    "\\.cache$" "\\/.git\\/" "report" "\\.gcov\\.html$" "\\.func.*\\.html$"))
   "Specify a list of regexps to filter."
   :group 'projectable
   :type '(repeat regexp))
@@ -96,14 +96,14 @@ By default it looks in your Documents folder"
   :type 'string)
 
 (defcustom projectable-keymap-prefix (kbd "C-c p")
-	"Projectable keymap prefix."
-	:group 'projectable
-	:type 'string)
+  "Projectable keymap prefix."
+  :group 'projectable
+  :type 'string)
 
 (defcustom projectable-use-gitignore t
-	"Whether to use gitignore for your regexp filters."
-	:group 'projectable
-	:type 'boolean)
+  "Whether to use gitignore for your regexp filters."
+  :group 'projectable
+  :type 'boolean)
 
 ;;; Variable Definitions
 (defvar projectable-current-project-path nil)
@@ -111,8 +111,13 @@ By default it looks in your Documents folder"
 (defvar projectable-project-hash nil)
 (defvar projectable-file-alist nil)
 (defvar projectable-id)
+
 (defvar projectable-indent-level
   2 "The level of indentation to be used.")
+(defvar projectable-indent-type
+  (list :tabs "	") "The indentation type with the indent character.")
+(defvar projectable-reformat-string
+  "	" "The level of indentation to be used.")
 
 (defvar projectable-test-path
   nil "The root of test files for the project.")
@@ -125,19 +130,19 @@ By default it looks in your Documents folder"
 
 ;;; Function Definitions
 (defun projectable-change (arg)
-	"Change project path to ARG and refresh the cache."
-	(interactive (progn
-								 (when projectable-use-vertical-flx
-									 (projectable-enable-vertical))
-								 (list (ido-read-file-name "Enter path to Project file: "
-																					 projectable-project-directory))))
-	(setq projectable-current-project-path arg)
-	(setq projectable-project-alist (make-hash-table :test 'equal))
-	(setq projectable-file-alist (make-hash-table :test 'equal))
-	(projectable-refresh)
-	(when projectable-use-vertical-flx
-		(projectable-disable-vertical))
-	(projectable-message (format "New project is %s" arg)))
+  "Change project path to ARG and refresh the cache."
+  (interactive (progn
+                 (when projectable-use-vertical-flx
+                   (projectable-enable-vertical))
+                 (list (ido-read-file-name "Enter path to Project file: "
+                                           projectable-project-directory))))
+  (setq projectable-current-project-path arg)
+  (setq projectable-project-alist (make-hash-table :test 'equal))
+  (setq projectable-file-alist (make-hash-table :test 'equal))
+  (projectable-refresh)
+  (when projectable-use-vertical-flx
+    (projectable-disable-vertical))
+  (projectable-message (format "New project is %s" arg)))
 
 (defun projectable-refresh ()
   "Parse a json project file to create a cache for that project.
@@ -152,129 +157,132 @@ this directory to the file cache"
                               projectable-current-project-path)))
 
         ;; Json file so load from json
-				(projectable-load-from-json)
-        ;; A directory so load form directory
-			(progn
-				(projectable-message
-				 (format "%s is not a file - Interpreting as directory"
-								 projectable-current-project-path))
-				(projectable-load-from-path)))))
+        (projectable-load-from-json)
+      ;; A directory so load form directory
+      (progn
+        (projectable-message
+         (format "%s is not a file - Interpreting as directory" projectable-current-project-path))
+        (projectable-load-from-path)))))
 
 (defun projectable-load-from-json ()
-	"Set the project based on a path.
+  "Set the project based on a path.
 This will just cache all of the files contained in that directory."
   (let* ((json-object-type 'hash-table)
          (json-contents
           (shell-command-to-string (concat "cat " projectable-current-project-path)))
          (json-hash (json-read-from-string json-contents))
-				 (gitignore-filter-regexp (list)))
+         (gitignore-filter-regexp (list)))
 
-		(setq projectable-project-hash json-hash)
-		
+    (setq projectable-project-hash json-hash)
+    
     ;; Set project ID
     (let ((id (gethash "projectId" json-hash)))
-			(setq projectable-id id)
-			(projectable-message (format "Project ID: [%s]" id)))
-		
-		;; Set up the gitignore properties
-		(let ((project-list (gethash "project" json-hash)))
-				(mapc (lambda (x)
-								(let ((location (find-file-upwards ".gitignore" (concat (gethash "dir" x) "/"))))
-									(when location
-										(setq gitignore-filter-regexp
-													(-distinct
-													 (append gitignore-filter-regexp (projectable-get-gitignore-filter location)))))))
-							project-list))
+      (setq projectable-id id)
+      (projectable-message (format "Project ID: [%s]" id)))
     
-    ;; Set the tabs/spaces indent type
-    (when (gethash "tabs" json-hash)
-      (projectable-set-indent-type (eq :json-false (gethash "tabs" json-hash))))
-
+    ;; Set up the gitignore properties
+    (let ((project-list (gethash "project" json-hash)))
+      (mapc (lambda (x)
+              (let ((location (find-file-upwards ".gitignore" (concat (gethash "dir" x) "/"))))
+                (when location
+                  (setq gitignore-filter-regexp
+                        (-distinct
+                         (append gitignore-filter-regexp (projectable-get-gitignore-filter location)))))))
+            project-list))
+    
     ;; Set the indent level
     (when (gethash "indent" json-hash)
       (projectable-set-indent-level (gethash "indent" json-hash)))
 
+    ;; Set the tabs/spaces indent type
+    (when (gethash "tabs" json-hash)
+      (projectable-set-indent-type (eq :json-false (gethash "tabs" json-hash))))
+
     (when (gethash "testing" json-hash)
       (let ((test-hash (gethash "testing" json-hash)))
-				(when (gethash "sourcePath" test-hash)
+        (when (gethash "sourcePath" test-hash)
           (setq projectable-src-path (gethash "sourcePath" test-hash)))
         (setq projectable-test-path (gethash "path" test-hash))
         (setq projectable-test-extension (gethash "extension" test-hash))))
 
     (projectable-set-project-alist gitignore-filter-regexp)
     (setq projectable-file-alist (cdr (assoc projectable-id projectable-project-alist))))
-	t)
+  t)
 
 (defun projectable-load-from-path ()
-	"Load a project from a given directory."
-	;; Remove trailing slash on directory variable if it exists
-	(setq projectable-current-project-path
-				(with-temp-buffer
-					(insert projectable-current-project-path)
-					(goto-char (point-min))
-					(while (re-search-forward "/$" nil t)
-						(replace-match ""))
-					(buffer-string)))
-	
-	;; Set project ID
-	 (let ((id (file-name-base projectable-current-project-path)))
-		 (setq projectable-id id)
-		 (projectable-message (format "Project ID: [%s]" id)))
-	 
-	 (let ((gitignore-filter-regexps (projectable-get-gitignore-filter
-																		(find-file-upwards ".gitignore" (concat projectable-current-project-path "/") ))))
-		 (projectable-set-project-alist gitignore-filter-regexps))
-	 (setq projectable-file-alist projectable-project-alist)
-	 t)
+  "Load a project from a given directory."
+  ;; Remove trailing slash on directory variable if it exists
+  (setq projectable-current-project-path
+        (with-temp-buffer
+          (insert projectable-current-project-path)
+          (goto-char (point-min))
+          (while (re-search-forward "/$" nil t)
+            (replace-match ""))
+          (buffer-string)))
+  
+  ;; Set project ID
+  (let ((id (file-name-base projectable-current-project-path)))
+    (setq projectable-id id)
+    (projectable-message (format "Project ID: [%s]" id)))
+  
+  (let ((gitignore-filter-regexps (projectable-get-gitignore-filter
+                                   (find-file-upwards ".gitignore" (concat projectable-current-project-path "/") ))))
+    (projectable-set-project-alist gitignore-filter-regexps))
+  (setq projectable-file-alist projectable-project-alist)
+  t)
 
 (defun projectable-set-project-alist (&optional gitignore-filter-regexps)
-	"Set `projectable-project-alist` by usings `projectable-alist-cmd`.
+  "Set `projectable-project-alist` by usings `projectable-alist-cmd`.
 
 Can be passed a list GITIGNORE-FILTER-REGEXPS of regexps to append to
 the filter string set in the customisations."
   (let* ((json-object-type 'alist) (json-array-type 'list) (json-key-type 'string)
-				 (cmd (concat
-						 projectable-alist-cmd
-						 " "
-						 (expand-file-name projectable-current-project-path)
-						 " \""
-						 (mapconcat 'identity (append projectable-filter-regexps gitignore-filter-regexps) ",")
-						 " \"")))
+         (cmd (concat
+               projectable-alist-cmd
+               " "
+               (expand-file-name projectable-current-project-path)
+               " \""
+               (mapconcat 'identity (append projectable-filter-regexps gitignore-filter-regexps) ",")
+               " \"")))
     (setq projectable-project-alist
-					(json-read-from-string
-					 (shell-command-to-string cmd)))
-		t))
+          (json-read-from-string
+           (shell-command-to-string cmd)))
+    t))
 
 (defun projectable-get-gitignore-filter (dir)
-	"Produce regexps filters by based on a .gitignore files found in DIR."
-	(with-temp-buffer
-		(insert-file-contents dir)
-		(goto-char (point-min))
-		(flush-lines "^[#]")
-		(flush-lines "^$")
-		(while (search-forward "*" nil t)
-			(replace-match ""))
-		(goto-char (point-min))
-		(while (search-forward "." nil t)
-			(replace-match "\\." nil t))
-		(split-string (buffer-string) "\n" t)))
+  "Produce regexps filters by based on a .gitignore files found in DIR."
+  (with-temp-buffer
+    (insert-file-contents dir)
+    (goto-char (point-min))
+    (flush-lines "^[#]")
+    (flush-lines "^$")
+    (while (search-forward "*" nil t)
+      (replace-match ""))
+    (goto-char (point-min))
+    (while (search-forward "." nil t)
+      (replace-match "\\." nil t))
+    (split-string (buffer-string) "\n" t)))
 
 (defun projectable-set-indent-type (bool)
   "Set the indent type based on BOOL.
-t => tabs nil => spaces"
+t => spaces nil => tabs"
   (if bool
       (progn
         (projectable-message (format "Using spaces for project [%s]" projectable-id))
+        (setq projectable-indent-type (list :spaces (projectable-build-space-string)))
+        (setq projectable-reformat-string "	")
         (setq-default indent-tabs-mode nil))
     (progn
       (projectable-message (format "Using tabs for project [%s]" projectable-id))
+      (setq projectable-indent-type (list :tabs "	"))
+      (setq projectable-reformat-string (projectable-build-space-string))
       (setq-default indent-tabs-mode t)))
   t)
 
 (defun projectable-set-indent-level (level)
   "Set the indent level based on LEVEL."
   (when (require 'js2-mode nil 'noerror)
-		(projectable-message "JS2 mode found")
+    (projectable-message "JS2 mode found")
     (setq-default js2-basic-offset level))
   
   (when (require 'web-mode nil 'noerror)
@@ -287,27 +295,28 @@ t => tabs nil => spaces"
   (setq-default css-indent-offset level)
   (setq-default js-basic-offset level)
   (setq-default basic-offset level)
-	(projectable-message (format "Setting indent level to %s" level))
+  (setq tab-width level)
+  (projectable-message (format "Setting indent level to %s" level))
   t)
 
 ;; Utility functions
 (defun projectable-message (string)
-	"Prints debug message STRING for the package."
-	(when projectable-verbose
-		(message (format "[projectable] %s" string))))
+  "Prints debug message STRING for the package."
+  (when projectable-verbose
+    (message (format "[projectable] %s" string))))
 
 (defun projectable-enable-vertical ()
-	"Enable vertical selection with flx matching."
-	(setq flx-ido-use-faces t)
-	(setq ido-use-faces nil)
-	(flx-ido-mode 1)
+  "Enable vertical selection with flx matching."
+  (setq flx-ido-use-faces t)
+  (setq ido-use-faces nil)
+  (flx-ido-mode 1)
   (ido-vertical-mode 1))
 
 (defun projectable-disable-vertical ()
-	"Disable vertical selection and flx matching."
-	(setq flx-ido-use-faces nil)
-	(setq ido-use-faces t)
-	(flx-ido-mode 0)
+  "Disable vertical selection and flx matching."
+  (setq flx-ido-use-faces nil)
+  (setq ido-use-faces t)
+  (flx-ido-mode 0)
   (ido-vertical-mode 0))
 
 (defun find-file-upwards (file-to-find &optional starting-path)
@@ -342,22 +351,26 @@ directory, select directory.  Lastly the file is opened.
 
 This code snippet is borrowed and adapted from
 http://emacswiki.org/emacs/FileNameCache"
-	(interactive (progn
-								 (when projectable-use-vertical-flx
-									 (projectable-enable-vertical))
-								 (list (ido-completing-read
-												"File: " (mapcar (lambda (x) (car x))
-																				 projectable-file-alist)))))
-	(let* ((record (assoc file projectable-file-alist)))
-		(find-file
-		 (expand-file-name
-			file
-			(if (= (length record) 2)
-					(car (cdr record))
-				(ido-completing-read
-				 (format "Find %s in dir:" file) (cdr record)))))
-		(when projectable-use-vertical-flx
-			(projectable-disable-vertical))))
+  (interactive (progn
+                 (when projectable-use-vertical-flx
+                   (projectable-enable-vertical))
+                 (list (ido-completing-read
+                        "File: " (mapcar (lambda (x) (car x))
+                                         projectable-file-alist)))))
+  (let* ((record (assoc file projectable-file-alist)))
+    (find-file
+     (expand-file-name
+      file
+      (if (= (length record) 2)
+          (car (cdr record))
+        (ido-completing-read
+         (format "Find %s in dir:" file) (cdr record)))))
+    (when projectable-use-vertical-flx
+      (projectable-disable-vertical))))
+
+
+;;; Utility Functions
+;;  A bunch of functions to help with project navigation and set up.
 
 (defun projectable-toggle-open-test ()
   "Open associated test class if it exists."
@@ -372,19 +385,23 @@ http://emacswiki.org/emacs/FileNameCache"
         (if src-path (projectable-message (format  "Guessed the source path as [%s]" src-path)))))
     
     
-		(if (and src-path (string-match test-path (file-truename (buffer-file-name))))
+    (if (and src-path (string-match test-path (file-truename (buffer-file-name))))
         ;; In a test class, go to source
-        (find-file (replace-regexp-in-string test-path src-path
-                                           (replace-regexp-in-string (format "%s\\\.%s" projectable-test-extension file-ext)
-                                                                     (format "\.%s" file-ext) (buffer-file-name))))
-		
-			(if (and src-path (string-match src-path (file-truename (buffer-file-name))))
-					;; In a source class, go to test
-					(find-file (replace-regexp-in-string src-path test-path
-																							 (replace-regexp-in-string (format "\\\.%s" file-ext)
-																																				 (format "%s\.%s" projectable-test-extension file-ext) (buffer-file-name))))
-				
-				(message (format "Could not find test file for [%s]" buffer-file-name))))))
+        (find-file (replace-regexp-in-string
+                    test-path src-path
+                    (replace-regexp-in-string
+                     (format "%s\\\.%s" projectable-test-extension file-ext)
+                     (format "\.%s" file-ext) (buffer-file-name))))
+      
+      (if (and src-path (string-match src-path (file-truename (buffer-file-name))))
+          ;; In a source class, go to test
+          (find-file (replace-regexp-in-string
+                      src-path test-path
+                      (replace-regexp-in-string
+                       (format "\\\.%s" file-ext)
+                       (format "%s\.%s" projectable-test-extension file-ext) (buffer-file-name))))
+        
+        (message (format "Could not find test file for [%s]" buffer-file-name))))))
 
 (defun projectable-guess-source-path ()
   "Guess what the source path for files is."
@@ -394,18 +411,36 @@ http://emacswiki.org/emacs/FileNameCache"
                      (when (string-match project-dir (file-truename (buffer-file-name)))
                        (setq result project-dir)))) projects)
     result))
-                    		
+
+(defun projectable-reformat-file ()
+  "Reformat tabs/spaces into correct format for current file."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (search-forward projectable-reformat-string (point-max) t)
+			(replace-match "	"))
+		(projectable-message
+		 (format "Reformatted file to use [%s]" (car projectable-indent-type)))))
+
+(defun projectable-build-space-string ()
+  "Build the indent string of spaces.
+i.e.  If indent level was 4, the indent string would be '    '."
+  (make-string projectable-indent-level ? ))
+
+;;; Projectable Mode
+;;  Set up for the projectable minor-mode.
+
 (when (and (require 'flx-ido nil t)
-					 (require 'ido-vertical-mode nil t))
-	
-	(projectable-message "Found FLX-IDO and IDO-VERTICAL")
-	(projectable-message "Adding advice to use these features")
-	
-	(defcustom projectable-use-vertical-flx t
-		"Whether to take advantange of FLX and VERTICAL features."
-		:group 'projectable
-		:type 'boolean)
-	(setq projectable-use-vertical-flx t))
+           (require 'ido-vertical-mode nil t))
+  
+  (projectable-message "Found FLX-IDO and IDO-VERTICAL")
+  (projectable-message "Adding advice to use these features")
+  
+  (defcustom projectable-use-vertical-flx t
+    "Whether to take advantange of FLX and VERTICAL features."
+    :group 'projectable
+    :type 'boolean)
+  (setq projectable-use-vertical-flx t))
 
 (defvar projectable-command-map
   (let ((map (make-sparse-keymap)))
@@ -435,14 +470,14 @@ nil or positive.  If ARG is `toggle', toggle `projectable-mode'.
 Otherwise behave as if called interactively.
 
 \\{projectile-mode-map}"
-	:lighter (format "[P>%s]" (upcase projectable-id))
+  :lighter (format "[P>%s]" (upcase projectable-id))
   :keymap projectable-mode-map
   :group 'projectable
   :require 'projectable)
 
 (define-globalized-minor-mode projectable-global-mode
   projectable-mode
-	projectable-mode)
+  projectable-mode)
 
 (provide 'projectable)
 ;;; projectable.el ends here
