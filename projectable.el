@@ -202,7 +202,7 @@ This will just cache all of the files contained in that directory."
 
     ;; Set the tabs/spaces indent type
     (when (gethash "tabs" json-hash)
-      (projectable-set-indent-type (eq :json-false (gethash "tabs" json-hash))))
+      (projectable-set-indent-object (eq :json-false (gethash "tabs" json-hash))))
 
     (when (gethash "testing" json-hash)
       (let ((test-hash (gethash "testing" json-hash)))
@@ -269,21 +269,19 @@ the filter string set in the customisations."
       (replace-match "\\." nil t))
     (split-string (buffer-string) "\n" t)))
 
-(defun projectable-set-indent-type (bool)
+(defun projectable-set-indent-object (bool)
   "Set the indent type based on BOOL.
 t => spaces nil => tabs"
   (if bool
       (progn
         (projectable-message (format "Using spaces for project [%s]" projectable-id))
-        (setq projectable-indent-type (list :spaces (projectable-build-space-string)))
-        (setq projectable-reformat-string "	")
+        (setq projectable-indent-object (list :spaces (projectable-build-space-string) "	"))
         (setq-default indent-tabs-mode nil))
     (progn
       (projectable-message (format "Using tabs for project [%s]" projectable-id))
-      (setq projectable-indent-type (list :tabs "	"))
-      (setq projectable-reformat-string (projectable-build-space-string))
+      (setq projectable-indent-object (list :tabs "	" (projectable-build-space-string)))
       (setq-default indent-tabs-mode t)))
-  t)
+   t)
 
 (defun projectable-set-indent-level (level)
   "Set the indent level based on LEVEL."
