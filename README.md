@@ -63,7 +63,6 @@ I'm trying to get this project in a nicer state for my own purposes, future feat
     - [x] opening
     - [ ] running
 - [ ] Hosting on [Melpa](http://melpa.org/#/)
-- [ ] Ability to define projects as elisp objects _e.g._ `(:project "My Project" :dirs '("path/one" "path/two") ...)`
 - [ ] Etags/Ctags integration
 
 
