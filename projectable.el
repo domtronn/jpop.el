@@ -122,10 +122,8 @@ reformat that file to use the projects format settings."
 
 (defvar projectable-indent-level
   2 "The level of indentation to be used.")
-(defvar projectable-indent-type
-  (list :tabs "	") "The indentation type with the indent character.")
-(defvar projectable-reformat-string
-  "	" "The level of indentation to be used.")
+(defvar projectable-indent-object
+  (list :tabs "	" "") "Definiton of indentation type with the indent character.")
 
 (defvar projectable-test-path
   nil "The root of test files for the project.")
