@@ -41,6 +41,31 @@
   :group 'tools
   :group 'convenience)
 
+(defcustom projectable-project-directory (expand-file-name "~/Documents/Projects")
+  "The directory where project.json files are kept.
+
+By default it looks in your Documents folder"
+  :group 'projectable
+  :type 'string)
+
+(defcustom projectable-keymap-prefix (kbd "C-c p")
+  "Projectable keymap prefix."
+  :group 'projectable
+  :type 'key-sequence)
+
+(defcustom projectable-use-gitignore t
+  "Whether to use gitignore for your regexp filters."
+  :group 'projectable
+  :type 'boolean)
+
+(defcustom projectable-constrain-reformat t
+  "Whether to constraint `projectable-reformat-file` to project files.
+
+If nil, you can call `projectable-reformat-file` on any file which will
+reformat that file to use the projects format settings."
+  :group 'projectable
+  :type 'boolean)
+
 ;;; Customisation Option Definitions
 (defcustom projectable-alist-cmd (concat projectable-dir "create-file-alist.py")
   "Specify the command that to produce an associative list.
@@ -80,30 +105,13 @@ Mainly for debugging of the package."
   :group 'projectable
   :type '(repeat regexp))
 
-(defcustom projectable-project-directory (expand-file-name "~/Documents/Projects")
-  "The directory where project.json files are kept.
-
-By default it looks in your Documents folder"
-  :group 'projectable
-  :type 'string)
-
-(defcustom projectable-keymap-prefix (kbd "C-c p")
-  "Projectable keymap prefix."
-  :group 'projectable
-  :type 'string)
-
-(defcustom projectable-use-gitignore t
-  "Whether to use gitignore for your regexp filters."
+(defcustom projectable-verbose nil
+  "Toggle verbose printing.
+Mainly for debugging of the package."
   :group 'projectable
   :type 'boolean)
 
-(defcustom projectable-constrain-reformat t
-  "Whether to constraint `projectable-reformat-file` to project files.
 
-If nil, you can call `projectable-reformat-file` on any file which will
-reformat that file to use the projects format settings."
-  :group 'projectable
-  :type 'boolean)
 
 ;;; Variable Definitions
 (defvar projectable-current-project-path nil)
