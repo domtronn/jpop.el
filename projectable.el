@@ -420,12 +420,17 @@ http://emacswiki.org/emacs/FileNameCache"
 (defun projectable-reformat-file ()
   "Reformat tabs/spaces into correct format for current file."
   (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (while (search-forward projectable-reformat-string (point-max) t)
-			(replace-match "	"))
-		(projectable-message
-		 (format "Reformatted file to use [%s]" (car projectable-indent-type)) t)))
+  (if (or (projectable-project-contains (file-name-nondirectory (buffer-file-name)))
+          (not  projectable-constrain-reformat))
+      (save-excursion
+        (indent-region (point-min) (point-max))
+        (goto-char (point-min))
+        (while (search-forward (caddr projectable-indent-object) (point-max) t)
+          (replace-match (cadr projectable-indent-object)))
+        (projectable-message
+         (format "Reformatted file to use [%s]" (car projectable-indent-object)) t))
+    (projectable-message
+     (format "Reformat aborted - Project does not contain [%s]" (file-name-nondirectory (buffer-file-name))) t)))
 
 (defun projectable-build-space-string ()
   "Build the indent string of spaces.
