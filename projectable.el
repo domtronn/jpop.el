@@ -30,22 +30,6 @@
 
 ;;; Code:
 
-;; (defclass dir ()
-;; ((dir :initarg :dir
-;;         :documentation "The base path of the directory")
-;;    (tags :initarg :create-tags
-;;          :documentation "Whether to create tags from them")))
-
-;; (defclass project ()
-;;   ((id
-;;     :initarg :id
-;;     :documentation "The ID of the project")
-;;    (project
-;;     :initarg :project
-;;     :documentation "A List of projects to include")
-;;    )
-;;   "A definition of a project")
-
 (require 'json)
 (require 'ido)
 
