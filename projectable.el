@@ -420,7 +420,7 @@ http://emacswiki.org/emacs/FileNameCache"
 (defun projectable-reformat-file ()
   "Reformat tabs/spaces into correct format for current file."
   (interactive)
-  (if (or (projectable-project-contains (file-name-nondirectory (buffer-file-name)))
+  (if (or (projectable-project-contains (buffer-file-name))
           (not  projectable-constrain-reformat))
       (save-excursion
         (indent-region (point-min) (point-max))
@@ -439,8 +439,12 @@ i.e.  If indent level was 4, the indent string would be '    '."
 
 (defun projectable-project-contains (file)
   "Check to see if project alist contain FILE."
-  (let ((result nil))
-    (mapc #'(lambda (alist) (when (assoc file (cdr alist)) (setq result t)))
+  (let* ((result nil)
+         (file-name (file-name-nondirectory file))
+         (file-dir (file-name-directory file)))
+    (mapc #'(lambda (alist)
+              (when (and (assoc file-name (cdr alist)) (member file-dir (cdr (assoc file-name (cdr alist)))))
+                (setq result t)))
           projectable-project-alist) result))
 
 (defun projectable-visit-project-file ()
