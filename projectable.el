@@ -105,6 +105,14 @@ By default it looks in your Documents folder"
   :group 'projectable
   :type 'boolean)
 
+(defcustom projectable-constrain-reformat t
+  "Whether to constraint `projectable-reformat-file` to project files.
+
+If nil, you can call `projectable-reformat-file` on any file which will
+reformat that file to use the projects format settings."
+  :group 'projectable
+  :type 'boolean)
+
 ;;; Variable Definitions
 (defvar projectable-current-project-path nil)
 (defvar projectable-project-alist nil)
