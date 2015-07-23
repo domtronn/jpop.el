@@ -4,7 +4,7 @@
 
 ;; Author: Dominic Charlesworth <dgc336@gmail.com>
 ;; URL: https://github.com/domtronn/projectable
-;; Version: 0.0.2
+;; Version: 1.0.0
 ;; Keywords: project, convenience
 
 ;; This program is free software; you can redistribute it and/or
@@ -464,7 +464,6 @@ http://emacswiki.org/emacs/FileNameCache"
         (setq test-path (format "%s/%s" src-path projectable-test-path))
         (if src-path (projectable-message (format  "Guessed the source path as [%s]" src-path)))))
     
-    
     (if (and src-path (string-match test-path (file-truename (buffer-file-name))))
         ;; In a test class, go to source
         (find-file (replace-regexp-in-string
@@ -481,12 +480,12 @@ http://emacswiki.org/emacs/FileNameCache"
                        (format "\\\.%s" file-ext)
                        (format "%s\.%s" projectable-test-extension file-ext) (buffer-file-name))))
         
-        (message (format "Could not find test file for [%s]" buffer-file-name))))))
+        (projectable-message (format "Could not find test file for [%s]" buffer-file-name) t)))))
 
 (defun projectable-guess-source-path ()
   "Guess what the source path for files is."
   (let ((result nil)
-        (projects (gethash "project" projectable-project-hash)))
+        (projects (gethash "dirs" projectable-project-hash)))
     (mapc #'(lambda (p) (let ((project-dir (expand-file-name (gethash "dir" p))))
                      (when (string-match project-dir (file-truename (buffer-file-name)))
                        (setq result project-dir)))) projects)
