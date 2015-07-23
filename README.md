@@ -53,6 +53,8 @@ Key Binding | Command | Effect
 `C-c p r` | `projectable-refresh` | Refresh the list of files cached 
 `C-c p f` | `projectable-ido-find-file` | Open a file from the cache 
 `C-c p t` | `projectable-toggle-open-test` | Try and find the related test to the current class
+`C-c p l` | `projectable-reformat-file` | Reformat the current file to use appropiate indentation
+`C-c p p` | `projectable-visit-project-file` | Open the current project file for editing
 
 # Planned Features #
 I'm trying to get this project in a nicer state for my own purposes, future features will include

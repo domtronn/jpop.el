@@ -142,7 +142,7 @@ By default it looks in your Documents folder"
   (projectable-refresh)
   (when projectable-use-vertical-flx
     (projectable-disable-vertical))
-  (projectable-message (format "New project is %s" arg)))
+  (projectable-message (format "New project is %s" arg) t))
 
 (defun projectable-refresh ()
   "Parse a json project file to create a cache for that project.
@@ -151,11 +151,7 @@ If the supplied file is not a file but a directory, it just adds
 this directory to the file cache"
   (interactive)
   (when projectable-current-project-path
-    (if (string-equal "0\n" (shell-command-to-string
-                             (format
-                              "if [ -d %s ]; then echo 1; else echo 0; fi"
-                              projectable-current-project-path)))
-
+    (if (projectable-is-file projectable-current-project-path)
         ;; Json file so load from json
         (projectable-load-from-json)
       ;; A directory so load form directory
@@ -163,6 +159,10 @@ this directory to the file cache"
         (projectable-message
          (format "%s is not a file - Interpreting as directory" projectable-current-project-path))
         (projectable-load-from-path)))))
+
+(defun projectable-is-file (dir)
+  "Check whether DIR is a directory using shell."
+	(string-equal "0\n" (shell-command-to-string (format "if [ -d %s ]; then echo 1; else echo 0; fi" dir))))
 
 (defun projectable-load-from-json ()
   "Set the project based on a path.
@@ -300,9 +300,10 @@ t => spaces nil => tabs"
   t)
 
 ;; Utility functions
-(defun projectable-message (string)
-  "Prints debug message STRING for the package."
-  (when projectable-verbose
+(defun projectable-message (string &optional override)
+  "Prints debug message STRING for the package.
+If called with boolean OVERRIDE, this will override the verbose setting."
+  (when (or projectable-verbose override)
     (message (format "[projectable] %s" string))))
 
 (defun projectable-enable-vertical ()
@@ -420,12 +421,21 @@ http://emacswiki.org/emacs/FileNameCache"
     (while (search-forward projectable-reformat-string (point-max) t)
 			(replace-match "	"))
 		(projectable-message
-		 (format "Reformatted file to use [%s]" (car projectable-indent-type)))))
+		 (format "Reformatted file to use [%s]" (car projectable-indent-type)) t)))
 
 (defun projectable-build-space-string ()
   "Build the indent string of spaces.
 i.e.  If indent level was 4, the indent string would be '    '."
   (make-string projectable-indent-level ? ))
+
+(defun projectable-visit-project-file ()
+	"Open the project file currently being used."
+  (interactive)
+	(when projectable-current-project-path
+		(if (projectable-is-file projectable-current-project-path)
+				(find-file projectable-current-project-path)
+			(projectable-message
+			 (format "Current project is an anonymous path, not a project file [%s]" projectable-current-project-path) t))))
 
 ;;; Projectable Mode
 ;;  Set up for the projectable minor-mode.
@@ -448,6 +458,8 @@ i.e.  If indent level was 4, the indent string would be '    '."
     (define-key map (kbd "r") #'projectable-refresh)
     (define-key map (kbd "f") #'projectable-ido-find-file)
     (define-key map (kbd "t") #'projectable-toggle-open-test)
+		(define-key map (kbd "l") #'projectable-reformat-file)
+		(define-key map (kbd "p") #'projectable-visit-project-file)
     map)
   "Keymap for Projectable commands after `projectable-keymap-prefix'.")
 (fset 'projectable-command-map projectable-command-map)
