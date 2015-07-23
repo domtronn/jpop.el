@@ -437,6 +437,12 @@ http://emacswiki.org/emacs/FileNameCache"
 i.e.  If indent level was 4, the indent string would be '    '."
   (make-string projectable-indent-level ? ))
 
+(defun projectable-project-contains (file)
+  "Check to see if project alist contain FILE."
+  (let ((result nil))
+    (mapc #'(lambda (alist) (when (assoc file (cdr alist)) (setq result t)))
+          projectable-project-alist) result))
+
 (defun projectable-visit-project-file ()
 	"Open the project file currently being used."
   (interactive)
