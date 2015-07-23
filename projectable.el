@@ -71,6 +71,14 @@ By default, it uses the python script provided with this package."
   :type 'string
   )
 
+(defcustom projectable-tags-file ".tags"
+  "The name of the tags file to create.")
+(defcustom projectable-ctags-cmd-format
+  (format "ctags -f %s/%s -e" "%s" projectable-tags-file)
+  "Specify the ctags command to pipe a list of files into.
+
+-e is required to create an Emacs style tags file.")
+
 (defcustom projectable-verbose nil
   "Toggle verbose printing.
 Mainly for debugging of the package."
