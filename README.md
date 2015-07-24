@@ -64,6 +64,30 @@ Key Binding | Command | Effect
 
 It is well worth looking through `customize-grou RET projectable` to see what you can customise.
 
+# Ctags and JavaScript #
+
+Version 5.8 of Ctags doesn't really parse javascript correctly, and won't work properly, so to fix this, you can add a `.ctags` file in your home directory and add the following matchers
+```
+--tag-relative=yes
+--exclude=.git,.svn
+
+--langdef=js
+--langmap=js:.js
+--regex-js=/([A-Za-z0-9._$]+)[ \t]*[:=][ \t]*\{/\1/,object/
+--regex-js=/([A-Za-z0-9._$()]+)[ \t]*[:=][ \t]*function[ \t]*\(/\1/,function/
+--regex-js=/function[ \t]+([A-Za-z0-9._$]+)[ \t]*\(([^)])\)/\1/,function/
+--regex-js=/([A-Za-z0-9._$]+)[ \t]*[:=][ \t]*\[/\1/,array/
+--regex-js=/([^= ]+)[ \t]*=[ \t]*[^"]'[^']*/\1/,string/
+--regex-js=/([^= ]+)[ \t]*=[ \t]*[^']"[^"]*/\1/,string/
+
+--langdef=coffee
+--langmap=coffee:.coffee
+--regex-coffee=/^[ \t]*([A-Za-z.]+)[ \t]+=.*->.*$/\1/f,function/
+--regex-coffee=/^[ \t]*([A-Za-z.]+)[ \t]+=[^->\n]*$/\1/v,variable/
+--regex-coffee=/^[ \t]*((class ){1}[A-Za-z.]+)[ \t]+=[^->\n]*$/\1/v,object/
+```
+Which will allow for proper JavaScript tags creation. You can also copy `.ctags` from this project into your `HOME` directory.
+
 # Planned Features #
 I'm trying to get this project in a nicer state for my own purposes, future features will include
 - [x] `.gitignore` integration for filtering
