@@ -22,8 +22,10 @@
 
 ;;; Commentary:
 
-;; This package works on creating an associative list of files
-;; based on project keys
+;; This package creates an associative list of files
+;; based on project keys for easier navigation.
+
+;; Packages are defined by json files which can be loaded in.
 
 ;; This is perhaps not the best data strucutre for projects but
 ;; works well for require.js with name setups
