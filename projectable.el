@@ -261,8 +261,10 @@ This will just cache all of the files contained in that directory."
 											(projectable-message (format "Creating tags for [%s]" dir))
 											(projectable-create-tags-in-directory dir)
 											(when projectable-auto-visit-tags
-												(setq tags-table-list (append tags-table-list
-																											(list (format "%s%s" (file-truename dir) projectable-tags-file)))))))
+												(let ((tags-file (format "%s%s" (file-truename dir) projectable-tags-file)))
+													(when (not (member tags-file tags-table-list))
+														(setq tags-table-list (append tags-table-list (list tags-file)))))
+												)))
 									) hash)) hash-list))
 
 (defun projectable-create-tags-in-directory (dir)
