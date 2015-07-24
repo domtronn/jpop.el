@@ -66,7 +66,9 @@ It is well worth looking through `customize-grou RET projectable` to see what yo
 
 # Ctags and JavaScript #
 
-Version 5.8 of Ctags doesn't really parse javascript correctly, and won't work properly, so to fix this, you can add a `.ctags` file in your home directory and add the following matchers
+Version 5.8 of Ctags doesn't really parse javascript correctly, and won't work properly with things like `etags-select`.
+
+To fix this, you can add a `.ctags` file in your `HOME` directory and add the following matchers
 ```
 --tag-relative=yes
 --exclude=.git,.svn
