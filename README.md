@@ -87,6 +87,7 @@ Version 5.8 of Ctags doesn't really parse javascript correctly, and won't work p
 --regex-coffee=/^[ \t]*((class ){1}[A-Za-z.]+)[ \t]+=[^->\n]*$/\1/v,object/
 ```
 Which will allow for proper JavaScript tags creation. You can also copy `.ctags` from this project into your `HOME` directory.
+These were provided by [@jackcviers's gist](https://gist.github.com/jackcviers/2128247). Please :star: it if you found it useful!
 
 # Planned Features #
 I'm trying to get this project in a nicer state for my own purposes, future features will include
