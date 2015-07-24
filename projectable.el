@@ -1,10 +1,11 @@
-;;; emacs --- Lightweight project cacheing and navigation framework -*- lexical-binding: t -*-
+;;; projectable.el --- Lightweight project cacheing and navigation framework -*- lexical-binding: t -*-
 
 ;; Copyright © 2015  Dominic Charlesworth <dgc336@gmail.com>
 
 ;; Author: Dominic Charlesworth <dgc336@gmail.com>
 ;; URL: https://github.com/domtronn/projectable
 ;; Version: 1.0.0
+;; Package-Version: 20150724-1604
 ;; Keywords: project, convenience
 ;; Package-Requires: ((dash "2.11.0"))
 
