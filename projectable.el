@@ -38,6 +38,7 @@
 
 (require 'json)
 (require 'ido)
+(require 'dash)
 
 (defconst projectable-dir (file-name-directory load-file-name))
 
