@@ -314,7 +314,7 @@ This will just cache all of the files contained in that directory."
           (buffer-string)))
   
   ;; Set project ID
-  (let ((id (file-name-base projectable-current-project-path)))
+  (let ((id (file-name-nondirectory projectable-current-project-path)))
     (setq projectable-id id)
     (projectable-message (format "Project ID: [%s]" id)))
   
@@ -551,8 +551,8 @@ i.e.  If indent level was 4, the indent string would be '    '."
 ;;; Projectable Mode
 ;;  Set up for the projectable minor-mode.
 
-(when (and (require 'flx-ido nil t)
-           (require 'ido-vertical-mode nil t))
+(when (and (require 'flx-ido nil 'noerror)
+           (require 'ido-vertical-mode nil 'noerror))
   
   (projectable-message "Found FLX-IDO and IDO-VERTICAL")
   (projectable-message "Adding advice to use these features")
