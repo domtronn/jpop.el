@@ -188,6 +188,9 @@ Mainly for debugging of the package."
                                            projectable-project-directory))))
 	(setq tags-table-list nil)
   (setq projectable-current-project-path arg)
+  (setq projectable-src-path nil)
+  (setq projectable-test-path nil)
+  (setq projectable-test-extension nil)
   (setq projectable-project-alist (make-hash-table :test 'equal))
   (setq projectable-file-alist (make-hash-table :test 'equal))
 
@@ -464,6 +467,8 @@ http://emacswiki.org/emacs/FileNameCache"
 (defun projectable-toggle-open-test ()
   "Open associated test class if it exists."
   (interactive)
+  (unless (and projectable-test-path projectable-test-extension)
+    (error "[projectable] You do not have a testing path or extension set, try updating %s.json (C-c p p)" projectable-id))
   (let ((file-ext (file-name-extension (buffer-file-name)))
         (src-path projectable-src-path)
         (test-path projectable-test-path))
