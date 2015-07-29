@@ -186,8 +186,10 @@ Mainly for debugging of the package."
                    (projectable-enable-vertical))
                  (list (ido-read-file-name "Enter path to Project file: "
                                            projectable-project-directory))))
-	(setq tags-table-list nil)
+  ;; Set the current project path to new directory
   (setq projectable-current-project-path arg)
+  ;; Reset project specific variables
+	(setq tags-table-list nil)
   (setq projectable-src-path nil)
   (setq projectable-test-path nil)
   (setq projectable-test-extension nil)
