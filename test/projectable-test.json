@@ -1,0 +1,6 @@
+{
+	"id":"projectable",
+	"dirs":[
+		{ "dir":"projectable-directory" }
+	]
+}
