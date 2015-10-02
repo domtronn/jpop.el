@@ -49,9 +49,9 @@
   :group 'convenience)
 
 (defcustom projectable-project-directory (expand-file-name "~/Documents/Projects")
-  "The directory where project.json files are kept.
+  "The directory where project json files are kept.
 
-By default it looks in your Documents folder"
+By default it looks in the ~/Documents/Projects folder"
   :group 'projectable
   :type 'string)
 
