@@ -87,63 +87,78 @@ By default, it uses the python script provided with this package."
   :type 'string)
 
 (defvar projectable-find-cmd-format
-	"find %s -type f | grep -E \"%s\" | grep -vE \"%s\" | xargs %s"
-	"Command format of find command used to pass to tags cmd.
+  "find %s -type f | grep -E \"%s\" | grep -vE \"%s\" | xargs %s"
+  "Command format of find command used to pass to tags cmd.
 
 The formats should be replaced, in order, by
 - directory
 - string of regexp language extensions e.g.  \\.cpp
   see `projectable-ctags-supported-languages`
-	and `projectable-get-ctags-supported-languages`
+  and `projectable-get-ctags-supported-languages`
 - string of regexp filters
   see `projectable-filter-regexps`
   and `projectable-get-filter-regexps`")
 
 (defcustom projectable-auto-visit-tags t
-	"Whether to visit the tags file upon creation of a tags file."
-	:group 'projectable
-	:type 'boolean)
+  "Whether to visit the tags file upon creation of a tags file."
+  :group 'projectable
+  :type 'boolean)
 (defcustom projectable-tags-file ".tags"
   "The name of the tags file to create."
-	:group 'projectable
-	:type 'string)
+  :group 'projectable
+  :type 'string)
 (defcustom projectable-ctags-cmd-format
   (format "ctags -f %s/%s -e" "%s" projectable-tags-file)
   "Specify the ctags command to pipe a list of files into.
 
 -e is required to create an Emacs style tags file."
-	:group 'projectable
-	:type 'string)
+  :group 'projectable
+  :type 'string)
 (defcustom projectable-ctags-supported-languages
-	'((asp . ("\\.asp$"))
-		(c .  ("\\.c$"))
-		(c++ . ("\\.cpp$" "\\.cc$" "\\.c\\+\\+"))
-		(cs . ("\\.cs$"))
-		(cobol . ("\\.cbl$" "\\.cob$" "\\.cpy$"))
-		(erlang . ("\\.erl$" "\\.hrl$"))
-		(fortran . ("\\.f$" "\\.for$" "\\.f90" "\\.f95"))
-		(html . ("\\.html$" "\\.htm$"))
-		(java . ("\\.java$" "\\.class$"))
-		(javascript .  ("\\.js$"))
-		(lisp . ("\\.lisp$" "\\.lsp$" "\\.l$" "\\.cl$"))
-		(lua .  ("\\.lua$"))
-		(matlab . ("\\.m$"))
-		(perl . ("\\.pl$" "\\.pm$"))
-		(php . ("\\.php$" "\\.php[3-5]$" "\\.phps$"))
-		(python . ("\\.py$" "\\.pyc$" "\\.pyd$" "\\.pyo$" "\\.pyw$"))
-		(ruby . ("\\.rb$"))
-		(coffeescript . ("\\.coffee$")))
-	"Select the languages you want to create ctags from."
-	:group 'projectable
-	:type '(alist :key-type symbol :value-type
-								(repeat :tag "Regexp Extensions" regexp)))
+  '((asp . ("\\.asp$"))
+    (c .  ("\\.c$"))
+    (c++ . ("\\.cpp$" "\\.cc$" "\\.c\\+\\+"))
+    (cs . ("\\.cs$"))
+    (cobol . ("\\.cbl$" "\\.cob$" "\\.cpy$"))
+    (erlang . ("\\.erl$" "\\.hrl$"))
+    (fortran . ("\\.f$" "\\.for$" "\\.f90" "\\.f95"))
+    (html . ("\\.html$" "\\.htm$"))
+    (java . ("\\.java$" "\\.class$"))
+    (javascript .  ("\\.js$"))
+    (lisp . ("\\.lisp$" "\\.lsp$" "\\.l$" "\\.cl$"))
+    (lua .  ("\\.lua$"))
+    (matlab . ("\\.m$"))
+    (perl . ("\\.pl$" "\\.pm$"))
+    (php . ("\\.php$" "\\.php[3-5]$" "\\.phps$"))
+    (python . ("\\.py$" "\\.pyc$" "\\.pyd$" "\\.pyo$" "\\.pyw$"))
+    (ruby . ("\\.rb$"))
+    (coffeescript . ("\\.coffee$")))
+  "Select the languages you want to create ctags from."
+  :group 'projectable
+  :type '(alist :key-type symbol :value-type
+                (repeat :tag "Regexp Extensions" regexp)))
+
+(defcustom projectable-filter-tests t
+  "Whether to filter out test files.
+
+If t then the `projectable-file-alist` will not contain test files that
+match `projectable-test-filter-regexp`, so that you only open directly
+to source files.  If nil then `projectable-file-alist` will contain all
+files."
+  :group 'projectable
+  :type 'booelan)
+(defcustom projectable-test-filter-regexps
+  (quote ("Test\\.[[:alpha:]]+$" "Spec\\.[[:alpha:]]+$"))
+  "Specify a list of regexps to filter out test files."
+  :group 'projectable
+  :type '(repeat regexp))
 
 (defcustom projectable-filter-regexps
   (quote
    ("~$" "\\.o$" "\\.exe$" "\\.a$" "/\\.svn" "\\.elc$" "\\.output$" "\\.$" "#$" "\\.class$"
-    "\\/test.*\\.js$" "\\.png$" "\\.svn*" "\\/node_modules\\/*" "\\.gif$" "\\.gem$"
-    "\\.pdf$" "\\.swp$" "\\.iml$" "\\.jar$" "\\/build\\/" "Spec\\.js$" "/\\.git"
-    "\\/script-tests\\/specs" "\\/jsdoc\\/" "\\.min\\.js$" "\\.tags$" "\\.filecache"
+    "\\.png$" "\\.svn*" "\\/node_modules\\/*" "\\.gif$" "\\.gem$"
+    "\\.pdf$" "\\.swp$" "\\.iml$" "\\.jar$" "\\/build\\/" "/\\.git"
+    "\\/jsdoc\\/" "\\.min\\.js$" "\\.tags$" "\\.filecache"
     "\\.cache$" "\\/.git\\/" "report" "\\.gcov\\.html$" "\\.func.*\\.html$"))
   "Specify a list of regexps to filter."
   :group 'projectable
@@ -162,6 +177,7 @@ Mainly for debugging of the package."
 (defvar projectable-project-alist nil)
 (defvar projectable-project-hash nil)
 (defvar projectable-file-alist nil)
+(defvar projectable-test-alist nil)
 (defvar projectable-id)
 
 (defvar projectable-indent-level
@@ -189,7 +205,7 @@ Mainly for debugging of the package."
   ;; Set the current project path to new directory
   (setq projectable-current-project-path arg)
   ;; Reset project specific variables
-	(setq tags-table-list nil)
+  (setq tags-table-list nil)
   (setq projectable-src-path nil)
   (setq projectable-test-path nil)
   (setq projectable-test-extension nil)
@@ -219,7 +235,7 @@ this directory to the file cache"
 
 (defun projectable-is-file (dir)
   "Check whether DIR is a directory using shell."
-	(string-equal "0\n" (shell-command-to-string (format "if [ -d %s ]; then echo 1; else echo 0; fi" dir))))
+  (string-equal "0\n" (shell-command-to-string (format "if [ -d %s ]; then echo 1; else echo 0; fi" dir))))
 
 (defun projectable-load-from-json ()
   "Set the project based on a path.
@@ -230,82 +246,82 @@ This will just cache all of the files contained in that directory."
          (json-hash (json-read-from-string json-contents)))
 
     (setq projectable-project-hash json-hash)
-    
+
     ;; Set project ID
     (let ((id (gethash "id" json-hash)))
       (setq projectable-id id)
       (projectable-message (format "Project ID: [%s]" id)))
-    
+
     ;; Create tags
     (projectable-create-tags
      (list (gethash "dirs" json-hash) (when (gethash "libs" json-hash) (gethash "libs" json-hash))))
-    
-		(when (gethash "style" json-hash)
-			(projectable-set-styling (gethash "style" json-hash)))
-    
+
+    (when (gethash "style" json-hash)
+      (projectable-set-styling (gethash "style" json-hash)))
+
     (when (gethash "testing" json-hash)
       (projectable-set-testing (gethash "testing" json-hash)))
-		
-		(projectable-set-project-alist
-		 (when projectable-use-gitignore (projectable-get-all-gitignore-filter (gethash "dirs" json-hash)))))
+
+    (projectable-set-project-alist
+     (when projectable-use-gitignore (projectable-get-all-gitignore-filter (gethash "dirs" json-hash)))))
   t)
 
 (defun projectable-get-all-gitignore-filter (project-list)
   "Get a distinct list of regexps to gitignore in the PROJECT-LIST files."
-	(let ((gitignore-filter-regexp (list)))
-		(mapc (lambda (x)
-						(let ((location (find-file-upwards ".gitignore" (concat (gethash "dir" x) "/"))))
-							(when location
-								(setq gitignore-filter-regexp
-											(-distinct
-											 (append gitignore-filter-regexp (projectable-get-gitignore-filter location)))))))
-					project-list)
-		gitignore-filter-regexp))
+  (let ((gitignore-filter-regexp (list)))
+    (mapc (lambda (x)
+            (let ((location (find-file-upwards ".gitignore" (concat (gethash "dir" x) "/"))))
+              (when location
+                (setq gitignore-filter-regexp
+                      (-distinct
+                       (append gitignore-filter-regexp (projectable-get-gitignore-filter location)))))))
+          project-list)
+    gitignore-filter-regexp))
 
 (defun projectable-create-tags (hash-list)
   "Create tags in the root projects based on a HASH-LIST of directories and flags."
-	(mapc (lambda (hash)
-					(mapc (lambda (elt)
-									(let* ((dir (concat (gethash "dir" elt) "/"))
-												 (create-tags-p (not (eq :json-false (gethash "create-tags" elt)))))
-										(when create-tags-p
-											
-											(projectable-message (format "Creating tags for [%s]" dir))
-											(projectable-create-tags-in-directory dir)
-											(when projectable-auto-visit-tags
-												(let ((tags-file (format "%s%s" (file-truename dir) projectable-tags-file)))
-													(when (not (member tags-file tags-table-list))
-														(setq tags-table-list (append tags-table-list (list tags-file)))))
-												)))
-									) hash)) hash-list))
+  (mapc (lambda (hash)
+          (mapc (lambda (elt)
+                  (let* ((dir (concat (gethash "dir" elt) "/"))
+                         (create-tags-p (not (eq :json-false (gethash "create-tags" elt)))))
+                    (when create-tags-p
+                      (projectable-message (format "Creating tags for [%s]" dir))
+                      (projectable-create-tags-in-directory dir)
+                      (when projectable-auto-visit-tags
+                        (let ((tags-file (format "%s%s" (file-truename dir) projectable-tags-file)))
+                          (when (not (member tags-file tags-table-list))
+                            (setq tags-table-list (append tags-table-list (list tags-file)))))
+                        )))
+                  ) hash)) hash-list))
 
 (defun projectable-create-tags-in-directory (dir)
   "Build and run the create tags command in DIR."
-	(let* ((cmd
-				 (format projectable-find-cmd-format
-								 dir
-								 (projectable-get-ctags-supported-languages)
-								 (projectable-get-filter-regexps)
-								 (format projectable-ctags-cmd-format dir)))
-				 (name (format "[projectable] Creating tags for [%s]" dir))
-				 (buffer-name (format "*create-tags[%s]*" dir)))
-		(start-process-shell-command name buffer-name cmd)))
+  (let* ((cmd
+          (format projectable-find-cmd-format
+                  dir
+                  (projectable-get-ctags-supported-languages)
+                  (projectable-get-filter-regexps)
+                  (format projectable-ctags-cmd-format dir)))
+         (name (format "[projectable] Creating tags for [%s]" dir))
+         (buffer-name (format "*create-tags*<%s>" dir)))
+    (projectable-message cmd)
+    (start-process-shell-command name buffer-name cmd)))
 
 (defun projectable-set-styling (style-hash)
-	"Set up variables associated with the styling from a STYLE-HASH."
-	;; Set the indent level
-	(when (gethash "indent" style-hash)
-		(projectable-set-indent-level (gethash "indent" style-hash)))
-	;; Set the tabs/spaces indent type
-	(when (gethash "tabs" style-hash)
-		(projectable-set-indent-object (eq :json-false (gethash "tabs" style-hash)))))
+  "Set up variables associated with the styling from a STYLE-HASH."
+  ;; Set the indent level
+  (when (gethash "indent" style-hash)
+    (projectable-set-indent-level (gethash "indent" style-hash)))
+  ;; Set the tabs/spaces indent type
+  (when (gethash "tabs" style-hash)
+    (projectable-set-indent-object (eq :json-false (gethash "tabs" style-hash)))))
 
 (defun projectable-set-testing (test-hash)
-	"Set up variables associated with testing from a TEST-HASH."
-	(when (gethash "sourcePath" test-hash)
-		(setq projectable-src-path (gethash "sourcePath" test-hash)))
-	(setq projectable-test-path (gethash "path" test-hash))
-	(setq projectable-test-extension (gethash "extension" test-hash)))
+  "Set up variables associated with testing from a TEST-HASH."
+  (when (gethash "sourcePath" test-hash)
+    (setq projectable-src-path (gethash "sourcePath" test-hash)))
+  (setq projectable-test-path (gethash "path" test-hash))
+  (setq projectable-test-extension (gethash "extension" test-hash)))
 
 (defun projectable-load-from-path ()
   "Load a project from a given directory."
@@ -317,12 +333,12 @@ This will just cache all of the files contained in that directory."
           (while (re-search-forward "/$" nil t)
             (replace-match ""))
           (buffer-string)))
-  
+
   ;; Set project ID
   (let ((id (file-name-nondirectory projectable-current-project-path)))
     (setq projectable-id id)
     (projectable-message (format "Project ID: [%s]" id)))
-  
+
   (let ((gitignore-filter-regexps (projectable-get-gitignore-filter
                                    (find-file-upwards ".gitignore" (concat projectable-current-project-path "/") ))))
     (projectable-set-project-alist (when projectable-use-gitignore gitignore-filter-regexps)))
@@ -341,9 +357,10 @@ the filter string set in the customisations."
                " \""
                (mapconcat 'identity (append projectable-filter-regexps gitignore-filter-regexps) ",")
                " \""))
-				 (result (json-read-from-string (shell-command-to-string cmd))))
+         (result (json-read-from-string (shell-command-to-string cmd))))
+		(projectable-message cmd)
     (setq projectable-project-alist result)
-		(setq projectable-file-alist (cdr (assoc projectable-id result)))
+    (setq projectable-file-alist (cdr (assoc projectable-id result)))
     t))
 
 (defun projectable-get-gitignore-filter (gitignore-file)
@@ -379,16 +396,16 @@ t => spaces nil => tabs"
   (when (require 'js2-mode nil 'noerror)
     (projectable-message "JS2 mode found")
     (setq-default js2-basic-offset level))
-  
+
   (when (require 'web-mode nil 'noerror)
-    (projectable-message "Web mode found")
+    (message "Web mode found: %s" level)
     (setq-default web-mode-markup-indent-offset level)
     (setq-default web-mode-css-indent-offset level)
     (setq-default web-mode-code-indent-offset level))
 
   (setq-default c-basic-offset level)
   (setq-default css-indent-offset level)
-  (setq-default js-basic-offset level)
+  (setq-default js-indent-level level)
   (setq-default basic-offset level)
   (setq tab-width level)
   (projectable-message (format "Setting indent level to %s" level))
@@ -479,7 +496,7 @@ http://emacswiki.org/emacs/FileNameCache"
         (setq src-path (projectable-guess-source-path))
         (setq test-path (format "%s/%s" src-path projectable-test-path))
         (if src-path (projectable-message (format  "Guessed the source path as [%s]" src-path)))))
-    
+
     (if (and src-path (string-match test-path (file-truename (buffer-file-name))))
         ;; In a test class, go to source
         (find-file (replace-regexp-in-string
@@ -487,7 +504,7 @@ http://emacswiki.org/emacs/FileNameCache"
                     (replace-regexp-in-string
                      (format "%s\\\.%s" projectable-test-extension file-ext)
                      (format "\.%s" file-ext) (buffer-file-name))))
-      
+
       (if (and src-path (string-match src-path (file-truename (buffer-file-name))))
           ;; In a source class, go to test
           (find-file (replace-regexp-in-string
@@ -495,7 +512,7 @@ http://emacswiki.org/emacs/FileNameCache"
                       (replace-regexp-in-string
                        (format "\\\.%s" file-ext)
                        (format "%s\.%s" projectable-test-extension file-ext) (buffer-file-name))))
-        
+
         (projectable-message (format "Could not find test file for [%s]" buffer-file-name) t)))))
 
 (defun projectable-guess-source-path ()
@@ -538,21 +555,21 @@ i.e.  If indent level was 4, the indent string would be '    '."
           projectable-project-alist) result))
 
 (defun projectable-visit-project-file ()
-	"Open the project file currently being used."
+  "Open the project file currently being used."
   (interactive)
-	(when projectable-current-project-path
-		(if (projectable-is-file projectable-current-project-path)
-				(find-file projectable-current-project-path)
-			(projectable-message
-			 (format "Current project is an anonymous path, not a project file [%s]" projectable-current-project-path) t))))
+  (when projectable-current-project-path
+    (if (projectable-is-file projectable-current-project-path)
+        (find-file projectable-current-project-path)
+      (projectable-message
+       (format "Current project is an anonymous path, not a project file [%s]" projectable-current-project-path) t))))
 
 (defun projectable-get-ctags-supported-languages ()
-	"Flatten and concatenate all supported languages for find command."
+  "Flatten and concatenate all supported languages for find command."
   (mapconcat #'(lambda (a) (format "%s" a))
-						 (-flatten (mapcar #'(lambda (a) (cdr a)) projectable-ctags-supported-languages)) "|"))
+             (-flatten (mapcar #'(lambda (a) (cdr a)) projectable-ctags-supported-languages)) "|"))
 
 (defun projectable-get-filter-regexps ()
-	"Flatten and concatenate all filter regexps for find command."
+  "Flatten and concatenate all filter regexps for find command."
   (mapconcat #'(lambda (a) (format "%s" a)) projectable-filter-regexps "|"))
 
 ;;; Projectable Mode
@@ -560,10 +577,10 @@ i.e.  If indent level was 4, the indent string would be '    '."
 
 (when (and (require 'flx-ido nil 'noerror)
            (require 'ido-vertical-mode nil 'noerror))
-  
+
   (projectable-message "Found FLX-IDO and IDO-VERTICAL")
   (projectable-message "Adding advice to use these features")
-  
+
   (defcustom projectable-use-vertical-flx t
     "Whether to take advantange of FLX and VERTICAL features."
     :group 'projectable
@@ -576,8 +593,8 @@ i.e.  If indent level was 4, the indent string would be '    '."
     (define-key map (kbd "r") #'projectable-refresh)
     (define-key map (kbd "f") #'projectable-ido-find-file)
     (define-key map (kbd "t") #'projectable-toggle-open-test)
-		(define-key map (kbd "l") #'projectable-reformat-file)
-		(define-key map (kbd "p") #'projectable-visit-project-file)
+    (define-key map (kbd "l") #'projectable-reformat-file)
+    (define-key map (kbd "p") #'projectable-visit-project-file)
     map)
   "Keymap for Projectable commands after `projectable-keymap-prefix'.")
 (fset 'projectable-command-map projectable-command-map)
