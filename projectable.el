@@ -618,8 +618,6 @@ i.e.  If indent level was 4, the indent string would be '    '."
     map)
   "Keymap for Projectile mode.")
 
-(add-hook 'after-load-functions '(lambda (n) (message "Hello %s!" (buffer-file-name))))
-
 ;;;###autoload
 (define-minor-mode projectable-mode
   "Minor mode to assist project management and navigation.
