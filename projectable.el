@@ -455,26 +455,40 @@ If called with boolean OVERRIDE, this will override the verbose setting."
 
 
 (defun projectable-find-file (file)
-  "Using `completing-read`, interactively open FILE from projectable alist.
-Select a file matched using `ido-switch-buffer` against the contents
-of `projectable-file-alist`.  If the file exists in more than one
-directory, select directory.  Lastly the file is opened.
-
-This code snippet is borrowed and adapted from
-http://emacswiki.org/emacs/FileNameCache"
+  "Call `projectable--find-file` for FILE with `find-file` as function call."
   (interactive (progn
                  (when projectable-use-vertical-flx
                    (projectable-enable-vertical))
                  (list (completing-read
                         "File: " (mapcar (lambda (x) (car x))
                                          projectable-file-alist)))))
+  (projectable--find-file file 'find-file))
+
+(defun projectable-find-file-other-window (file)
+  "Call `projectable--find-file` for FILE with `find-file` as function call."
+  (interactive (progn
+                 (when projectable-use-vertical-flx
+                   (projectable-enable-vertical))
+                 (list (completing-read
+                        "File: " (mapcar (lambda (x) (car x))
+                                         projectable-file-alist)))))
+  (projectable--find-file file 'find-file-other-window))
+
+(defun projectable--find-file (file f)
+  "Using `completing-read`, interactively open FILE using F from project.
+Select a file matched using `ido-switch-buffer` against the contents
+of `projectable-file-alist`.  If the file exists in more than one
+directory, select directory.  Lastly the file is opened.
+
+This code snippet is borrowed and adapted from
+http://emacswiki.org/emacs/FileNameCache"
   (let* ((record (assoc file projectable-file-alist)))
-    (find-file
+    (funcall f
      (expand-file-name
       file
       (if (= (length record) 2)
           (car (cdr record))
-        (ido-completing-read
+        (completing-read
          (format "Find %s in dir:" file) (cdr record)))))
     (when projectable-use-vertical-flx
       (projectable-disable-vertical))))
