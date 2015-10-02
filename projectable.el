@@ -582,9 +582,6 @@ i.e.  If indent level was 4, the indent string would be '    '."
 (when (and (require 'flx-ido nil 'noerror)
            (require 'ido-vertical-mode nil 'noerror))
 
-  (projectable-message "Found FLX-IDO and IDO-VERTICAL")
-  (projectable-message "Adding advice to use these features")
-
   (defcustom projectable-use-vertical-flx t
     "Whether to take advantange of FLX and VERTICAL features."
     :group 'projectable
