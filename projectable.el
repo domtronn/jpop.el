@@ -241,8 +241,9 @@ this directory to the file cache"
   "Set the project based on a path.
 This will just cache all of the files contained in that directory."
   (let* ((json-object-type 'hash-table)
-         (json-contents
-          (shell-command-to-string (concat "cat " projectable-current-project-path)))
+         (json-contents (with-temp-buffer
+                          (insert-file-contents projectable-current-project-path)
+                          (buffer-string)))
          (json-hash (json-read-from-string json-contents)))
 
     (setq projectable-project-hash json-hash)
