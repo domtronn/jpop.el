@@ -36,7 +36,7 @@ It defaults to looking in `projectable-project-directory` first.
 If you load a *directory*, instead of a JSON file, it will just cache all of the files recursively within that directory.
 
 An example JSON project file would look like this:
-```JSON
+```javascript
 {
 	"id":"My Project",
 	"dirs":[
