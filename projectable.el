@@ -554,6 +554,11 @@ http://emacswiki.org/emacs/FileNameCache"
 i.e.  If indent level was 4, the indent string would be '    '."
   (make-string projectable-indent-level ? ))
 
+(defun projectable-kill-project-buffers ()
+  "Kill all open buffers in the current project."
+  (interactive)
+  (mapc (lambda (buf) (kill-buffer buf)) (projectable-get-project-buffers)))
+
 (defun projectable-get-project-buffers ()
   "Get a list of buffers within the current project."
   (-filter (lambda (buffer) (let* ((bufname (buffer-file-name buffer)))
