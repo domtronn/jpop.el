@@ -601,6 +601,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
     map)
   "Keymap for Projectile mode.")
 
+;;;###autoload
 (define-minor-mode projectable-mode
   "Minor mode to assist project management and navigation.
 
@@ -618,6 +619,7 @@ Otherwise behave as if called interactively.
   :group 'projectable
   :require 'projectable)
 
+;;;###autoload
 (define-globalized-minor-mode projectable-global-mode
   projectable-mode
   projectable-mode)
