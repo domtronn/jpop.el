@@ -50,6 +50,8 @@ The `testing` block defines how to find your tests, *e.g.* they are found in `te
 The `style` block, at the moment, defines how to indent the files within the project.
 The `tabs` property defines whether this projects uses **tabs** or **spaces** and the `indent` property sets the tab width/indent level of the project.
 
+You can also override the use of `gitignore` on a project level, add a `gitignore: true/false` property to the project file, and this will take priority over the global variable.
+
 # Usage #
 If you enable `projectable-global-mode` you will have access to the following keybindings:
 
