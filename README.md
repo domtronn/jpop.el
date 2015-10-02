@@ -78,7 +78,7 @@ Key Binding | Command | Effect
 `C-c p l` | `projectable-reformat-file` | Reformat the current file to use appropiate indentation
 `C-c p p` | `projectable-visit-project-file` | Open the current project file for editing
 
-It is well worth looking through `customize-grou RET projectable` to see what you can customise.
+It is well worth looking through `customize-group RET projectable` to see what you can customise.
 
 # Ctags and JavaScript #
 
