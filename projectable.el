@@ -213,9 +213,7 @@ Mainly for debugging of the package."
   (setq projectable-file-alist (make-hash-table :test 'equal))
 
   (projectable-refresh)
-  (when projectable-use-vertical-flx
-    (projectable-disable-vertical))
-  (projectable-message (format "New project is [%s]" arg) t))
+  (when projectable-use-vertical-flx (projectable-disable-vertical)))
 
 (defun projectable-refresh ()
   "Parse a json project file to create a cache for that project.
@@ -226,7 +224,8 @@ this directory to the file cache"
   (when projectable-current-project-path
     (if (not (file-directory-p projectable-current-project-path))
         ;; Json file so load from json
-        (projectable-load-from-json)
+        (progn (projectable-load-from-json)
+               (projectable-message (format "New project is [%s]" projectable-current-project-path) t))
       ;; A directory so load form directory
       (progn
         (projectable-message
