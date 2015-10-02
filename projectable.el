@@ -364,10 +364,10 @@ the filter string set in the customisations."
     (setq projectable-file-alist (cdr (assoc projectable-id result)))
     t))
 
-(defun projectable-get-gitignore-filter (gitignore-file)
-  "Produce regexps filters by based on a .gitignore files found in GITIGNORE-FILE."
+(defun projectable-get-gitignore-filter (gitignore-dir)
+  "Produce regexps filters by based on a .gitignore files found in GITIGNORE-DIR."
   (with-temp-buffer
-    (insert-file-contents gitignore-file)
+    (insert-file-contents (concat gitignore-dir ".gitignore"))
     (goto-char (point-min))
     (flush-lines "^[#]")
     (flush-lines "^$")
