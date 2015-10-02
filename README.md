@@ -1,6 +1,17 @@
-# projectable.el #
+# projectable.el
 
-A lightweight project framework I created for the main purpose of integration with my `JS-DEPENDENCY-INJECTOR` package, which requires associative lists of files with project ids and their locations.
+**Projectable** is a lightweight _declarative_ project interaction package for Emacs. It is designed to let users _define_ their projects in json files in a similar fashion to _Sublime_ and _Atom_. It allows you to group a few directories together as a project so that your project can be composed of multiple repositories/directories. On top of this, it provides a nice set of features for interacting with your projects including styling (the ole' tabs vs spaces debate), running/opening test files and the creation of [ctags|http://ctags.sourceforge.net/]. It also gives you the ability to quickly open directories _as a project_ and make all the files within easily accessible.
+
+It was built from a need for a particular data structure to describe a project for use with my `JS-DEPENDENCY-INJECTOR` package for require.js projects.
+
+The mechanism for reading the operating system is a Python script for efficiencies sake.
+
+### Features ###
+
+* Jump to a file within the project
+* Toggle between code and its test file ( `main.js` <=> `mainSpec.js` )
+* Reformat a file with proper tabs/spaces indentation levels
+* Create throw-away project instances from directories
 
 # Installation #
 
@@ -104,6 +115,7 @@ I'm trying to get this project in a nicer state for my own purposes, future feat
     - [x] Ctags
     - [ ] Etags
 - [ ] Hosting on [Melpa](http://melpa.org/#/)
+- [ ] Project grouped buffers
 
 #### Why not Projectile ####
 I'm aware that [projectile](https://github.com/bbatsov/projectile) does a lot of this already and I would actively encourage you to try that package out as well!
