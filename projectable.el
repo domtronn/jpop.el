@@ -270,7 +270,7 @@ This will just cache all of the files contained in that directory."
   "Get a distinct list of regexps to gitignore in the PROJECT-LIST files."
   (let ((gitignore-filter-regexp (list)))
     (mapc (lambda (x)
-            (let ((location (find-file-upwards ".gitignore" (concat (gethash "dir" x) "/"))))
+            (let ((location (locate-dominating-file (concat (gethash "dir" x) "/") ".gitignore")))
               (when location
                 (setq gitignore-filter-regexp
                       (-distinct
@@ -341,7 +341,7 @@ This will just cache all of the files contained in that directory."
     (projectable-message (format "Project ID: [%s]" id)))
 
   (let ((gitignore-filter-regexps (projectable-get-gitignore-filter
-                                   (find-file-upwards ".gitignore" (concat projectable-current-project-path "/") ))))
+                                   (locate-dominating-file (concat projectable-current-project-path "/") ".gitignore"))))
     (projectable-set-project-alist (when projectable-use-gitignore gitignore-filter-regexps)))
   t)
 
@@ -430,29 +430,6 @@ If called with boolean OVERRIDE, this will override the verbose setting."
   (setq ido-use-faces t)
   (flx-ido-mode 0)
   (ido-vertical-mode 0))
-
-(defun find-file-upwards (file-to-find &optional starting-path)
-  "Recursively search parent directories for FILE-TO-FIND from STARTING-PATH.
-looking for a file with name file-to-find.  Returns the path to it
-or nil if not found.
-
-By default, it uses the `default-directory` as a starting point unless stated
-otherwise through the use of STARTING-PATH.
-
-This function is taken from
-http://www.emacswiki.org/emacs/EmacsTags#tags"
-  (cl-labels
-      ((find-file-r (path)
-                    (let* ((parent (file-name-directory path))
-                           (possible-file (concat parent file-to-find)))
-                      (cond
-                       ((file-exists-p possible-file) possible-file) ; Found
-                       ;; The parent of ~ is nil and the parent of / is itself.
-                       ;; Thus the terminating condition for not finding the file
-                       ;; accounts for both.
-                       ((or (null parent) (equal parent (directory-file-name parent))) nil) ; Not found
-                       (t (find-file-r (directory-file-name parent))))))) ; Continue
-    (find-file-r (if starting-path starting-path default-directory))))
 
 ;;; Utility Functions
 ;;  A bunch of functions to help with project navigation and set up.
