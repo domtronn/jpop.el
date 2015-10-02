@@ -224,7 +224,7 @@ If the supplied file is not a file but a directory, it just adds
 this directory to the file cache"
   (interactive)
   (when projectable-current-project-path
-    (if (projectable-is-file projectable-current-project-path)
+    (if (not (file-directory-p projectable-current-project-path))
         ;; Json file so load from json
         (projectable-load-from-json)
       ;; A directory so load form directory
@@ -232,10 +232,6 @@ this directory to the file cache"
         (projectable-message
          (format "Interpreting as directory - [%s] is not a file" projectable-current-project-path))
         (projectable-load-from-path)))))
-
-(defun projectable-is-file (dir)
-  "Check whether DIR is a directory using shell."
-  (string-equal "0\n" (shell-command-to-string (format "if [ -d %s ]; then echo 1; else echo 0; fi" dir))))
 
 (defun projectable-load-from-json ()
   "Set the project based on a path.
@@ -562,7 +558,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
   "Open the project file currently being used."
   (interactive)
   (when projectable-current-project-path
-    (if (projectable-is-file projectable-current-project-path)
+    (if (not (file-directory-p projectable-current-project-path))
         (find-file projectable-current-project-path)
       (projectable-message
        (format "Current project is an anonymous path, not a project file [%s]" projectable-current-project-path) t))))
