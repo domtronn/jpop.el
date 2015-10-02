@@ -262,9 +262,12 @@ This will just cache all of the files contained in that directory."
 
     (when (gethash "testing" json-hash)
       (projectable-set-testing (gethash "testing" json-hash)))
-
-    (projectable-set-project-alist
-     (when projectable-use-gitignore (projectable-get-all-gitignore-filter (gethash "dirs" json-hash)))))
+    
+    (let* ((gitignore-hash (gethash "gitignore" json-hash))
+           (use-gitignore (if gitignore-hash (eq :json-true gitignore-hash) projectable-use-gitignore)))
+      (projectable-set-project-alist
+       (when (and use-gitignore projectable-use-gitignore)
+         (projectable-get-all-gitignore-filter (gethash "dirs" json-hash))))))
   t)
 
 (defun projectable-get-all-gitignore-filter (project-list)
