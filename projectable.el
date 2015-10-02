@@ -399,7 +399,7 @@ t => spaces nil => tabs"
     (setq-default js2-basic-offset level))
 
   (when (require 'web-mode nil 'noerror)
-    (message "Web mode found: %s" level)
+    (projectable-message "Web mode found: %s" level)
     (setq-default web-mode-markup-indent-offset level)
     (setq-default web-mode-css-indent-offset level)
     (setq-default web-mode-code-indent-offset level))
