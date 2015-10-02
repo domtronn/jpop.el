@@ -435,24 +435,23 @@ If called with boolean OVERRIDE, this will override the verbose setting."
 ;;; Utility Functions
 ;;  A bunch of functions to help with project navigation and set up.
 
+(defun projectable--switch-buffer (f)
+  "Call F as the mechanism for switch to buffer branching."
+	(let ((project-buffers (-map #'buffer-name (projectable-get-project-buffers))))
+		(funcall f (completing-read
+                (format "[%s] Switch to buffer: " projectable-id)
+                project-buffers))))
+
 (defun projectable-switch-buffer ()
 	"Using `completing-read`, interactively switch buffers contained within the project."
   (interactive)
-	(let ((project-buffers (-map #'buffer-name (projectable-get-project-buffers))))
-		(switch-to-buffer
-		 (completing-read
-			(format "[%s] Switch to buffer: " projectable-id)
-			project-buffers))))
+  (projectable--switch-buffer 'switch-to-buffer))
 
 
 (defun projectable-switch-buffer-other-window ()
 	"Using `completing-read`, interactively switch buffers in other window for project buffers."
   (interactive)
-	(let ((project-buffers (-map #'buffer-name (projectable-get-project-buffers))))
-		(switch-to-buffer-other-window
-		 (completing-read
-			(format "[%s] Switch to buffer: " projectable-id)
-			project-buffers))))
+	(projectable--switch-buffer 'switch-to-buffer-other-window))
 
 
 (defun projectable-find-file (file)
