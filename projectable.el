@@ -435,8 +435,28 @@ If called with boolean OVERRIDE, this will override the verbose setting."
 ;;; Utility Functions
 ;;  A bunch of functions to help with project navigation and set up.
 
-(defun projectable-ido-find-file (file)
-  "Using ido, interactively open FILE from projectable alist.
+(defun projectable-switch-buffer ()
+	"Using `completing-read`, interactively switch buffers contained within the project."
+  (interactive)
+	(let ((project-buffers (-map #'buffer-name (projectable-get-project-buffers))))
+		(switch-to-buffer
+		 (completing-read
+			(format "[%s] Switch to buffer: " projectable-id)
+			project-buffers))))
+
+
+(defun projectable-switch-buffer-other-window ()
+	"Using `completing-read`, interactively switch buffers in other window for project buffers."
+  (interactive)
+	(let ((project-buffers (-map #'buffer-name (projectable-get-project-buffers))))
+		(switch-to-buffer-other-window
+		 (completing-read
+			(format "[%s] Switch to buffer: " projectable-id)
+			project-buffers))))
+
+
+(defun projectable-find-file (file)
+  "Using `completing-read`, interactively open FILE from projectable alist.
 Select a file matched using `ido-switch-buffer` against the contents
 of `projectable-file-alist`.  If the file exists in more than one
 directory, select directory.  Lastly the file is opened.
@@ -446,7 +466,7 @@ http://emacswiki.org/emacs/FileNameCache"
   (interactive (progn
                  (when projectable-use-vertical-flx
                    (projectable-enable-vertical))
-                 (list (ido-completing-read
+                 (list (completing-read
                         "File: " (mapcar (lambda (x) (car x))
                                          projectable-file-alist)))))
   (let* ((record (assoc file projectable-file-alist)))
@@ -521,8 +541,14 @@ http://emacswiki.org/emacs/FileNameCache"
 i.e.  If indent level was 4, the indent string would be '    '."
   (make-string projectable-indent-level ? ))
 
+(defun projectable-get-project-buffers ()
+  "Get a list of buffers within the current project."
+  (-filter (lambda (buffer) (let* ((bufname (buffer-file-name buffer)))
+							 (and bufname (projectable-project-contains bufname)))) (buffer-list)))
+
 (defun projectable-project-contains (file)
   "Check to see if project alist contain FILE."
+	
   (let* ((result nil)
          (file-name (file-name-nondirectory file))
          (file-dir (file-name-directory file)))
@@ -565,7 +591,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "c") #'projectable-change)
     (define-key map (kbd "r") #'projectable-refresh)
-    (define-key map (kbd "f") #'projectable-ido-find-file)
+    (define-key map (kbd "f") #'projectable-find-file)
     (define-key map (kbd "t") #'projectable-toggle-open-test)
     (define-key map (kbd "l") #'projectable-reformat-file)
     (define-key map (kbd "p") #'projectable-visit-project-file)
@@ -578,6 +604,8 @@ i.e.  If indent level was 4, the indent string would be '    '."
     (define-key map projectable-keymap-prefix 'projectable-command-map)
     map)
   "Keymap for Projectile mode.")
+
+(add-hook 'after-load-functions '(lambda (n) (message "Hello %s!" (buffer-file-name))))
 
 ;;;###autoload
 (define-minor-mode projectable-mode

@@ -115,7 +115,7 @@ I'm trying to get this project in a nicer state for my own purposes, future feat
     - [x] Ctags
     - [ ] Etags
 - [ ] Hosting on [Melpa](http://melpa.org/#/)
-- [ ] Project grouped buffers
+- [x] Project grouped buffers
 
 #### Why not Projectile ####
 I'm aware that [projectile](https://github.com/bbatsov/projectile) does a lot of this already and I would actively encourage you to try that package out as well!
