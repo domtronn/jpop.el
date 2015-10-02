@@ -1,6 +1,8 @@
 # projectable.el #
 
-**Projectable** is a lightweight _declarative_ project interaction package for Emacs. It is designed to let users _define_ their projects in json files in a similar fashion to _Sublime_ and _Atom_. It allows you to group a few directories together as a project so that your project can be composed of multiple repositories/directories. On top of this, it provides a nice set of features for interacting with your projects including styling (the ole' tabs vs spaces debate), running/opening test files and the creation of [ctags](http://ctags.sourceforge.net/). It also gives you the ability to quickly open directories _as a project_ and make all the files within easily accessible.
+**Projectable** is a lightweight _declarative_ project interaction package for Emacs. It is designed to let users _define_ their projects in json files in a similar fashion to _Sublime_ and _Atom_. It allows you to group a few directories together as a project so that your project can be composed of multiple repositories/directories.
+
+On top of this, it provides a nice set of features for interacting with your projects including styling _(the ole' tabs vs spaces debate)_, running/opening test files and the creation of [ctags](http://ctags.sourceforge.net/). It also gives you the ability to quickly open directories _as a project_ and make all the files within easily accessible.
 
 It was built from a need for a particular data structure to describe a project for use with my `JS-DEPENDENCY-INJECTOR` package for require.js projects.
 
