@@ -148,7 +148,7 @@ files."
   :group 'projectable
   :type 'booelan)
 (defcustom projectable-test-filter-regexps
-  (quote ("Test\\.[[:alpha:]]+$" "Spec\\.[[:alpha:]]+$"))
+  (quote ("[tT]est" "Spec"))
   "Specify a list of regexps to filter out test files."
   :group 'projectable
   :type '(repeat regexp))
@@ -352,13 +352,14 @@ This will just cache all of the files contained in that directory."
 Can be passed a list GITIGNORE-FILTER-REGEXPS of regexps to append to
 the filter string set in the customisations."
   (let* ((json-object-type 'alist) (json-array-type 'list) (json-key-type 'string)
-         (cmd (concat
+         (cmd (format "%s %s \"%s\""
                projectable-alist-cmd
-               " "
                (expand-file-name projectable-current-project-path)
-               " \""
-               (mapconcat 'identity (append projectable-filter-regexps gitignore-filter-regexps) ",")
-               " \""))
+               (mapconcat 'identity (append
+                                     projectable-filter-regexps gitignore-filter-regexps
+                                     (and projectable-filter-tests
+																					(mapar (lambda (r) (concat r "\(\\.[a-z]+$\)")) projectable-test-filter-regexps)))
+                          ",")))
          (result (json-read-from-string (shell-command-to-string cmd))))
 		(projectable-message cmd)
     (setq projectable-project-alist result)
@@ -483,13 +484,12 @@ directory, select directory.  Lastly the file is opened.
 This code snippet is borrowed and adapted from
 http://emacswiki.org/emacs/FileNameCache"
   (let* ((record (assoc file projectable-file-alist)))
+		(message "Flie: %s" file)
     (funcall f
-     (expand-file-name
-      file
       (if (= (length record) 2)
-          (car (cdr record))
+          (cadr record)
         (completing-read
-         (format "Find %s in dir:" file) (cdr record)))))
+         (format "Find %s in dir:" file) (cdr record))))
     (when projectable-use-vertical-flx
       (projectable-disable-vertical))))
 

@@ -63,11 +63,11 @@ def create_from_json( project_file, filter_regexp, invert_regexp ):
         result_dict = {}
         for f in resultant_files:
             if os.path.basename(f) in result_dict:
-                if os.path.dirname(f) + "/" in result_dict[os.path.basename(f)]:
+                if os.path.dirname(f) + "/" + os.path.basename(f) in result_dict[os.path.basename(f)]:
                     continue
-                result_dict[os.path.basename(f)].append(os.path.dirname(f) + "/")
+                result_dict[os.path.basename(f)].append(os.path.dirname(f) + "/" + os.path.basename(f))
             else:
-                result_dict[os.path.basename(f)] = [os.path.dirname(f) + "/"]
+                result_dict[os.path.basename(f)] = [os.path.dirname(f) + "/" + os.path.basename(f)]
         resultant_dict[project_id] = result_dict
         
     print json.dumps(resultant_dict)
