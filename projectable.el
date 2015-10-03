@@ -264,6 +264,9 @@ This will just cache all of the files contained in that directory."
                             projectable-use-gitignore)))
       (projectable-set-project-alist
        (when (and use-gitignore projectable-use-gitignore)
+         (projectable-get-all-gitignore-filter (gethash "dirs" json-hash))))
+			(projectable-set-test-alist
+       (when (and use-gitignore projectable-use-gitignore)
          (projectable-get-all-gitignore-filter (gethash "dirs" json-hash))))))
   t)
 
@@ -345,6 +348,22 @@ This will just cache all of the files contained in that directory."
                                    (locate-dominating-file (concat projectable-current-project-path "/") ".gitignore"))))
     (projectable-set-project-alist (when projectable-use-gitignore gitignore-filter-regexps)))
   t)
+
+(defun projectable-set-test-alist (&optional gitignore-filter-regexps)
+	"Set `projectable-test-alist` by using `projectable-alist-cmd`.
+
+Can be passed a list GITIGNORE-FILTER-REGEXPS of regexps to append to the filter
+string."
+    (let* ((json-object-type 'alist) (json-array-type 'list) (json-key-type 'string)
+         (cmd (format "%s -i \"%s\" %s \"%s\""
+							 projectable-alist-cmd
+							 (mapconcat 'identity projectable-test-filter-regexps "\(\\.[a-z]+$\),")
+               (expand-file-name projectable-current-project-path)
+               (mapconcat 'identity (append projectable-filter-regexps gitignore-filter-regexps) ",")))
+         (result (json-read-from-string (shell-command-to-string cmd))))
+			(message cmd)
+			(setq projectable-test-alist (cdr (assoc projectable-id result)))
+    t))
 
 (defun projectable-set-project-alist (&optional gitignore-filter-regexps)
   "Set `projectable-project-alist` by usings `projectable-alist-cmd`.
