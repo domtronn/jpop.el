@@ -70,6 +70,8 @@ Key Binding | Command | Effect
 `C-c p t` | `projectable-toggle-open-test` | Try and find the related test to the current class
 `C-c p l` | `projectable-reformat-file` | Reformat the current file to use appropiate indentation
 `C-c p p` | `projectable-visit-project-file` | Open the current project file for editing
+`C-c p b` | `projectable-switch-buffer` | Switch between buffers in the current project
+`C-c p k` | `projectable-kill-project-buffers` | Kill all of the buffers related to the current project
 
 It is well worth looking through `customize-group RET projectable` to see what you can customise.
 
