@@ -185,13 +185,6 @@ Mainly for debugging of the package."
 (defvar projectable-indent-object
   (list :tabs "	" "  ") "Definiton of indentation type with the indent character.")
 
-(defvar projectable-test-path
-  nil "The root of test files for the project.")
-(defvar projectable-src-path
-  nil "The src path for tests.")
-(defvar projectable-test-extension
-  nil "The extension of the test file e.g. ...Test.")
-
 (defvar projectable-use-vertical-flx nil)
 
 ;;; Function Definitions
@@ -206,9 +199,6 @@ Mainly for debugging of the package."
   (setq projectable-current-project-path arg)
   ;; Reset project specific variables
   (setq tags-table-list nil)
-  (setq projectable-src-path nil)
-  (setq projectable-test-path nil)
-  (setq projectable-test-extension nil)
   (setq projectable-project-alist (make-hash-table :test 'equal))
   (setq projectable-file-alist (make-hash-table :test 'equal))
 
@@ -255,16 +245,15 @@ This will just cache all of the files contained in that directory."
     (when (gethash "style" json-hash)
       (projectable-set-styling (gethash "style" json-hash)))
 
-    (when (gethash "testing" json-hash)
-      (projectable-set-testing (gethash "testing" json-hash)))
-    
     (let* ((gitignore-from-hash (gethash "gitignore" json-hash))
            (use-gitignore (if gitignore-from-hash
                               (not (eq :json-false gitignore-from-hash))
                             projectable-use-gitignore)))
-      (projectable-set-project-alist
+      
+			(projectable-set-project-alist
        (when (and use-gitignore projectable-use-gitignore)
          (projectable-get-all-gitignore-filter (gethash "dirs" json-hash))))
+			
 			(projectable-set-test-alist
        (when (and use-gitignore projectable-use-gitignore)
          (projectable-get-all-gitignore-filter (gethash "dirs" json-hash))))))
@@ -320,13 +309,6 @@ This will just cache all of the files contained in that directory."
   ;; Set the tabs/spaces indent type
   (when (gethash "tabs" style-hash)
     (projectable-set-indent-object (eq :json-false (gethash "tabs" style-hash)))))
-
-(defun projectable-set-testing (test-hash)
-  "Set up variables associated with testing from a TEST-HASH."
-  (when (gethash "sourcePath" test-hash)
-    (setq projectable-src-path (gethash "sourcePath" test-hash)))
-  (setq projectable-test-path (gethash "path" test-hash))
-  (setq projectable-test-extension (gethash "extension" test-hash)))
 
 (defun projectable-load-from-path ()
   "Load a project from a given directory."
