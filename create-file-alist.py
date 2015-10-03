@@ -70,6 +70,15 @@ def create_from_json( project_file, filter_regexp, invert_regexp ):
                 result_dict[os.path.basename(f)] = [os.path.dirname(f) + "/" + os.path.basename(f)]
         resultant_dict[project_id] = result_dict
         
+    if invert_regexp:
+        for project_id, resultant_files in resultant_dict.iteritems():
+            for file_id, files in resultant_files.iteritems():
+                for r in invert_regexp:
+                    regex = re.compile(r)
+                    if regex.search(file_id):
+                        resultant_files[regex.sub('\\1',file_id)] = resultant_files[file_id]
+                        del resultant_files[file_id]
+            
     print json.dumps(resultant_dict)
 
 
