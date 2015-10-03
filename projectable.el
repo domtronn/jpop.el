@@ -557,7 +557,10 @@ i.e.  If indent level was 4, the indent string would be '    '."
 (defun projectable-kill-project-buffers ()
   "Kill all open buffers in the current project."
   (interactive)
-  (mapc (lambda (buf) (kill-buffer buf)) (projectable-get-project-buffers)))
+  (let* ((project-buffers (projectable-get-project-buffers))
+         (kill (yes-or-no-p
+                (format "[%s] Kill (%d buffers)? " projectable-id (length project-buffers)))))
+    (when kill (mapc (lambda (buf) (kill-buffer buf)) project-buffers))))
 
 (defun projectable-get-project-buffers ()
   "Get a list of buffers within the current project."
@@ -566,7 +569,6 @@ i.e.  If indent level was 4, the indent string would be '    '."
 
 (defun projectable-project-contains (file)
   "Check to see if project alist contain FILE."
-	
   (let* ((result nil)
          (file-name (file-name-nondirectory file))
          (file-dir (file-name-directory file)))
