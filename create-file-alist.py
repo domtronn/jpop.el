@@ -1,8 +1,13 @@
 #!/usr/bin/python
-import os, re, sys, json
+import os, re, sys, json, getopt
 
-filter_regexp = sys.argv[2].split(",") if sys.argv[2] else ""
-project_file = sys.argv[1]
+optlist, args = getopt.getopt(sys.argv[1:], "i:")
+filter_regexp = args[1].split(",") if args[1] else ""
+project_file  = args[0]
+
+invert = False;
+for o, a in optlist:
+    if o == "-i": invert = a.split(",")
 
 def create_from_path( path, filter_regexp ):
     resultant_files = []
@@ -25,7 +30,7 @@ def create_from_path( path, filter_regexp ):
     
     print json.dumps(result)
         
-def create_from_json( project_file, filter_regexp ):
+def create_from_json( project_file, filter_regexp, invert_regexp ):
     project_json = json.loads(open(project_file).read())
 
     project_dict = { project_json['id']: project_json['dirs'] }
@@ -46,6 +51,14 @@ def create_from_json( project_file, filter_regexp ):
         for project_id, resultant_files in resultant_dict.iteritems():
             resultant_dict[project_id] = [f for f in resultant_files if not regex.search(f)]
 
+    if invert_regexp:
+        result = []
+        for project_id, resultant_files in resultant_dict.iteritems():
+            for r in invert_regexp:
+                regex = re.compile(r)
+                result = result + [f for f in resultant_files if regex.search(f)]
+            resultant_dict[project_id] = result
+
     for project_id, resultant_files in resultant_dict.iteritems():
         result_dict = {}
         for f in resultant_files:
@@ -61,6 +74,6 @@ def create_from_json( project_file, filter_regexp ):
 
 
 if os.path.isfile(project_file):
-    create_from_json( project_file, filter_regexp )
+    create_from_json( project_file, filter_regexp, invert )
 else:
     create_from_path( project_file, filter_regexp )
