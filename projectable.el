@@ -357,11 +357,10 @@ string."
     (let* ((json-object-type 'alist) (json-array-type 'list) (json-key-type 'string)
          (cmd (format "%s -i \"%s\" %s \"%s\""
 							 projectable-alist-cmd
-							 (mapconcat 'identity projectable-test-filter-regexps "\(\\.[a-z]+$\),")
+							 (mapconcat 'identity (mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) projectable-test-filter-regexps) ",")
                (expand-file-name projectable-current-project-path)
                (mapconcat 'identity (append projectable-filter-regexps gitignore-filter-regexps) ",")))
          (result (json-read-from-string (shell-command-to-string cmd))))
-			(message cmd)
 			(setq projectable-test-alist (cdr (assoc projectable-id result)))
     t))
 
@@ -377,10 +376,9 @@ the filter string set in the customisations."
                (mapconcat 'identity (append
                                      projectable-filter-regexps gitignore-filter-regexps
                                      (and projectable-filter-tests
-																					(mapar (lambda (r) (concat r "\(\\.[a-z]+$\)")) projectable-test-filter-regexps)))
+																					(mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) projectable-test-filter-regexps)))
                           ",")))
          (result (json-read-from-string (shell-command-to-string cmd))))
-		(projectable-message cmd)
     (setq projectable-project-alist result)
     (setq projectable-file-alist (cdr (assoc projectable-id result)))
     t))
@@ -515,34 +513,16 @@ http://emacswiki.org/emacs/FileNameCache"
 (defun projectable-toggle-open-test ()
   "Open associated test class if it exists."
   (interactive)
-  (unless (and projectable-test-path projectable-test-extension)
-    (error "[projectable] You do not have a testing path or extension set, try updating %s.json" projectable-id))
-  (let ((file-ext (file-name-extension (buffer-file-name)))
-        (src-path projectable-src-path)
-        (test-path projectable-test-path))
-    (when (not projectable-src-path)
-      (progn
-        (setq src-path (projectable-guess-source-path))
-        (setq test-path (format "%s/%s" src-path projectable-test-path))
-        (if src-path (projectable-message (format  "Guessed the source path as [%s]" src-path)))))
+  (let* ((file-name (file-name-nondirectory (buffer-file-name)))
+				 (test-p (car (-non-nil (mapcar (lambda (r) (when (string-match r file-name) r)) projectable-test-filter-regexps))))
+				 (neutral-file-name (replace-regexp-in-string (or test-p "") "" file-name))
+				 (result (assoc neutral-file-name (if test-p projectable-file-alist projectable-test-alist))))
 
-    (if (and src-path (string-match test-path (file-truename (buffer-file-name))))
-        ;; In a test class, go to source
-        (find-file (replace-regexp-in-string
-                    test-path src-path
-                    (replace-regexp-in-string
-                     (format "%s\\\.%s" projectable-test-extension file-ext)
-                     (format "\.%s" file-ext) (buffer-file-name))))
-
-      (if (and src-path (string-match src-path (file-truename (buffer-file-name))))
-          ;; In a source class, go to test
-          (find-file (replace-regexp-in-string
-                      src-path test-path
-                      (replace-regexp-in-string
-                       (format "\\\.%s" file-ext)
-                       (format "%s\.%s" projectable-test-extension file-ext) (buffer-file-name))))
-
-        (projectable-message (format "Could not find test file for [%s]" buffer-file-name) t)))))
+		(message "%s" neutral-file-name)
+		
+		(if (= 2 (length result))
+				(find-file (cadr result))
+			(projectable-message (format "Could not find the test/src file for [%s]" file-name) t))))
 
 (defun projectable-guess-source-path ()
   "Guess what the source path for files is."
@@ -589,10 +569,9 @@ i.e.  If indent level was 4, the indent string would be '    '."
 (defun projectable-project-contains (file)
   "Check to see if project alist contain FILE."
   (let* ((result nil)
-         (file-name (file-name-nondirectory file))
-         (file-dir (file-name-directory file)))
+         (file-name (file-name-nondirectory file)))
     (mapc #'(lambda (alist)
-              (when (and (assoc file-name (cdr alist)) (member file-dir (cdr (assoc file-name (cdr alist)))))
+              (when (and (assoc file-name (cdr alist)) (member file (cdr (assoc file-name (cdr alist)))))
                 (setq result t)))
           projectable-project-alist) result))
 
