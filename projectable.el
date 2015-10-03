@@ -55,7 +55,7 @@ By default it looks in the ~/Documents/Projects folder"
   :group 'projectable
   :type 'string)
 
-(defcustom projectable-keymap-prefix (kbd "C-c p")
+(defcustom projectable-keymap-prefix (kbd "C-x p")
   "Projectable keymap prefix."
   :group 'projectable
   :type 'key-sequence)
@@ -497,7 +497,7 @@ http://emacswiki.org/emacs/FileNameCache"
   "Open associated test class if it exists."
   (interactive)
   (unless (and projectable-test-path projectable-test-extension)
-    (error "[projectable] You do not have a testing path or extension set, try updating %s.json (C-c p p)" projectable-id))
+    (error "[projectable] You do not have a testing path or extension set, try updating %s.json" projectable-id))
   (let ((file-ext (file-name-extension (buffer-file-name)))
         (src-path projectable-src-path)
         (test-path projectable-test-path))
