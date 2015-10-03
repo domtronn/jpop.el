@@ -46,11 +46,6 @@ An example JSON project file would look like this:
     "libs":[
         { "dir":"~/path/to/library", "create-tags": true, "id":"library-id"},
     ],
-	"testing":{
-		"path": "tests/specs",
-		"extension": "Spec",
-		"sourcePath": "src"          //Optional if files don't have an explicit source
-	},
     "style":{
         "tabs":false,
         "indent":2
@@ -58,8 +53,6 @@ An example JSON project file would look like this:
 }
 ```
 Where the `id` property and the the `dirs/dir` property define paths required in that project. This is useful if you have multiple respositories for a single project.
-
-The `testing` block defines how to find your tests, *e.g.* they are found in `tests/specs` and would look like `originalFileSpec.js`
 
 The `style` block, at the moment, defines how to indent the files within the project.
 The `tabs` property defines whether this projects uses **tabs** or **spaces** and the `indent` property sets the tab width/indent level of the project.
