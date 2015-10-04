@@ -461,35 +461,35 @@ If called with boolean OVERRIDE, this will override the verbose setting."
 (defun projectable-find-file ()
   "Call `projectable--find-file` for FILE with `find-file` as function call."
   (interactive)
-  (projectable--find-file projectable-file-alist 'find-file))
+  (projectable--find-file projectable-file-alist 'car 'find-file))
 
 (defun projectable-extended-find-file ()
   "Call `projectable--find-file` for FILE with `find-file` as function call."
   (interactive)
-  (projectable--find-file projectable-all-alist 'find-file))
+  (projectable--find-file projectable-all-alist 'cadr 'find-file))
 
 (defun projectable-find-file-other-window ()
   "Call `projectable--find-file` for FILE with `find-file` as function call."
   (interactive)
-  (projectable--find-file projectable-file-alist 'find-file-other-window))
+  (projectable--find-file projectable-file-alist 'car 'find-file-other-window))
 
 (defun projectable-extended-find-file-other-window ()
   "Call `projectable--find-file` for FILE with `find-file` as function call."
   (interactive)
-  (projectable--find-file projectable-all-alist 'find-file-other-window))
+  (projectable--find-file projectable-all-alist 'cadr 'find-file-other-window))
 
-(defun projectable--find-file (file-alist f)
-  "Interactively open FILE in FILE-ALIST using F from project.
+(defun projectable--find-file (file-alist read-f find-f)
+  "Interactively find a file in your project.
 
-Select a file matched using `ido-switch-buffer` against the contents
-of `projectable-file-alist`.  If the file exists in more than one
-directory, select directory.  Lastly the file is opened."
+Select a file matched using `completing-read` against the contents
+of FILE-ALIST.  Options are displayed using READ-F.  If the file exists
+in more than one directory, select directory.  Lastly the file is opened using FIND-F."
   (let* ((file (progn
 								 (when projectable-use-vertical-flx
 									 (projectable-enable-vertical))
-								 (completing-read "File: " (mapcar 'car file-alist))))
-				 (record (assoc file file-alist)))
-    (funcall f
+								 (completing-read "File: " (mapcar read-f file-alist))))
+				 (record (assoc (file-name-nondirectory file) file-alist)))
+    (funcall find-f
       (if (= (length record) 2)
           (cadr record)
         (completing-read
