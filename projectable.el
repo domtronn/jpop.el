@@ -555,12 +555,12 @@ i.e.  If indent level was 4, the indent string would be '    '."
 
 (defun projectable-get-ctags-supported-languages ()
   "Flatten and concatenate all supported languages for find command."
-  (mapconcat #'(lambda (a) (format "%s" a))
-             (-flatten (mapcar #'(lambda (a) (cdr a)) projectable-ctags-supported-languages)) "|"))
+  (mapconcat (lambda (a) (format "%s" a))
+             (-flatten (mapcar (lambda (a) (cdr a)) projectable-ctags-supported-languages)) "|"))
 
 (defun projectable-get-filter-regexps ()
   "Flatten and concatenate all filter regexps for find command."
-  (mapconcat #'(lambda (a) (format "%s" a)) projectable-filter-regexps "|"))
+  (mapconcat (lambda (a) (format "%s" a)) projectable-filter-regexps "|"))
 
 ;;; Projectable Mode
 ;;  Set up for the projectable minor-mode.
@@ -576,14 +576,14 @@ i.e.  If indent level was 4, the indent string would be '    '."
 
 (defvar projectable-command-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "c") #'projectable-change)
-    (define-key map (kbd "r") #'projectable-refresh)
-    (define-key map (kbd "f") #'projectable-find-file)
-    (define-key map (kbd "t") #'projectable-toggle-open-test)
-    (define-key map (kbd "l") #'projectable-reformat-file)
-    (define-key map (kbd "p") #'projectable-visit-project-file)
-    (define-key map (kbd "b") #'projectable-switch-buffer)
-    (define-key map (kbd "k") #'projectable-kill-project-buffers)
+    (define-key map (kbd "c") 'projectable-change)
+    (define-key map (kbd "r") 'projectable-refresh)
+    (define-key map (kbd "f") 'projectable-find-file)
+    (define-key map (kbd "t") 'projectable-toggle-open-test)
+    (define-key map (kbd "l") 'projectable-reformat-file)
+    (define-key map (kbd "p") 'projectable-visit-project-file)
+    (define-key map (kbd "b") 'projectable-switch-buffer)
+    (define-key map (kbd "k") 'projectable-kill-project-buffers)
     map)
   "Keymap for Projectable commands after `projectable-keymap-prefix'.")
 (fset 'projectable-command-map projectable-command-map)
