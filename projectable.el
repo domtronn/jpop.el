@@ -463,20 +463,26 @@ If called with boolean OVERRIDE, this will override the verbose setting."
   (interactive)
   (projectable--find-file projectable-file-alist 'car 'find-file))
 
-(defun projectable-extended-find-file ()
-  "Call `projectable--find-file` for FILE with `find-file` as function call."
-  (interactive)
-  (projectable--find-file projectable-all-alist 'cadr 'find-file))
+(defun projectable-extended-find-file (file-alist-id)
+  "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
+  (interactive (progn (when projectable-use-vertical-flx
+												(projectable-enable-vertical))
+											(list (completing-read "Library: " (mapcar 'car projectable-project-alist)))))
+  (projectable--find-file
+	 (cdr (assoc file-alist-id projectable-project-alist)) 'cadr 'find-file))
 
 (defun projectable-find-file-other-window ()
   "Call `projectable--find-file` for FILE with `find-file` as function call."
   (interactive)
   (projectable--find-file projectable-file-alist 'car 'find-file-other-window))
 
-(defun projectable-extended-find-file-other-window ()
-  "Call `projectable--find-file` for FILE with `find-file` as function call."
-  (interactive)
-  (projectable--find-file projectable-all-alist 'cadr 'find-file-other-window))
+(defun projectable-extended-find-file-other-window (file-alist-id)
+  "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
+  (interactive (progn (when projectable-use-vertical-flx
+												(projectable-enable-vertical))
+											(list (completing-read "Library: " (mapcar 'car projectable-project-alist)))))
+  (projectable--find-file
+	 (cdr (assoc file-alist-id projectable-project-alist)) 'cadr 'find-file-other-window))
 
 (defun projectable--find-file (file-alist read-f find-f)
   "Interactively find a file in your project.
