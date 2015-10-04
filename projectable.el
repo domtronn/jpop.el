@@ -512,9 +512,13 @@ in more than one directory, select directory.  Lastly the file is opened using F
 				 (neutral-file-name (replace-regexp-in-string (or test-p "") "\\1" (file-name-nondirectory file-name)))
 				 (result (assoc neutral-file-name (if test-p projectable-all-alist projectable-test-alist))))
 		
-		(if (= 2 (length result))
-				(find-file (cadr result))
-			(projectable-message (format "Could not find the test/src file for [%s]" file-name) t))))
+		(cond
+				((= 2 (length result)) (find-file (cadr result)))
+				((> (length result) 2) (find-file
+															 (completing-read
+																(format "[%s] Open test/src file: " projectable-id) (cdr result))))
+				(t (projectable-message (format "Could not find the test/src file for [%s]" file-name) t)))
+		))
 
 (defun projectable-reformat-file ()
   "Reformat tabs/spaces into correct format for current file."
