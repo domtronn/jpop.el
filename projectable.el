@@ -148,8 +148,10 @@ files."
   :group 'projectable
   :type 'booelan)
 (defcustom projectable-test-filter-regexps
-  (quote ("[tT]est" "Spec"))
-  "Specify a list of regexps to filter out test files."
+  (quote ("[-_]*[tT]est" "Spec" "\/script-tests\/.*"))
+  "Specify a list of regexps to filter out test files.
+
+This is a priority ordered list, so more likely matches should be first."
   :group 'projectable
   :type '(repeat regexp))
 
@@ -177,6 +179,7 @@ Mainly for debugging of the package."
 (defvar projectable-project-alist nil)
 (defvar projectable-project-hash nil)
 (defvar projectable-file-alist nil)
+(defvar projectable-all-alist nil)
 (defvar projectable-test-alist nil)
 (defvar projectable-id)
 
@@ -329,7 +332,8 @@ This will just cache all of the files contained in that directory."
 
   (let ((gitignore-filter-regexps (projectable-get-gitignore-filter
                                    (locate-dominating-file (concat projectable-current-project-path "/") ".gitignore"))))
-    (projectable-set-project-alist (when projectable-use-gitignore gitignore-filter-regexps)))
+    (projectable-set-project-alist (when projectable-use-gitignore gitignore-filter-regexps))
+		(projectable-set-test-alist (when projectable-use-gitignore gitignore-filter-regexps)))
   t)
 
 (defun projectable-set-test-alist (&optional gitignore-filter-regexps)
@@ -344,7 +348,7 @@ string."
                (expand-file-name projectable-current-project-path)
                (mapconcat 'identity (append projectable-filter-regexps gitignore-filter-regexps) ",")))
          (result (json-read-from-string (shell-command-to-string cmd))))
-			(setq projectable-test-alist (cdr (assoc projectable-id result)))
+			(setq projectable-test-alist (-reduce (lambda (a b) (append (cdr a) (cdr b))) result))
     t))
 
 (defun projectable-set-project-alist (&optional gitignore-filter-regexps)
@@ -364,6 +368,7 @@ the filter string set in the customisations."
          (result (json-read-from-string (shell-command-to-string cmd))))
     (setq projectable-project-alist result)
     (setq projectable-file-alist (cdr (assoc projectable-id result)))
+		(setq projectable-all-alist (-reduce (lambda (a b) (append (cdr a) (cdr b))) (mapcar 'cdr result)))
     t))
 
 (defun projectable-get-gitignore-filter (gitignore-dir)
@@ -495,11 +500,12 @@ http://emacswiki.org/emacs/FileNameCache"
 (defun projectable-toggle-open-test ()
   "Open associated test class if it exists."
   (interactive)
-  (let* ((file-name (file-name-nondirectory (buffer-file-name)))
-				 (test-p (car (-non-nil (mapcar (lambda (r) (when (string-match r file-name) r)) projectable-test-filter-regexps))))
-				 (neutral-file-name (replace-regexp-in-string (or test-p "") "" file-name))
-				 (result (assoc neutral-file-name (if test-p projectable-file-alist projectable-test-alist))))
-
+  (let* ((file-name (buffer-file-name))
+				 (filters (mapcar (lambda (r) (concat r "\\(\\.[a-z]+$\\)")) projectable-test-filter-regexps))
+				 (test-p (car (-non-nil (mapcar (lambda (r) (when (string-match r file-name) r)) filters))))
+				 (neutral-file-name (replace-regexp-in-string (or test-p "") "\\1" (file-name-nondirectory file-name)))
+				 (result (assoc neutral-file-name (if test-p projectable-all-alist projectable-test-alist))))
+		
 		(if (= 2 (length result))
 				(find-file (cadr result))
 			(projectable-message (format "Could not find the test/src file for [%s]" file-name) t))))
@@ -554,7 +560,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
 (defun projectable-get-ctags-supported-languages ()
   "Flatten and concatenate all supported languages for find command."
   (mapconcat (lambda (a) (format "%s" a))
-             (-flatten (mapcar (lambda (a) (cdr a)) projectable-ctags-supported-languages)) "|"))
+             (-flatten (mapcar 'cdr projectable-ctags-supported-languages)) "|"))
 
 (defun projectable-get-filter-regexps ()
   "Flatten and concatenate all filter regexps for find command."
