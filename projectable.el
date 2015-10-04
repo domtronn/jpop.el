@@ -378,11 +378,9 @@ the filter string set in the customisations."
     (goto-char (point-min))
     (flush-lines "^[#]")
     (flush-lines "^$")
-    (while (search-forward "*" nil t)
-      (replace-match ""))
+    (while (search-forward "*" nil t) (replace-match ""))
     (goto-char (point-min))
-    (while (search-forward "." nil t)
-      (replace-match "\\." nil t))
+    (while (search-forward "." nil t) (replace-match "\\." nil t))
     (split-string (buffer-string) "\n" t)))
 
 (defun projectable-set-indent-object (bool)
@@ -460,35 +458,37 @@ If called with boolean OVERRIDE, this will override the verbose setting."
 	(projectable--switch-buffer 'switch-to-buffer-other-window))
 
 
-(defun projectable-find-file (file)
+(defun projectable-find-file ()
   "Call `projectable--find-file` for FILE with `find-file` as function call."
-  (interactive (progn
-                 (when projectable-use-vertical-flx
-                   (projectable-enable-vertical))
-                 (list (completing-read
-                        "File: " (mapcar (lambda (x) (car x))
-                                         projectable-file-alist)))))
-  (projectable--find-file file 'find-file))
+  (interactive)
+  (projectable--find-file projectable-file-alist 'find-file))
 
-(defun projectable-find-file-other-window (file)
+(defun projectable-extended-find-file ()
   "Call `projectable--find-file` for FILE with `find-file` as function call."
-  (interactive (progn
-                 (when projectable-use-vertical-flx
-                   (projectable-enable-vertical))
-                 (list (completing-read
-                        "File: " (mapcar (lambda (x) (car x))
-                                         projectable-file-alist)))))
-  (projectable--find-file file 'find-file-other-window))
+  (interactive)
+  (projectable--find-file projectable-all-alist 'find-file))
 
-(defun projectable--find-file (file f)
-  "Using `completing-read`, interactively open FILE using F from project.
+(defun projectable-find-file-other-window ()
+  "Call `projectable--find-file` for FILE with `find-file` as function call."
+  (interactive)
+  (projectable--find-file projectable-file-alist 'find-file-other-window))
+
+(defun projectable-extended-find-file-other-window ()
+  "Call `projectable--find-file` for FILE with `find-file` as function call."
+  (interactive)
+  (projectable--find-file projectable-all-alist 'find-file-other-window))
+
+(defun projectable--find-file (file-alist f)
+  "Interactively open FILE in FILE-ALIST using F from project.
+
 Select a file matched using `ido-switch-buffer` against the contents
 of `projectable-file-alist`.  If the file exists in more than one
-directory, select directory.  Lastly the file is opened.
-
-This code snippet is borrowed and adapted from
-http://emacswiki.org/emacs/FileNameCache"
-  (let* ((record (assoc file projectable-file-alist)))
+directory, select directory.  Lastly the file is opened."
+  (let* ((file (progn
+								 (when projectable-use-vertical-flx
+									 (projectable-enable-vertical))
+								 (completing-read "File: " (mapcar 'car file-alist))))
+				 (record (assoc file file-alist)))
     (funcall f
       (if (= (length record) 2)
           (cadr record)
