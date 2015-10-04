@@ -484,7 +484,6 @@ directory, select directory.  Lastly the file is opened.
 This code snippet is borrowed and adapted from
 http://emacswiki.org/emacs/FileNameCache"
   (let* ((record (assoc file projectable-file-alist)))
-		(message "Flie: %s" file)
     (funcall f
       (if (= (length record) 2)
           (cadr record)
@@ -501,8 +500,6 @@ http://emacswiki.org/emacs/FileNameCache"
 				 (neutral-file-name (replace-regexp-in-string (or test-p "") "" file-name))
 				 (result (assoc neutral-file-name (if test-p projectable-file-alist projectable-test-alist))))
 
-		(message "%s" neutral-file-name)
-		
 		(if (= 2 (length result))
 				(find-file (cadr result))
 			(projectable-message (format "Could not find the test/src file for [%s]" file-name) t))))
