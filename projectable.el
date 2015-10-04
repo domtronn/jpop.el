@@ -172,8 +172,6 @@ Mainly for debugging of the package."
   :group 'projectable
   :type 'boolean)
 
-
-
 ;;; Variable Definitions
 (defvar projectable-current-project-path nil)
 (defvar projectable-project-alist nil)
@@ -230,11 +228,8 @@ this directory to the file cache"
   "Set the project based on a path.
 This will just cache all of the files contained in that directory."
   (let* ((json-object-type 'hash-table)
-         (json-contents (with-temp-buffer
-                          (insert-file-contents projectable-current-project-path)
-                          (buffer-string)))
-         (json-hash (json-read-from-string json-contents)))
-
+         (json-hash (json-read-file projectable-current-project-path)))
+		
     (setq projectable-project-hash json-hash)
 
     ;; Set project ID
@@ -243,8 +238,7 @@ This will just cache all of the files contained in that directory."
       (projectable-message (format "Project ID: [%s]" id)))
 
     ;; Create tags
-    (projectable-create-tags
-     (list (gethash "dirs" json-hash) (when (gethash "libs" json-hash) (gethash "libs" json-hash))))
+    (projectable-create-tags (list (gethash "dirs" json-hash) (gethash "libs" json-hash)))
 
     (when (gethash "style" json-hash)
       (projectable-set-styling (gethash "style" json-hash)))
@@ -259,7 +253,7 @@ This will just cache all of the files contained in that directory."
          (projectable-get-all-gitignore-filter (gethash "dirs" json-hash))))
 			
 			(projectable-set-test-alist
-       (when (and use-gitignore projectable-use-gitignore)
+			 (when (and use-gitignore projectable-use-gitignore)
          (projectable-get-all-gitignore-filter (gethash "dirs" json-hash))))))
   t)
 
@@ -441,7 +435,7 @@ If called with boolean OVERRIDE, this will override the verbose setting."
 
 (defun projectable--switch-buffer (f)
   "Call F as the mechanism for switch to buffer branching."
-	(let ((project-buffers (-map #'buffer-name (projectable-get-project-buffers))))
+	(let ((project-buffers (-map 'buffer-name (projectable-get-project-buffers))))
 		(funcall f (completing-read
                 (format "[%s] Switch to buffer: " projectable-id)
                 project-buffers))))
@@ -595,6 +589,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
     (define-key map (kbd "c") 'projectable-change)
     (define-key map (kbd "r") 'projectable-refresh)
     (define-key map (kbd "f") 'projectable-find-file)
+    (define-key map (kbd "F") 'projectable-find-file-other-window)
     (define-key map (kbd "t") 'projectable-toggle-open-test)
     (define-key map (kbd "l") 'projectable-reformat-file)
     (define-key map (kbd "p") 'projectable-visit-project-file)
