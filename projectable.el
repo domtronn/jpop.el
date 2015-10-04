@@ -201,6 +201,7 @@ Mainly for debugging of the package."
   (setq tags-table-list nil)
   (setq projectable-project-alist (make-hash-table :test 'equal))
   (setq projectable-file-alist (make-hash-table :test 'equal))
+  (setq projectable-test-alist (make-hash-table :test 'equal))
 
   (projectable-refresh)
   (when projectable-use-vertical-flx (projectable-disable-vertical)))
