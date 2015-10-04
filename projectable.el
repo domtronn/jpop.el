@@ -220,7 +220,7 @@ this directory to the file cache"
       ;; A directory so load form directory
       (progn
         (projectable-message
-         (format "Interpreting as directory - [%s] is not a file" projectable-current-project-path))
+         (format "Interpreting as directory - [%s] is not a file" projectable-current-project-path) t)
         (projectable-load-from-path)))))
 
 (defun projectable-load-from-json ()
