@@ -556,8 +556,10 @@ i.e.  If indent level was 4, the indent string would be '    '."
 (defun projectable-project-contains (file)
   "Check to see if project alist contain FILE."
   (-any? (lambda (r) (string-match (replace-regexp-in-string "~" "" r) file))
-         (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "dirs" projectable-project-hash))))
-    
+         (if projectable-project-hash
+						 (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "dirs" projectable-project-hash))
+					 (list projectable-current-project-path))))
+
 (defun projectable-visit-project-file ()
   "Open the project file currently being used."
   (interactive)
