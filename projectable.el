@@ -506,15 +506,6 @@ http://emacswiki.org/emacs/FileNameCache"
 				(find-file (cadr result))
 			(projectable-message (format "Could not find the test/src file for [%s]" file-name) t))))
 
-(defun projectable-guess-source-path ()
-  "Guess what the source path for files is."
-  (let ((result nil)
-        (projects (gethash "dirs" projectable-project-hash)))
-    (mapc #'(lambda (p) (let ((project-dir (expand-file-name (gethash "dir" p))))
-                     (when (string-match project-dir (file-truename (buffer-file-name)))
-                       (setq result project-dir)))) projects)
-    result))
-
 (defun projectable-reformat-file ()
   "Reformat tabs/spaces into correct format for current file."
   (interactive)
