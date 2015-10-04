@@ -541,13 +541,9 @@ i.e.  If indent level was 4, the indent string would be '    '."
 
 (defun projectable-project-contains (file)
   "Check to see if project alist contain FILE."
-  (let* ((result nil)
-         (file-name (file-name-nondirectory file)))
-    (mapc #'(lambda (alist)
-              (when (and (assoc file-name (cdr alist)) (member file (cdr (assoc file-name (cdr alist)))))
-                (setq result t)))
-          projectable-project-alist) result))
-
+  (-any? (lambda (r) (string-match (replace-regexp-in-string "~" "" r) file))
+         (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "dirs" projectable-project-hash))))
+    
 (defun projectable-visit-project-file ()
   "Open the project file currently being used."
   (interactive)
