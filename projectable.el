@@ -497,18 +497,24 @@ in more than one directory, select directory.  Lastly the file is opened using F
     (when projectable-use-vertical-flx
       (projectable-disable-vertical))))
 
-(defun projectable-toggle-open-test ()
-  "Open associated test class if it exists."
+(defun projectable-toggle-open-test-other-window ()
+  "Open associated test class if it exists in the other window."
   (interactive)
-  (let* ((file-name (buffer-file-name))
+  (projectable-toggle-open-test 'find-file-other-window))
+
+(defun projectable-toggle-open-test (&optional f)
+  "Open associated test class if it exists using F."
+  (interactive)
+  (let* ((find-f (or f 'find-file))
+         (file-name (buffer-file-name))
 				 (filters (mapcar (lambda (r) (concat r "\\(\\.[a-z]+$\\)")) projectable-test-filter-regexps))
 				 (test-p (car (-non-nil (mapcar (lambda (r) (when (string-match r file-name) r)) filters))))
 				 (neutral-file-name (replace-regexp-in-string (or test-p "") "\\1" (file-name-nondirectory file-name)))
 				 (result (assoc neutral-file-name (if test-p projectable-all-alist projectable-test-alist))))
 		
 		(cond
-				((= 2 (length result)) (find-file (cadr result)))
-				((> (length result) 2) (find-file
+				((= 2 (length result)) (funcall find-f (cadr result)))
+				((> (length result) 2) (funcall find-f
 															 (completing-read
 																(format "[%s] Open test/src file: " projectable-id) (cdr result))))
 				(t (projectable-message (format "Could not find the test/src file for [%s]" file-name) t)))
