@@ -352,10 +352,7 @@ string."
                (expand-file-name projectable-current-project-path)
                (mapconcat 'identity (append projectable-filter-regexps gitignore-filter-regexps) ",")))
          (result (json-read-from-string (shell-command-to-string cmd))))
-			(setq projectable-test-alist
-						(if (> (length result) 1)
-                (-reduce (lambda (a b) (append (cdr a) (cdr b))) result)
-							(cdar result)))
+			(setq projectable-test-alist (-reduce (lambda (a b) (append (cdr a) (cdr b))) result))
     t))
 
 (defun projectable-set-project-alist (&optional gitignore-filter-regexps)
@@ -375,10 +372,7 @@ the filter string set in the customisations."
          (result (json-read-from-string (shell-command-to-string cmd))))
     (setq projectable-project-alist result)
     (setq projectable-file-alist (cdr (assoc projectable-id result)))
-		(setq projectable-all-alist
-          (if (> (length result) 1)
-              (-reduce (lambda (a b) (append (cdr a) (cdr b))) result)
-            (cdar result)))
+		(setq projectable-all-alist (-reduce (lambda (a b) (append (cdr a) (cdr b))) result))
     t))
 
 (defun projectable-get-gitignore-filter (gitignore-dir)
