@@ -409,15 +409,13 @@ t => spaces nil => tabs"
   (setq-default js-indent-level level)
   (setq-default basic-offset level)
   (setq tab-width level)
+  (when (fboundp 'js2-mode) (setq-default js2-basic-offset projectable-indent-level))
+  (when (fboundp 'web-mode)
+    (setq-default web-mode-markup-indent-offset projectable-indent-level)
+    (setq-default web-mode-css-indent-offset projectable-indent-level)
+    (setq-default web-mode-code-indent-offset projectable-indent-level))
   (projectable-message (format "Setting indent level to %s" level))
   t)
-
-(eval-after-load "js2-mode"
-  (setq-default js2-basic-offset projectable-indent-level))
-(eval-after-load "web-mode"
-  (progn (setq-default web-mode-markup-indent-offset projectable-indent-level)
-         (setq-default web-mode-css-indent-offset projectable-indent-level)
-         (setq-default web-mode-code-indent-offset projectable-indent-level)))
 
 ;; Utility functions
 (defun projectable-message (string &optional override)
