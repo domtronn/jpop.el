@@ -73,6 +73,16 @@ reformat that file to use the projects format settings."
   :group 'projectable
   :type 'boolean)
 
+(defcustom projectable-completion-func 'cadr
+	"The format of the file names when caling `completing-read`.
+
+i.e.  Full			=> /path/to/file.ext
+      Basename	=> file.ext"
+	:type '(radio
+          (const :tag "Display the full file name" cadr)
+          (const :tag "Display just the base name" car))
+  :group 'projectable)
+
 ;;; Customisation Option Definitions
 (defcustom projectable-alist-cmd (concat projectable-dir "create-file-alist.py")
   "Specify the command that to produce an associative list.
@@ -452,7 +462,7 @@ Optionally called F as the function used to switch the buffer."
 (defun projectable-find-file ()
   "Call `projectable--find-file` for FILE with `find-file` as function call."
   (interactive)
-  (projectable--find-file projectable-file-alist 'car 'find-file))
+  (projectable--find-file projectable-file-alist 'find-file))
 
 (defun projectable-extended-find-file (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
@@ -460,12 +470,12 @@ Optionally called F as the function used to switch the buffer."
 												(projectable-enable-vertical))
 											(list (completing-read "Library: " (mapcar 'car projectable-project-alist)))))
   (projectable--find-file
-	 (cdr (assoc file-alist-id projectable-project-alist)) 'cadr 'find-file))
+	 (cdr (assoc file-alist-id projectable-project-alist)) 'find-file))
 
 (defun projectable-find-file-other-window ()
   "Call `projectable--find-file` for FILE with `find-file` as function call."
   (interactive)
-  (projectable--find-file projectable-file-alist 'car 'find-file-other-window))
+  (projectable--find-file projectable-file-alist 'find-file-other-window))
 
 (defun projectable-extended-find-file-other-window (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
@@ -473,9 +483,9 @@ Optionally called F as the function used to switch the buffer."
 												(projectable-enable-vertical))
 											(list (completing-read "Library: " (mapcar 'car projectable-project-alist)))))
   (projectable--find-file
-	 (cdr (assoc file-alist-id projectable-project-alist)) 'cadr 'find-file-other-window))
+	 (cdr (assoc file-alist-id projectable-project-alist)) 'find-file-other-window))
 
-(defun projectable--find-file (file-alist read-f find-f)
+(defun projectable--find-file (file-alist find-f)
   "Interactively find a file in your project.
 
 Select a file matched using `completing-read` against the contents
@@ -484,7 +494,7 @@ in more than one directory, select directory.  Lastly the file is opened using F
   (let* ((file (progn
 								 (when projectable-use-vertical-flx
 									 (projectable-enable-vertical))
-								 (completing-read "File: " (mapcar read-f file-alist))))
+								 (completing-read "File: " (mapcar projectable-completion-func file-alist))))
 				 (record (assoc (file-name-nondirectory file) file-alist)))
     (funcall find-f
       (if (= (length record) 2)
