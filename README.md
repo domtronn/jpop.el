@@ -64,19 +64,19 @@ If you enable `projectable-global-mode` you will have access to the following ke
 
 Key Binding | Command | Effect 
 --- | --- | ---
-`C-c p c` | `projectable-change` | Change to a new project file/directory 
-`C-c p r` | `projectable-refresh` | Refresh the list of files cached 
-`C-c p f` | `projectable-find-file` | Open a file from the cache 
-`C-c p F` | `projectable-find-file-other-window` | Open a file from the cache in the other window
-`C-c p E` | `projectable-extended-find-file` | Open a file from the any declared library cache
-`C-c p E` | `projectable-extended-find-file-other-window` | Open a file from the any declared library cache in the other window
-`C-c p t` | `projectable-toggle-open-test` | Try and find the related test file
-`C-c p T` | `projectable-toggle-open-test-other-window` | Try and find the related test file in the other window
-`C-c p l` | `projectable-reformat-file` | Reformat the current file to use appropiate indentation
-`C-c p p` | `projectable-visit-project-file` | Open the current project file for editing
-`C-c p b` | `projectable-switch-buffer` | Switch between buffers in the current project
-`C-c p B` | `projectable-switch-buffer-other-window` | Switch between buffers in the current project and open in the other window
-`C-c p k` | `projectable-kill-project-buffers` | Kill all of the buffers related to the current project
+`C-x p c` | `projectable-change` | Change to a new project file/directory 
+`C-x p r` | `projectable-refresh` | Refresh the list of files cached 
+`C-x p f` | `projectable-find-file` | Open a file from the cache 
+`C-x p F` | `projectable-find-file-other-window` | Open a file from the cache in the other window
+`C-x p E` | `projectable-extended-find-file` | Open a file from the any declared library cache
+`C-x p E` | `projectable-extended-find-file-other-window` | Open a file from the any declared library cache in the other window
+`C-x p t` | `projectable-toggle-open-test` | Try and find the related test file
+`C-x p T` | `projectable-toggle-open-test-other-window` | Try and find the related test file in the other window
+`C-x p l` | `projectable-reformat-file` | Reformat the current file to use appropiate indentation
+`C-x p p` | `projectable-visit-project-file` | Open the current project file for editing
+`C-x p b` | `projectable-switch-buffer` | Switch between buffers in the current project
+`C-x p B` | `projectable-switch-buffer-other-window` | Switch between buffers in the current project and open in the other window
+`C-x p k` | `projectable-kill-project-buffers` | Kill all of the buffers related to the current project
     
 It is well worth looking through `customize-group RET projectable` to see what you can customise.
 

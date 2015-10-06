@@ -55,7 +55,7 @@ By default it looks in the ~/Documents/Projects folder"
   :group 'projectable
   :type 'string)
 
-(defcustom projectable-keymap-prefix (kbd "C-c p")
+(defcustom projectable-keymap-prefix (kbd "C-x p")
   "Projectable keymap prefix."
   :group 'projectable
   :type 'key-sequence)
@@ -604,7 +604,6 @@ i.e.  If indent level was 4, the indent string would be '    '."
     map)
   "Keymap for Projectable commands after `projectable-keymap-prefix'.")
 (fset 'projectable-command-map projectable-command-map)
-
 (defvar projectable-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map projectable-keymap-prefix 'projectable-command-map)
