@@ -289,10 +289,10 @@ This will just cache all of the files contained in that directory."
   "Build and run the create tags command in DIR."
   (let* ((cmd
            (format projectable-find-cmd-format
-                  dir
-                  (projectable-get-ctags-supported-languages)
-                  (projectable-get-filter-regexps)
-                  (format projectable-ctags-cmd-format dir)))
+									 (shell-quote-argument dir)
+									 (projectable-get-ctags-supported-languages)
+									 (projectable-get-filter-regexps)
+									 (format projectable-ctags-cmd-format (shell-quote-argument dir))))
          (name (format "[projectable] Creating tags for [%s]" dir))
          (buffer-name (format "*create-tags*<%s>" dir)))
     (projectable-message cmd)
@@ -337,9 +337,9 @@ Can be passed a list GITIGNORE-FILTER-REGEXPS of regexps to append to the filter
 string."
     (let* ((json-object-type 'alist) (json-array-type 'list) (json-key-type 'string)
          (cmd (format "%s -i \"%s\" %s \"%s\""
-							 projectable-alist-cmd
+							 (shell-quote-argument projectable-alist-cmd)
 							 (mapconcat 'identity (mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) projectable-test-filter-regexps) ",")
-               (expand-file-name projectable-current-project-path)
+               (shell-quote-argument (expand-file-name projectable-current-project-path))
                (mapconcat 'identity (append (split-string (projectable-get-filter-regexps) "|") gitignore-filter-regexps) ",")))
          (result (json-read-from-string (shell-command-to-string cmd))))
 			(projectable-message cmd)
@@ -353,8 +353,8 @@ Can be passed a list GITIGNORE-FILTER-REGEXPS of regexps to append to
 the filter string set in the customisations."
   (let* ((json-object-type 'alist) (json-array-type 'list) (json-key-type 'string)
          (cmd (format "%s %s \"%s\""
-               projectable-alist-cmd
-               (expand-file-name projectable-current-project-path)
+               (shell-quote-argument projectable-alist-cmd)
+               (shell-quote-argument (expand-file-name projectable-current-project-path))
                (mapconcat 'identity (append
                                      (split-string (projectable-get-filter-regexps) "|")
 																		 gitignore-filter-regexps
