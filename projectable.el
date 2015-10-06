@@ -74,11 +74,11 @@ reformat that file to use the projects format settings."
   :type 'boolean)
 
 (defcustom projectable-completion-func 'cadr
-	"The format of the file names when caling `completing-read`.
+    "The format of the file names when caling `completing-read`.
 
-i.e.  Full			=> /path/to/file.ext
-      Basename	=> file.ext"
-	:type '(radio
+i.e.  Full     => /path/to/file.ext
+      Basename => file.ext"
+    :type '(radio
           (const :tag "Display the full file name" cadr)
           (const :tag "Display just the base name" car))
   :group 'projectable)
@@ -229,7 +229,6 @@ this directory to the file cache"
 This will just cache all of the files contained in that directory."
   (let* ((json-object-type 'hash-table)
          (json-hash (json-read-file projectable-current-project-path)))
-		
     (setq projectable-project-hash json-hash)
 
     ;; Set project ID
@@ -249,12 +248,11 @@ This will just cache all of the files contained in that directory."
                               (not (eq :json-false gitignore-from-hash))
                             projectable-use-gitignore)))
       
-			(projectable-set-project-alist
+            (projectable-set-project-alist
        (when (and use-gitignore projectable-use-gitignore)
          (projectable-get-all-gitignore-filter (gethash "dirs" json-hash))))
-			
-			(projectable-set-test-alist
-			 (when (and use-gitignore projectable-use-gitignore)
+            (projectable-set-test-alist
+             (when (and use-gitignore projectable-use-gitignore)
          (projectable-get-all-gitignore-filter (gethash "dirs" json-hash))))))
   t)
 
@@ -289,11 +287,11 @@ This will just cache all of the files contained in that directory."
 (defun projectable-create-tags-in-directory (dir)
   "Build and run the create tags command in DIR."
   (let* ((cmd
-           (format projectable-find-cmd-format
-									 (shell-quote-argument dir)
-									 (projectable-get-ctags-supported-languages)
-									 (projectable-get-filter-regexps)
-									 (format projectable-ctags-cmd-format (shell-quote-argument dir))))
+          (format projectable-find-cmd-format
+                  (shell-quote-argument dir)
+                  (projectable-get-ctags-supported-languages)
+                  (projectable-get-filter-regexps)
+                  (format projectable-ctags-cmd-format (shell-quote-argument dir))))
          (name (format "[projectable] Creating tags for [%s]" dir))
          (buffer-name (format "*create-tags*<%s>" dir)))
     (projectable-message cmd)
@@ -322,29 +320,29 @@ This will just cache all of the files contained in that directory."
   ;; Set project ID
   (let ((id (file-name-nondirectory projectable-current-project-path)))
     (setq projectable-id id)
-		(setq projectable-mode-line (format " [P>%s]" id))
+    (setq projectable-mode-line (format " [P>%s]" id))
     (projectable-message (format "Project ID: [%s]" id)))
 
   (let ((gitignore-filter-regexps (projectable-get-gitignore-filter
                                    (locate-dominating-file (concat projectable-current-project-path "/") ".gitignore"))))
     (projectable-set-project-alist (when projectable-use-gitignore gitignore-filter-regexps))
-		(projectable-set-test-alist (when projectable-use-gitignore gitignore-filter-regexps)))
+    (projectable-set-test-alist (when projectable-use-gitignore gitignore-filter-regexps)))
   t)
 
 (defun projectable-set-test-alist (&optional gitignore-filter-regexps)
-	"Set `projectable-test-alist` by using `projectable-alist-cmd`.
+    "Set `projectable-test-alist` by using `projectable-alist-cmd`.
 
 Can be passed a list GITIGNORE-FILTER-REGEXPS of regexps to append to the filter
 string."
     (let* ((json-object-type 'alist) (json-array-type 'list) (json-key-type 'string)
          (cmd (format "%s -i \"%s\" %s \"%s\""
-							 (shell-quote-argument projectable-alist-cmd)
-							 (mapconcat 'identity (mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) projectable-test-filter-regexps) ",")
-               (shell-quote-argument (expand-file-name projectable-current-project-path))
-               (mapconcat 'identity (append (split-string (projectable-get-filter-regexps) "|") gitignore-filter-regexps) ",")))
+                (shell-quote-argument projectable-alist-cmd)
+                (mapconcat 'identity (mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) projectable-test-filter-regexps) ",")
+                (shell-quote-argument (expand-file-name projectable-current-project-path))
+                (mapconcat 'identity (append (split-string (projectable-get-filter-regexps) "|") gitignore-filter-regexps) ",")))
          (result (json-read-from-string (shell-command-to-string cmd))))
-			(projectable-message cmd)
-			(setq projectable-test-alist (-reduce (lambda (a b) (append (cdr a) (cdr b))) result))
+            (projectable-message cmd)
+            (setq projectable-test-alist (-reduce (lambda (a b) (append (cdr a) (cdr b))) result))
     t))
 
 (defun projectable-set-project-alist (&optional gitignore-filter-regexps)
@@ -358,15 +356,15 @@ the filter string set in the customisations."
                (shell-quote-argument (expand-file-name projectable-current-project-path))
                (mapconcat 'identity (append
                                      (split-string (projectable-get-filter-regexps) "|")
-																		 gitignore-filter-regexps
+                                     gitignore-filter-regexps
                                      (and projectable-filter-tests
-																					(mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) projectable-test-filter-regexps)))
+                                          (mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) projectable-test-filter-regexps)))
                           ",")))
          (result (json-read-from-string (shell-command-to-string cmd))))
-		(projectable-message cmd)
+    (projectable-message cmd)
     (setq projectable-project-alist result)
     (setq projectable-file-alist (cdr (assoc projectable-id result)))
-		(setq projectable-all-alist (-reduce (lambda (a b) (append (cdr a) (cdr b))) result))
+    (setq projectable-all-alist (-reduce (lambda (a b) (append (cdr a) (cdr b))) result))
     t))
 
 (defun projectable-get-gitignore-filter (gitignore-dir)
@@ -440,7 +438,7 @@ If called with boolean OVERRIDE, this will override the verbose setting."
 Optionally called F as the function used to switch the buffer."
   (interactive)
   (let ((project-buffers (-map 'buffer-name (projectable-get-project-buffers))))
-		(funcall (or f 'switch-to-buffer) (completing-read
+        (funcall (or f 'switch-to-buffer) (completing-read
                 (format "[%s] Switch to buffer: " projectable-id)
                 project-buffers))))
 
@@ -458,10 +456,10 @@ Optionally called F as the function used to switch the buffer."
 (defun projectable-extended-find-file (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
   (interactive (progn (when projectable-use-vertical-flx
-												(projectable-enable-vertical))
-											(list (completing-read "Library: " (mapcar 'car projectable-project-alist)))))
+                        (projectable-enable-vertical))
+                      (list (completing-read "Library: " (mapcar 'car projectable-project-alist)))))
   (projectable--find-file
-	 (cdr (assoc file-alist-id projectable-project-alist)) 'find-file))
+     (cdr (assoc file-alist-id projectable-project-alist)) 'find-file))
 
 (defun projectable-find-file-other-window ()
   "Call `projectable--find-file` for FILE with `find-file` as function call."
@@ -471,10 +469,10 @@ Optionally called F as the function used to switch the buffer."
 (defun projectable-extended-find-file-other-window (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
   (interactive (progn (when projectable-use-vertical-flx
-												(projectable-enable-vertical))
-											(list (completing-read "Library: " (mapcar 'car projectable-project-alist)))))
+                        (projectable-enable-vertical))
+                      (list (completing-read "Library: " (mapcar 'car projectable-project-alist)))))
   (projectable--find-file
-	 (cdr (assoc file-alist-id projectable-project-alist)) 'find-file-other-window))
+     (cdr (assoc file-alist-id projectable-project-alist)) 'find-file-other-window))
 
 (defun projectable--find-file (file-alist find-f)
   "Interactively find a file in your project.
@@ -483,10 +481,10 @@ Select a file matched using `completing-read` against the contents
 of FILE-ALIST.  Options are displayed using READ-F.  If the file exists
 in more than one directory, select directory.  Lastly the file is opened using FIND-F."
   (let* ((file (progn
-								 (when projectable-use-vertical-flx
-									 (projectable-enable-vertical))
-								 (completing-read "File: " (mapcar projectable-completion-func file-alist))))
-				 (record (assoc (file-name-nondirectory file) file-alist)))
+                 (when projectable-use-vertical-flx
+                   (projectable-enable-vertical))
+                 (completing-read "File: " (mapcar projectable-completion-func file-alist))))
+         (record (assoc (file-name-nondirectory file) file-alist)))
     (funcall find-f
       (if (= (length record) 2)
           (cadr record)
@@ -505,18 +503,17 @@ in more than one directory, select directory.  Lastly the file is opened using F
   (interactive)
   (let* ((find-f (or f 'find-file))
          (file-name (buffer-file-name))
-				 (filters (mapcar (lambda (r) (concat r "\\(\\.[a-z]+$\\)")) projectable-test-filter-regexps))
-				 (test-p (car (-non-nil (mapcar (lambda (r) (when (string-match r file-name) r)) filters))))
-				 (neutral-file-name (replace-regexp-in-string (or test-p "") "\\1" (file-name-nondirectory file-name)))
-				 (result (assoc neutral-file-name (if test-p projectable-all-alist projectable-test-alist))))
-		
-		(cond
-				((= 2 (length result)) (funcall find-f (cadr result)))
-				((> (length result) 2) (funcall find-f
-															 (completing-read
-																(format "[%s] Open test/src file: " projectable-id) (cdr result))))
-				(t (projectable-message (format "Could not find the test/src file for [%s]" file-name) t)))
-		))
+         (filters (mapcar (lambda (r) (concat r "\\(\\.[a-z]+$\\)")) projectable-test-filter-regexps))
+         (test-p (car (-non-nil (mapcar (lambda (r) (when (string-match r file-name) r)) filters))))
+         (neutral-file-name (replace-regexp-in-string (or test-p "") "\\1" (file-name-nondirectory file-name)))
+         (result (assoc neutral-file-name (if test-p projectable-all-alist projectable-test-alist))))
+    
+    (cond
+     ((= 2 (length result)) (funcall find-f (cadr result)))
+     ((> (length result) 2) (funcall find-f
+                                     (completing-read
+                                      (format "[%s] Open test/src file: " projectable-id) (cdr result))))
+     (t (projectable-message (format "Could not find the test/src file for [%s]" file-name) t)))))
 
 (defun projectable-reformat-file ()
   "Reformat tabs/spaces into correct format for current file."
@@ -549,14 +546,14 @@ i.e.  If indent level was 4, the indent string would be '    '."
 (defun projectable-get-project-buffers ()
   "Get a list of buffers within the current project."
   (-filter (lambda (buffer) (let* ((bufname (buffer-file-name buffer)))
-							 (and bufname (projectable-project-contains bufname)))) (buffer-list)))
+                         (and bufname (projectable-project-contains bufname)))) (buffer-list)))
 
 (defun projectable-project-contains (file)
   "Check to see if project alist contain FILE."
   (-any? (lambda (r) (string-match (replace-regexp-in-string "~" "" r) file))
          (if projectable-project-hash
-						 (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "dirs" projectable-project-hash))
-					 (list projectable-current-project-path))))
+             (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "dirs" projectable-project-hash))
+           (list projectable-current-project-path))))
 
 (defun projectable-visit-project-file ()
   "Open the project file currently being used."
