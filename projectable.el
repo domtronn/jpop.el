@@ -178,6 +178,7 @@ Mainly for debugging of the package."
 (defvar projectable-all-alist nil)
 (defvar projectable-test-alist nil)
 (defvar projectable-id)
+(defvar projectable-mode-line " [P>x]")
 
 (defvar projectable-indent-level
   2 "The level of indentation to be used.")
@@ -233,6 +234,7 @@ This will just cache all of the files contained in that directory."
     ;; Set project ID
     (let ((id (gethash "id" json-hash)))
       (setq projectable-id id)
+      (setq projectable-mode-line (format " [P>%s]" id))
       (projectable-message (format "Project ID: [%s]" id)))
 
     ;; Create tags
@@ -319,6 +321,7 @@ This will just cache all of the files contained in that directory."
   ;; Set project ID
   (let ((id (file-name-nondirectory projectable-current-project-path)))
     (setq projectable-id id)
+		(setq projectable-mode-line (format " [P>%s]" id))
     (projectable-message (format "Project ID: [%s]" id)))
 
   (let ((gitignore-filter-regexps (projectable-get-gitignore-filter
@@ -621,7 +624,7 @@ nil or positive.  If ARG is `toggle', toggle `projectable-mode'.
 Otherwise behave as if called interactively.
 
 \\{projectile-mode-map}"
-  :lighter (format " [P>%s]" (upcase projectable-id))
+  :lighter  projectable-mode-line
   :keymap projectable-mode-map
   :group 'projectable
   :require 'projectable)
