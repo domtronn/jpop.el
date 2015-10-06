@@ -106,7 +106,6 @@ The formats should be replaced, in order, by
   see `projectable-ctags-supported-languages`
   and `projectable-get-ctags-supported-languages`
 - string of regexp filters
-  see `projectable-filter-regexps`
   and `projectable-get-filter-regexps`")
 
 (defcustom projectable-auto-visit-tags t
@@ -162,17 +161,6 @@ files."
   "Specify a list of regexps to filter out test files.
 
 This is a priority ordered list, so more likely matches should be first."
-  :group 'projectable
-  :type '(repeat regexp))
-
-(defcustom projectable-filter-regexps
-  (quote
-   ("~$" "\\.o$" "\\.exe$" "\\.a$" "/\\.svn" "\\.elc$" "\\.output$" "\\.$" "#$" "\\.class$"
-    "\\.png$" "\\.svn*" "\\/node_modules\\/*" "\\.gif$" "\\.gem$"
-    "\\.pdf$" "\\.swp$" "\\.iml$" "\\.jar$" "\\/build\\/" "/\\.git"
-    "\\/jsdoc\\/" "\\.min\\.js$" "\\.tags$" "\\.filecache"
-    "\\.cache$" "\\/.git\\/" "report" "\\.gcov\\.html$" "\\.func.*\\.html$"))
-  "Specify a list of regexps to filter."
   :group 'projectable
   :type '(repeat regexp))
 
@@ -298,12 +286,11 @@ This will just cache all of the files contained in that directory."
 (defun projectable-create-tags-in-directory (dir)
   "Build and run the create tags command in DIR."
   (let* ((cmd
-          (shell-quote-argument
            (format projectable-find-cmd-format
                   dir
                   (projectable-get-ctags-supported-languages)
                   (projectable-get-filter-regexps)
-                  (format projectable-ctags-cmd-format dir))))
+                  (format projectable-ctags-cmd-format dir)))
          (name (format "[projectable] Creating tags for [%s]" dir))
          (buffer-name (format "*create-tags*<%s>" dir)))
     (projectable-message cmd)
@@ -350,8 +337,9 @@ string."
 							 projectable-alist-cmd
 							 (mapconcat 'identity (mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) projectable-test-filter-regexps) ",")
                (expand-file-name projectable-current-project-path)
-               (mapconcat 'identity (append projectable-filter-regexps gitignore-filter-regexps) ",")))
+               (mapconcat 'identity (append (split-string (projectable-get-filter-regexps) "|") gitignore-filter-regexps) ",")))
          (result (json-read-from-string (shell-command-to-string cmd))))
+			(projectable-message cmd)
 			(setq projectable-test-alist (-reduce (lambda (a b) (append (cdr a) (cdr b))) result))
     t))
 
@@ -365,11 +353,13 @@ the filter string set in the customisations."
                projectable-alist-cmd
                (expand-file-name projectable-current-project-path)
                (mapconcat 'identity (append
-                                     projectable-filter-regexps gitignore-filter-regexps
+                                     (split-string (projectable-get-filter-regexps) "|")
+																		 gitignore-filter-regexps
                                      (and projectable-filter-tests
 																					(mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) projectable-test-filter-regexps)))
                           ",")))
          (result (json-read-from-string (shell-command-to-string cmd))))
+		(projectable-message cmd)
     (setq projectable-project-alist result)
     (setq projectable-file-alist (cdr (assoc projectable-id result)))
 		(setq projectable-all-alist (-reduce (lambda (a b) (append (cdr a) (cdr b))) result))
@@ -384,8 +374,7 @@ the filter string set in the customisations."
     (flush-lines "^$")
     (while (search-forward "*" nil t) (replace-match ""))
     (goto-char (point-min))
-    (while (search-forward "." nil t) (replace-match "\\." nil t))
-    (split-string (buffer-string) "\n" t)))
+    (mapcar 'regexp-quote (split-string (buffer-string) "\n" t))))
 
 (defun projectable-set-indent-object (bool)
   "Set the indent type based on BOOL.
@@ -576,12 +565,11 @@ i.e.  If indent level was 4, the indent string would be '    '."
 
 (defun projectable-get-ctags-supported-languages ()
   "Flatten and concatenate all supported languages for find command."
-  (mapconcat (lambda (a) (format "%s" a))
-             (-flatten (mapcar 'cdr projectable-ctags-supported-languages)) "|"))
+  (mapconcat 'format (-flatten (mapcar 'cdr projectable-ctags-supported-languages)) "|"))
 
-(defun projectable-get-filter-regexps ()
-  "Flatten and concatenate all filter regexps for find command."
-  (mapconcat (lambda (a) (format "%s" a)) projectable-filter-regexps "|"))
+(defun projectable-get-filter-regexps (&optional separator)
+  "Flatten and concatenate all filter regexps for find command with SEPARATOR."
+  (mapconcat 'regexp-quote completion-ignored-extensions (or separator "|")))
 
 ;;; Projectable Mode
 ;;  Set up for the projectable minor-mode.
