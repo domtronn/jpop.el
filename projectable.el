@@ -542,7 +542,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
   (let* ((project-buffers (projectable-get-project-buffers)))
     (if project-buffers
         (let ((kill (yes-or-no-p
-                    (format "[%s] Kill (%d buffers)? " projectable-id (length project-buffers)))))
+										 (format "[%s] Kill %d buffers (%s)? " projectable-id (length project-buffers) (mapconcat 'buffer-name project-buffers ", ")))))
           (when kill (mapc (lambda (buf) (kill-buffer buf)) project-buffers)))
       (projectable-message "You currently have no buffers open associated with this project" t))))
 
