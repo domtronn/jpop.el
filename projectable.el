@@ -453,7 +453,7 @@ Optionally called F as the function used to switch the buffer."
 (defun projectable-find-file ()
   "Call `projectable--find-file` for FILE with `find-file` as function call."
   (interactive)
-  (projectable--find-file projectable-file-alist 'find-file))
+  (if projectable-file-alist (projectable--find-file projectable-file-alist 'find-file)) (message "You do not currently have a project set. You can set a project by calling projectable-change (c-x p c)"))
 
 (defun projectable-extended-find-file (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
