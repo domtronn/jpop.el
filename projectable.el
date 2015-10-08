@@ -301,7 +301,7 @@ This will just cache all of the files contained in that directory."
   "Set up variables associated with the styling from a STYLE-HASH."
   ;; Set the indent level
   (when (gethash "indent" style-hash)
-    (projectable-set-indent-level (gethash "indent" style-hash)))
+    (setq projectable-indent-level (gethash "indent" style-hash)))
   ;; Set the tabs/spaces indent type
   (when (gethash "tabs" style-hash)
     (projectable-set-indent-object (eq :json-false (gethash "tabs" style-hash)))))
@@ -378,35 +378,37 @@ the filter string set in the customisations."
     (goto-char (point-min))
     (mapcar 'regexp-quote (split-string (buffer-string) "\n" t))))
 
-(defun projectable-set-indent-object (bool)
-  "Set the indent type based on BOOL.
+(defun projectable-set-indent-object (use-spaces)
+  "Set the indent type on whether we USE-SPACES.
 t => spaces nil => tabs"
-  (if bool
+  (if use-spaces
       (progn
         (projectable-message (format "Using spaces for project [%s]" projectable-id))
-        (setq projectable-indent-object (list :spaces (projectable-build-space-string) "	"))
-        (setq-default indent-tabs-mode nil))
+        (setq projectable-indent-object (list :spaces (projectable-build-space-string) "	")))
     (progn
       (projectable-message (format "Using tabs for project [%s]" projectable-id))
-      (setq projectable-indent-object (list :tabs "	" (projectable-build-space-string)))
-      (setq-default indent-tabs-mode t)))
-   t)
+      (setq projectable-indent-object (list :tabs "	" (projectable-build-space-string)))))
+	t)
 
-(defun projectable-set-indent-level (level)
-  "Set the indent level based on LEVEL."
-  (setq projectable-indent-level level)
-  (setq-default c-basic-offset level)
-  (setq-default css-indent-offset level)
-  (setq-default js-indent-level level)
-  (setq-default basic-offset level)
-  (setq tab-width level)
-  (when (fboundp 'js2-mode) (setq-default js2-basic-offset projectable-indent-level))
+(defun projectable-set-local-styles ()
+  "Set the indent level and indent type."
+  (setq-local indent-tabs-mode (eq :tabs (car projectable-indent-object)))
+  (setq-local c-basic-offset projectable-indent-level)
+  (setq-local css-indent-offset projectable-indent-level)
+  (setq-local js-indent-projectable-indent-level projectable-indent-level)
+  (setq-local basic-offset projectable-indent-level)
+  (setq tab-width projectable-indent-level)
+  (when (fboundp 'js2-mode) (setq-local js2-basic-offset projectable-indent-level))
   (when (fboundp 'web-mode)
-    (setq-default web-mode-markup-indent-offset projectable-indent-level)
-    (setq-default web-mode-css-indent-offset projectable-indent-level)
-    (setq-default web-mode-code-indent-offset projectable-indent-level))
-  (projectable-message (format "Setting indent level to %s" level))
+    (setq-local web-mode-markup-indent-offset projectable-indent-level)
+    (setq-local web-mode-css-indent-offset projectable-indent-level)
+    (setq-local web-mode-code-indent-offset projectable-indent-level))
+  (projectable-message (format "Setting indent level to %s" projectable-indent-level))
   t)
+;; Set a hook to set up the local project styles for project buffers
+(add-hook 'find-file-hook
+					'(lambda () (when (projectable-project-contains (buffer-file-name))
+                   (projectable-set-local-styles))))
 
 ;; Utility functions
 (defun projectable-message (string &optional override)
