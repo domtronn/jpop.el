@@ -519,12 +519,11 @@ in more than one directory, select directory.  Lastly the file is opened using F
   "Reformat tabs/spaces into correct format for current file."
   (interactive)
   (if (or (projectable-project-contains (buffer-file-name))
-          (not  projectable-constrain-reformat))
+          (not projectable-constrain-reformat))
       (save-excursion
-        (indent-region (point-min) (point-max))
-        (goto-char (point-min))
         (while (search-forward (caddr projectable-indent-object) (point-max) t)
           (replace-match (cadr projectable-indent-object)))
+        (indent-region (point-min) (point-max))
         (projectable-message
          (format "Reformatted file to use [%s]" (car projectable-indent-object)) t))
     (projectable-message
