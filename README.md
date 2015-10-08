@@ -13,6 +13,7 @@ The mechanism for reading the operating system is a Python script for efficienci
 * Jump to a file within the project
 * Toggle between code and its test file ( `main.js` <=> `mainSpec.js` )
 * Reformat a file with proper tabs/spaces indentation levels
+* Project specific styling/formatting
 * Create throw-away project instances from directories
 * Switch between buffers in a project
 
