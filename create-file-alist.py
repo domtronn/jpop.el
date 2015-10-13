@@ -91,7 +91,7 @@ def create_from_json( project_file, filter_regexp, invert_regexp ):
         
     if invert_regexp:
         for project_id, resultant_files in resultant_dict.iteritems():
-            normalise_invert(resultant_files, invert_regexp)
+            resultant_dict[project_id] = normalise_invert(resultant_files, invert_regexp)
 
     print json.dumps(resultant_dict)
 

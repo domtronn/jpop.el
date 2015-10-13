@@ -164,6 +164,12 @@ This is a priority ordered list, so more likely matches should be first."
   :group 'projectable
   :type '(repeat regexp))
 
+(defcustom projectable-filter-regexps
+  (quote ("/node_modules/" "/tmp/"))
+  "Specify a list of regexps to filter out extra files."
+  :group 'projectable
+  :type '(repeat string))
+
 (defcustom projectable-verbose nil
   "Toggle verbose printing.
 Mainly for debugging of the package."
@@ -573,7 +579,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
 
 (defun projectable-get-filter-regexps (&optional separator)
   "Flatten and concatenate all filter regexps for find command with SEPARATOR."
-  (mapconcat 'regexp-quote completion-ignored-extensions (or separator "|")))
+  (mapconcat 'regexp-quote (append completion-ignored-extensions projectable-filter-regexps) (or separator "|")))
 
 ;;; Projectable Mode
 ;;  Set up for the projectable minor-mode.
