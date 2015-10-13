@@ -401,7 +401,7 @@ t => spaces nil => tabs"
   (setq-local indent-tabs-mode (eq :tabs (car projectable-indent-object)))
   (setq-local c-basic-offset projectable-indent-level)
   (setq-local css-indent-offset projectable-indent-level)
-  (setq-local js-indent-projectable-indent-level projectable-indent-level)
+  (setq-local js-indent-level projectable-indent-level)
   (setq-local basic-offset projectable-indent-level)
   (setq tab-width projectable-indent-level)
   (when (fboundp 'js2-mode) (setq-local js2-basic-offset projectable-indent-level))
