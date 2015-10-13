@@ -17,13 +17,14 @@ def invert_selection( resultant_files, invert_regexp ):
     return result
 
 def normalise_invert( resultant_files, invert_regexp ):
+    modified_files = {}
     for file_id, files in resultant_files.iteritems():
         for r in invert_regexp:
             regex = re.compile(r)
             if regex.search(file_id):
-                resultant_files[regex.sub('\\1',file_id)] = resultant_files[file_id]
-                del resultant_files[file_id]
-    
+                modified_files[regex.sub('\\1',file_id)] = resultant_files[file_id]
+    return modified_files
+                
 def create_from_path( path, filter_regexp, invert_regexp ):
     resultant_files = []
     for root, dirs, files in os.walk(os.path.expanduser(path)):
@@ -44,7 +45,8 @@ def create_from_path( path, filter_regexp, invert_regexp ):
         else:
             result_dict[os.path.basename(f)] = [os.path.dirname(f) + "/" + os.path.basename(f)]
     
-    if invert_regexp: normalise_invert(result_dict, invert_regexp)
+    if invert_regexp:
+        result_dict = normalise_invert(result_dict, invert_regexp)
 
     result = {}
     result[os.path.basename(project_file)] = result_dict
