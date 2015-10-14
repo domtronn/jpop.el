@@ -69,7 +69,7 @@ Key Binding | Command | Effect
 <kbd>C-x p r</kbd> | `projectable-refresh` | Refresh the list of files cached 
 <kbd>C-x p f</kbd> | `projectable-find-file` | Open a file from the cache 
 <kbd>C-x p F</kbd> | `projectable-find-file-other-window` | Open a file from the cache in the other window
-<kbd>C-x p E</kbd> | `projectable-extended-find-file` | Open a file from the any declared library cache
+<kbd>C-x p e</kbd> | `projectable-extended-find-file` | Open a file from the any declared library cache
 <kbd>C-x p E</kbd> | `projectable-extended-find-file-other-window` | Open a file from the any declared library cache in the other window
 <kbd>C-x p t</kbd> | `projectable-toggle-open-test` | Try and find the related test file
 <kbd>C-x p T</kbd> | `projectable-toggle-open-test-other-window` | Try and find the related test file in the other window
