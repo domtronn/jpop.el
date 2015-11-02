@@ -396,6 +396,17 @@ t => spaces nil => tabs"
       (setq projectable-indent-object (list :tabs "	" (projectable-build-space-string)))))
 	t)
 
+(defun projectable-stylise (indent &optional use-spaces)
+  "Allow use to interactively set styling easily.
+
+Sets the indent level to INDENT and if USE-SPACES is provided,
+will use tabs vs spaces.  Otherwise they will be prompted."
+  (interactive "sIndent Level : ")
+  (let ((use-spaces (or use-spaces (y-or-n-p "Use spaces (n for Tabs)? "))))
+    (setq projectable-indent-level (parse-integer indent))
+    (projectable-set-indent-object use-spaces)
+    (projectable-set-local-styles)))
+
 (defun projectable-set-local-styles ()
   "Set the indent level and indent type."
   (setq-local indent-tabs-mode (eq :tabs (car projectable-indent-object)))
@@ -523,14 +534,18 @@ in more than one directory, select directory.  Lastly the file is opened using F
                                       (format "[%s] Open test/src file: " projectable-id) (cdr result))))
      (t (projectable-message (format "Could not find the test/src file for [%s]" file-name) t)))))
 
-(defun projectable-reformat-file ()
-  "Reformat tabs/spaces into correct format for current file."
+(defun projectable-reformat-file (&optional force)
+  "Reformat tabs/spaces into correct format for current file.
+
+If FORCE is non-nil then ignore the constrain effect."
   (interactive)
   (if (or (projectable-project-contains (buffer-file-name))
-          (not projectable-constrain-reformat))
-      (save-excursion
-        (while (search-forward (caddr projectable-indent-object) (point-max) t)
-          (replace-match (cadr projectable-indent-object)))
+          (or force (not projectable-constrain-reformat)))
+      (with-current-buffer (buffer-name)
+        (save-excursion
+          (goto-char (point-min))
+          (while (search-forward (caddr projectable-indent-object) (point-max) t)
+            (replace-match (cadr projectable-indent-object))))
         (indent-region (point-min) (point-max))
         (projectable-message
          (format "Reformatted file to use [%s]" (car projectable-indent-object)) t))
@@ -604,6 +619,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
     (define-key map (kbd "t") 'projectable-toggle-open-test)
     (define-key map (kbd "T") 'projectable-toggle-open-test-other-window)
     (define-key map (kbd "l") 'projectable-reformat-file)
+    (define-key map (kbd "L") '(lambda () (projectable-reformat-file t)))
     (define-key map (kbd "p") 'projectable-visit-project-file)
     (define-key map (kbd "b") 'projectable-switch-buffer)
     (define-key map (kbd "B") 'projectable-switch-buffer-other-window)
@@ -641,4 +657,8 @@ Otherwise behave as if called interactively.
   projectable-mode)
 
 (provide 'projectable)
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; eval: (nameless-mode 1)
+;; End:
 ;;; projectable.el ends here
