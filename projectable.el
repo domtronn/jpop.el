@@ -403,7 +403,7 @@ Sets the indent level to INDENT and if USE-SPACES is provided,
 will use tabs vs spaces.  Otherwise they will be prompted."
   (interactive "sIndent Level : ")
   (let ((use-spaces (or use-spaces (y-or-n-p "Use spaces (n for Tabs)? "))))
-    (setq projectable-indent-level (parse-integer indent))
+    (setq projectable-indent-level (string-to-number indent))
     (projectable-set-indent-object use-spaces)
     (projectable-set-local-styles)))
 
