@@ -292,12 +292,13 @@ This will just cache all of the files contained in that directory."
 
 (defun projectable-create-tags-in-directory (dir)
   "Build and run the create tags command in DIR."
-  (let* ((cmd
+  (let* ((dir (shell-quote-argument (expand-file-name dir)))
+         (cmd
           (format projectable-find-cmd-format
-                  (shell-quote-argument dir)
+                  dir
                   (projectable-get-ctags-supported-languages)
                   (projectable-get-filter-regexps)
-                  (format projectable-ctags-cmd-format (shell-quote-argument dir))))
+                  (format projectable-ctags-cmd-format dir)))
          (name (format "[projectable] Creating tags for [%s]" dir))
          (buffer-name (format "*create-tags*<%s>" dir)))
     (projectable-message cmd)
