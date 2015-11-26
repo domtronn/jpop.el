@@ -605,6 +605,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
     (define-key map (kbd "b") 'projectable-switch-buffer)
     (define-key map (kbd "B") 'projectable-switch-buffer-other-window)
     (define-key map (kbd "k") 'projectable-kill-project-buffers)
+    (define-key map (kbd "s") 'projectable-stylise)
     map)
   "Keymap for Projectable commands after `projectable-keymap-prefix'.")
 (fset 'projectable-command-map projectable-command-map)
