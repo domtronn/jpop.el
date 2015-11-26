@@ -108,6 +108,12 @@ The formats should be replaced, in order, by
 - string of regexp filters
   and `projectable-get-filter-regexps`")
 
+(defvar projectable-toggle-test-fallback-hook nil
+  "A list of hooks to run if the `projectable-toggle-open-test` function fails.
+If `projectable-toggle-open-test` does not guess a correct test file, it will
+run this function, the idea being to prompt the user out of all the
+tests.")
+
 (defcustom projectable-auto-visit-tags t
   "Whether to visit the tags file upon creation of a tags file."
   :group 'projectable
@@ -157,7 +163,7 @@ files."
   :group 'projectable
   :type 'booelan)
 (defcustom projectable-test-filter-regexps
-  (quote ("[-_]*[tT]est" "Spec" "\/script-tests\/.*"))
+  (quote ("[-_]*[tT]est" "Spec" "\.spec" "\/script-tests\/.*"))
   "Specify a list of regexps to filter out test files.
 
 This is a priority ordered list, so more likely matches should be first."
@@ -473,6 +479,11 @@ Optionally called F as the function used to switch the buffer."
   (interactive)
   (projectable--find-file projectable-file-alist 'find-file))
 
+(defun projectable-find-test ()
+  "Call `projectable--find-file` for TEST-ALIST with `find-file` as function call."
+  (interactive)
+  (projectable--find-file (cdr projectable-test-alist) 'find-file))
+
 (defun projectable-extended-find-file (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
   (interactive (progn (when projectable-use-vertical-flx
@@ -482,9 +493,14 @@ Optionally called F as the function used to switch the buffer."
      (cdr (assoc file-alist-id projectable-project-alist)) 'find-file))
 
 (defun projectable-find-file-other-window ()
-  "Call `projectable--find-file` for FILE with `find-file` as function call."
+  "Call `projectable--find-file` for FILE with `find-file-other-window` as function call."
   (interactive)
   (projectable--find-file projectable-file-alist 'find-file-other-window))
+
+(defun projectable-find-test-other-window ()
+  "Call `projectable--find-file` for TEST-ALIST with `find-file-other-window` as function call."
+  (interactive)
+  (projectable--find-file (cdr projectable-test-alist) 'find-file))
 
 (defun projectable-extended-find-file-other-window (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
@@ -533,7 +549,8 @@ in more than one directory, select directory.  Lastly the file is opened using F
      ((> (length result) 2) (funcall find-f
                                      (completing-read
                                       (format "[%s] Open test/src file: " projectable-id) (cdr result))))
-     (t (projectable-message (format "Could not find the test/src file for [%s]" file-name) t)))))
+     (t (projectable-message (format "Could not find the test/src file for [%s]" file-name) t)
+        (run-hooks 'projectable-toggle-test-fallback-hook)))))
 
 (defun projectable-reformat-file (&optional force)
   "Reformat tabs/spaces into correct format for current file.

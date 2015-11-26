@@ -81,6 +81,16 @@ Key Binding | Command | Effect
     
 It is well worth looking through `customize-group RET projectable` to see what you can customise.
 
+
+### Opening Tests ###
+
+The `projectable-toggle-open-test` functions try and guess the appropriate test for the current file you're in, however, if it fails to find a test, it will run the hooks `projectable-toggle-test-fallback-hook`.
+
+As fallback behaviour you can have it _find test_ from your project. Add the following snippet to your init file;
+```elisp
+(add-hook 'projectable-toggle-test-fallback-hook 'projectable-find-test)
+```
+
 # Ctags and JavaScript #
 
 Version 5.8 of Ctags doesn't really parse javascript correctly, and won't work properly with things like `etags-select`.
