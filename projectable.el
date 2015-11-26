@@ -197,16 +197,11 @@ Mainly for debugging of the package."
 (defvar projectable-indent-object
   (list :tabs "	" "  ") "Definiton of indentation type with the indent character.")
 
-(defvar projectable-use-vertical-flx nil)
-
 ;;; Function Definitions
 (defun projectable-change (arg)
   "Change project path to ARG and refresh the cache."
-  (interactive (progn
-                 (when projectable-use-vertical-flx
-                   (projectable-enable-vertical))
-                 (list (ido-read-file-name "Enter path to Project file: "
-                                           projectable-project-directory))))
+  (interactive (list (ido-read-file-name "Enter path to Project file: "
+                                         projectable-project-directory)))
   ;; Set the current project path to new directory
   (setq projectable-current-project-path arg)
   ;; Reset project specific variables
@@ -216,8 +211,7 @@ Mainly for debugging of the package."
   (setq projectable-file-alist (make-hash-table :test 'equal))
   (setq projectable-test-alist (make-hash-table :test 'equal))
 
-  (projectable-refresh)
-  (when projectable-use-vertical-flx (projectable-disable-vertical)))
+  (projectable-refresh))
 
 (defun projectable-refresh ()
   "Parse a json project file to create a cache for that project.
@@ -441,20 +435,6 @@ If called with boolean OVERRIDE, this will override the verbose setting."
   (when (or projectable-verbose override)
     (message (format "[projectable] %s" string))))
 
-(defun projectable-enable-vertical ()
-  "Enable vertical selection with flx matching."
-  (setq flx-ido-use-faces t)
-  (setq ido-use-faces nil)
-  (flx-ido-mode 1)
-  (ido-vertical-mode 1))
-
-(defun projectable-disable-vertical ()
-  "Disable vertical selection and flx matching."
-  (setq flx-ido-use-faces nil)
-  (setq ido-use-faces t)
-  (flx-ido-mode 0)
-  (ido-vertical-mode 0))
-
 ;;; Utility Functions
 ;;  A bunch of functions to help with project navigation and set up.
 
@@ -486,9 +466,7 @@ Optionally called F as the function used to switch the buffer."
 
 (defun projectable-extended-find-file (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
-  (interactive (progn (when projectable-use-vertical-flx
-                        (projectable-enable-vertical))
-                      (list (completing-read "Library: " (mapcar 'car projectable-project-alist)))))
+  (interactive (list (completing-read "Library: " (mapcar 'car projectable-project-alist))))
   (projectable--find-file
      (cdr (assoc file-alist-id projectable-project-alist)) 'find-file))
 
@@ -504,9 +482,7 @@ Optionally called F as the function used to switch the buffer."
 
 (defun projectable-extended-find-file-other-window (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
-  (interactive (progn (when projectable-use-vertical-flx
-                        (projectable-enable-vertical))
-                      (list (completing-read "Library: " (mapcar 'car projectable-project-alist)))))
+  (interactive (list (completing-read "Library: " (mapcar 'car projectable-project-alist))))
   (projectable--find-file
      (cdr (assoc file-alist-id projectable-project-alist)) 'find-file-other-window))
 
@@ -516,18 +492,13 @@ Optionally called F as the function used to switch the buffer."
 Select a file matched using `completing-read` against the contents
 of FILE-ALIST.  Options are displayed using READ-F.  If the file exists
 in more than one directory, select directory.  Lastly the file is opened using FIND-F."
-  (let* ((file (progn
-                 (when projectable-use-vertical-flx
-                   (projectable-enable-vertical))
-                 (completing-read "File: " (mapcar projectable-completion-func file-alist))))
+  (let* ((file (completing-read "File: " (mapcar projectable-completion-func file-alist)))
          (record (assoc (file-name-nondirectory file) file-alist)))
     (funcall find-f
       (if (= (length record) 2)
           (cadr record)
         (completing-read
-         (format "Find %s in dir:" file) (cdr record))))
-    (when projectable-use-vertical-flx
-      (projectable-disable-vertical))))
+         (format "Find %s in dir:" file) (cdr record))))))
 
 (defun projectable-toggle-open-test-other-window ()
   "Open associated test class if it exists in the other window."
@@ -617,16 +588,6 @@ i.e.  If indent level was 4, the indent string would be '    '."
 
 ;;; Projectable Mode
 ;;  Set up for the projectable minor-mode.
-
-(when (and (require 'flx-ido nil 'noerror)
-           (require 'ido-vertical-mode nil 'noerror))
-
-  (defcustom projectable-use-vertical-flx t
-    "Whether to take advantange of FLX and VERTICAL features."
-    :group 'projectable
-    :type 'boolean)
-  (setq projectable-use-vertical-flx t))
-
 (defvar projectable-command-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "c") 'projectable-change)
