@@ -332,8 +332,8 @@ This will just cache all of the files contained in that directory."
 
   (let ((gitignore-filter-regexps (projectable-get-gitignore-filter
                                    (locate-dominating-file (concat projectable-current-project-path "/") ".gitignore"))))
-    (projectable-set-project-alist (when projectable-use-gitignore gitignore-filter-regexps))
-    (projectable-set-test-alist (when projectable-use-gitignore gitignore-filter-regexps)))
+    (projectable-set-project-alist (and projectable-use-gitignore gitignore-filter-regexps))
+    (projectable-set-test-alist (and projectable-use-gitignore gitignore-filter-regexps)))
   t)
 
 (defun projectable-set-test-alist (&optional gitignore-filter-regexps)
@@ -376,14 +376,15 @@ the filter string set in the customisations."
 
 (defun projectable-get-gitignore-filter (gitignore-dir)
   "Produce regexps filters by based on a .gitignore files found in GITIGNORE-DIR."
-  (with-temp-buffer
-    (insert-file-contents (concat gitignore-dir ".gitignore"))
-    (goto-char (point-min))
-    (flush-lines "^[#]")
-    (flush-lines "^$")
-    (while (search-forward "*" nil t) (replace-match ""))
-    (goto-char (point-min))
-    (mapcar 'regexp-quote (split-string (buffer-string) "\n" t))))
+  (when gitignore-dir
+    (with-temp-buffer
+     (insert-file-contents (concat gitignore-dir ".gitignore"))
+     (goto-char (point-min))
+     (flush-lines "^[#]")
+     (flush-lines "^$")
+     (while (search-forward "*" nil t) (replace-match ""))
+     (goto-char (point-min))
+     (mapcar 'regexp-quote (split-string (buffer-string) "\n" t)))))
 
 (defun projectable-set-indent-object (use-spaces)
   "Set the indent type on whether we USE-SPACES.
