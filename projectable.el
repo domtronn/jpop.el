@@ -549,8 +549,9 @@ in more than one directory, select directory.  Lastly the file is opened using F
      ((> (length result) 2) (funcall find-f
                                      (completing-read
                                       (format "[%s] Open test/src file: " projectable-id) (cdr result))))
-     (t (projectable-message (format "Could not find the test/src file for [%s]" file-name) t)
-        (run-hooks 'projectable-toggle-test-fallback-hook)))))
+     (t (if projectable-toggle-test-fallback-hook
+            (run-hooks 'projectable-toggle-test-fallback-hook)
+          (projectable-message (format "Could not find the test/src file for [%s]" file-name) t))))))
 
 (defun projectable-reformat-file (&optional force)
   "Reformat tabs/spaces into correct format for current file.
