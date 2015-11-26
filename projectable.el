@@ -355,7 +355,7 @@ string."
 (defun projectable-set-project-alist (&optional gitignore-filter-regexps)
   "Set `projectable-project-alist` by usings `projectable-alist-cmd`.
 
-Can be passed a list GITIGNORE-FILTER-REGEXPS of regexps to append to
+Can be passed a list GITIGNORE-FILTER-REGEXPS to append to
 the filter string set in the customisations."
   (let* ((json-object-type 'alist) (json-array-type 'list) (json-key-type 'string)
          (cmd (format "%s %s \"%s\""
@@ -463,7 +463,7 @@ Optionally called F as the function used to switch the buffer."
 (defun projectable-find-test ()
   "Call `projectable--find-file` for TEST-ALIST with `find-file` as function call."
   (interactive)
-  (projectable--find-file (cdr projectable-test-alist) 'find-file))
+  (projectable--find-file (--map (cons (file-name-nondirectory (cadr it)) (cdr it)) (cdr projectable-test-alist)) 'find-file))
 
 (defun projectable-extended-find-file (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
@@ -479,7 +479,7 @@ Optionally called F as the function used to switch the buffer."
 (defun projectable-find-test-other-window ()
   "Call `projectable--find-file` for TEST-ALIST with `find-file-other-window` as function call."
   (interactive)
-  (projectable--find-file (cdr projectable-test-alist) 'find-file))
+  (projectable--find-file (--map (cons (file-name-nondirectory (cadr it)) (cdr it)) (cdr projectable-test-alist)) 'find-file))
 
 (defun projectable-extended-find-file-other-window (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
