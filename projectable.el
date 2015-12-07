@@ -585,7 +585,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
 
 (defun projectable-get-filter-regexps (&optional separator)
   "Flatten and concatenate all filter regexps for find command with SEPARATOR."
-  (let ((local-completion-extensions (--mapcat (list (format "%s$" it)) completion-ignored-extensions)))
+  (let ((local-completion-extensions (--mapcat (list (if (string-match "[a-z]$" it) (format "%s$" it) it)) completion-ignored-extensions)))
     (mapconcat 'regexp-quote (append local-completion-extensions projectable-filter-regexps) (or separator "|"))))
 
 ;;; Projectable Mode
