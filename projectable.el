@@ -600,7 +600,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
                          (and bufname (projectable-project-contains bufname)))) (buffer-list)))
 
 (defun projectable-project-contains (file)
-  "Check to see if project alist contain FILE."
+  "Check whether FILE is contained within any of the projects directory paths."
   (-any? (lambda (r) (string-match (replace-regexp-in-string "~" "" r) file))
          (if projectable-project-hash
              (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "dirs" projectable-project-hash))
