@@ -1,12 +1,25 @@
 # projectable.el #
 
-**Projectable** is a lightweight _declarative_ project interaction package for Emacs. It is designed to let users _define_ their projects in json files in a similar fashion to _Sublime_ and _Atom_. It allows you to group a few directories together as a project so that your project can be composed of multiple repositories/directories.
+**Projectable** is a lightweight _declarative_ project interaction
+package for Emacs. It is designed to let users _define_ their
+projects in json files in a similar fashion to _Sublime_ and
+_Atom_. It allows you to group a few directories together as a
+project so that your project can be composed of multiple
+repositories/directories.
 
-On top of this, it provides a nice set of features for interacting with your projects including styling _(the ole' tabs vs spaces debate)_, running/opening test files and the creation of [ctags](http://ctags.sourceforge.net/). It also gives you the ability to quickly open directories _as a project_ and make all the files within easily accessible.
+On top of this, it provides a nice set of features for interacting
+with your projects including styling _(the ole' tabs vs spaces
+debate)_, running/opening test files and the creation of
+[ctags](http://ctags.sourceforge.net/). It also gives you the ability
+to quickly open directories _as a project_ and make all the files
+within easily accessible.
 
-It was built from a need for a particular data structure to describe a project for use with my `JS-DEPENDENCY-INJECTOR` package for require.js projects.
+It was built from a need for a particular data structure to describe a
+project for use with my `JS-DEPENDENCY-INJECTOR` package for
+require.js projects.
 
-The mechanism for reading the operating system is a Python script for efficiencies sake.
+The mechanism for reading the operating system is a Python script for
+efficiencies sake.
 
 ### Features ###
 
@@ -16,27 +29,34 @@ The mechanism for reading the operating system is a Python script for efficienci
 * Project specific styling/formatting
 * Create throw-away project instances from directories
 * Switch between buffers in a project
+* Per Instance Caching of projects for quick switching
 
 # Installation #
 
-Clone this repository and add it to Emac's `load-path`. Then require the file:
+Clone this repository and add it to Emac's `load-path`. Then require
+the file:
+
 ```
 (add-to-list 'load-path "/path/to/cloned/repo")
 (require 'projectable)
 ```
+
 Then enable it globally to load the key mappings
+
 ```
 (projectable-global-mode)
 ```
 
 # Defining a project #
 
-This package *(currently only)* defines projects using JSON files.
-It defaults to looking in `projectable-project-directory` first.
+This package *(currently only)* defines projects using JSON files.  It
+defaults to looking in `projectable-project-directory` first.
 
-If you load a *directory*, instead of a JSON file, it will just cache all of the files recursively within that directory.
+If you load a *directory*, instead of a JSON file, it will just cache
+all of the files recursively within that directory.
 
 An example JSON project file would look like this:
+
 ```javascript
 {
 	"id":"My Project",
@@ -53,12 +73,19 @@ An example JSON project file would look like this:
     }
 }
 ```
-Where the `id` property and the the `dirs/dir` property define paths required in that project. This is useful if you have multiple respositories for a single project.
 
-The `style` block, at the moment, defines how to indent the files within the project.
-The `tabs` property defines whether this projects uses **tabs** or **spaces** and the `indent` property sets the tab width/indent level of the project.
+Where the `id` property and the the `dirs/dir` property define paths
+required in that project. This is useful if you have multiple
+respositories for a single project.
 
-You can also override the use of `gitignore` on a project level, add a `gitignore: true/false` property to the project file, and this will take priority over the global variable.
+The `style` block, at the moment, defines how to indent the files
+within the project.  The `tabs` property defines whether this projects
+uses **tabs** or **spaces** and the `indent` property sets the tab
+width/indent level of the project.
+
+You can also override the use of `gitignore` on a project level, add a
+`gitignore: true/false` property to the project file, and this will
+take priority over the global variable.
 
 # Usage #
 If you enable `projectable-global-mode` you will have access to the following keybindings:
@@ -73,7 +100,7 @@ Key Binding | Command | Effect
 <kbd>C-x p E</kbd> | `projectable-extended-find-file-other-window` | Open a file from the any declared library cache in the other window
 <kbd>C-x p t</kbd> | `projectable-toggle-open-test` | Try and find the related test file
 <kbd>C-x p T</kbd> | `projectable-toggle-open-test-other-window` | Try and find the related test file in the other window
-<kbd>C-x p l</kbd> | `projectable-reformat-file` | Reformat the current file to use appropiate indentation
+<kbd>C-x p l</kbd> | `projectable-reformat-file` | Reformat the current file to use appropriate indentation
 <kbd>C-x p p</kbd> | `projectable-visit-project-file` | Open the current project file for editing
 <kbd>C-x p b</kbd> | `projectable-switch-buffer` | Switch between buffers in the current project
 <kbd>C-x p B</kbd> | `projectable-switch-buffer-other-window` | Switch between buffers in the current project and open in the other window
@@ -84,18 +111,36 @@ It is well worth looking through `customize-group RET projectable` to see what y
 
 ### Opening Tests ###
 
-The `projectable-toggle-open-test` functions try and guess the appropriate test for the current file you're in, however, if it fails to find a test, it will run the hooks `projectable-toggle-test-fallback-hook`.
+The `projectable-toggle-open-test` functions try and guess the
+appropriate test for the current file you're in, however, if it fails
+to find a test, it will run the hooks
+`projectable-toggle-test-fallback-hook`.
 
-As fallback behaviour you can have it _find test_ from your project. Add the following snippet to your init file;
+As fallback behaviour you can have it _find test_ from your
+project. Add the following snippet to your init file;
+
 ```elisp
 (add-hook 'projectable-toggle-test-fallback-hook 'projectable-find-test)
 ```
 
+### Caching ###
+
+When switching between between projects using `projectable-change`,
+`projectable` will _cache_ the results of the project you're changing
+from. This is so that when/if you _change back_ to that project its
+settings can be restored instantly without regenerating the file alist.
+
+If the `projectable` file lists become stale, you can force a refresh
+of the project with `projectable-refresh`.
+
 # Ctags and JavaScript #
 
-Version 5.8 of Ctags doesn't really parse javascript correctly, and won't work properly with things like `etags-select`.
+Version 5.8 of Ctags doesn't really parse JavaScript correctly, and
+won't work properly with things like `etags-select`.
 
-To fix this, you can add a `.ctags` file in your `HOME` directory and add the following matchers
+To fix this, you can add a `.ctags` file in your `HOME` directory and
+add the following matchers
+
 ```
 --tag-relative=yes
 --exclude=.git,.svn
@@ -115,13 +160,17 @@ To fix this, you can add a `.ctags` file in your `HOME` directory and add the fo
 --regex-coffee=/^[ \t]*([A-Za-z.]+)[ \t]+=[^->\n]*$/\1/v,variable/
 --regex-coffee=/^[ \t]*((class ){1}[A-Za-z.]+)[ \t]+=[^->\n]*$/\1/v,object/
 ```
-Which will allow for proper JavaScript tags creation. You can also copy `.ctags` from this project into your `HOME` directory.
+
+Which will allow for proper JavaScript tags creation. You can also
+copy `.ctags` from this project into your `HOME` directory.
 
 __These were taken from [@jackcviers's gist](https://gist.github.com/jackcviers/2128247). Please :star: it if you found it useful!__
 
 # Planned Features #
 I'm trying to get this project in a nicer state for my own purposes, future features will include
 - [x] `.gitignore` integration for filtering
+- [x] Some form of Caching
+- [ ] Dynamic updating of project
 - [x] Better integration for test
     - [x] opening
     - [ ] running
@@ -132,8 +181,22 @@ I'm trying to get this project in a nicer state for my own purposes, future feat
 - [x] Project grouped buffers
 
 #### Why not Projectile ####
-I'm aware that [projectile](https://github.com/bbatsov/projectile) does a lot of this already and I would actively encourage you to try that package out as well!
 
-The _main reason_ I wrote my own version was that I work on projects comprised of multiple directories that use [RequireJS 0.15.0](https://libraries.io/bower/rjs/0.15.0) and I was fed up of _manually_ typing the require paths for modules across multiple projects. So I wrote my own _JS Dependency Injector_ which uses an associative list of project ids _(the ones used in the require js mapping definition)_ to a list of files with their containing directories. This way I could build the require paths for Classes I wanted to include.
+I'm aware that [projectile](https://github.com/bbatsov/projectile)
+does a lot of this already and I would actively encourage you to try
+that package out as well!
 
-I made a plugin for [Sublime Text](http://www.sublimetext.com/) which does a similar thing, see [JSDependencyInjector.py](https://github.com/domtronn/jsdependencyinjector) for a better example of what I mean.
+The _main reason_ I wrote my own version was that I work on projects
+comprised of multiple directories that use
+[RequireJS 0.15.0](https://libraries.io/bower/rjs/0.15.0) and I was
+fed up of _manually_ typing the require paths for modules across
+multiple projects. So I wrote my own _JS Dependency Injector_ which
+uses an associative list of project ids _(the ones used in the require
+js mapping definition)_ to a list of files with their containing
+directories. This way I could build the require paths for Classes I
+wanted to include.
+
+I made a plugin for [Sublime Text](http://www.sublimetext.com/) which
+does a similar thing, see
+[JSDependencyInjector.py](https://github.com/domtronn/jsdependencyinjector)
+for a better example of what I mean.
