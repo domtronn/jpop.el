@@ -45,6 +45,7 @@
 ;;; Group Definitions
 (defgroup projectable nil
   "Manage how to read and create project caches."
+  :prefix "projectable-"
   :group 'tools
   :group 'convenience)
 
@@ -177,6 +178,18 @@ This is a priority ordered list, so more likely matches should be first."
   :group 'projectable
   :type '(repeat string))
 
+(defcustom projectable-use-caching t
+  "Whether or not to locally cache the projects on `projectable-change`.
+
+When this is non-nil, changing projects will cache the current
+state of the current project, and when changing back to this
+project, will restore the previous settings instantly rather than
+perform OS walks.  When set to nil, it will not do this and cause
+the file caches for the directories to be re generated every time
+you change to it."
+  :group 'projectable
+  :type 'boolean)
+
 (defcustom projectable-verbose nil
   "Toggle verbose printing.
 Mainly for debugging of the package."
@@ -217,7 +230,8 @@ Mainly for debugging of the package."
   (setq projectable-file-alist (make-hash-table :test 'equal))
   (setq projectable-test-alist (make-hash-table :test 'equal))
 
-  (if (assoc projectable-current-project-path projectable-cache-alist)
+  (if (and projectable-use-caching
+           (assoc projectable-current-project-path projectable-cache-alist))
       (projectable-restore-cache projectable-current-project-path)
     (projectable-refresh)))
 
