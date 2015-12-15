@@ -219,7 +219,8 @@ Mainly for debugging of the package."
   (interactive (list (ido-read-file-name "Enter path to Project file: "
                                          projectable-project-directory)))
   ;; Cache the old project
-  (when projectable-id (projectable-cache-current-project))
+  (when (and projectable-id projectable-use-caching)
+    (projectable-cache-current-project))
 
   ;; Set the current project path to new directory with removing trailing slash
   (setq projectable-current-project-path (replace-regexp-in-string "/$" "" arg))
