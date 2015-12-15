@@ -48,10 +48,10 @@
   :group 'tools
   :group 'convenience)
 
-(defcustom projectable-project-directory (expand-file-name "~/Documents/Projects")
+(defcustom projectable-project-directory (expand-file-name (getenv "HOME"))
   "The directory where project json files are kept.
 
-By default it looks in the ~/Documents/Projects folder"
+By default it looks in the hte HOME folder as defined by `getenv`"
   :group 'projectable
   :type 'string)
 
@@ -162,6 +162,7 @@ to source files.  If nil then `projectable-file-alist` will contain all
 files."
   :group 'projectable
   :type 'booelan)
+
 (defcustom projectable-test-filter-regexps
   (quote ("[-_]*[tT]est" "Spec" "\.spec" "\/script-tests\/.*"))
   "Specify a list of regexps to filter out test files.
@@ -207,8 +208,8 @@ Mainly for debugging of the package."
   ;; Cache the old project
   (when projectable-id (projectable-cache-current-project))
 
-  ;; Set the current project path to new directory
-  (setq projectable-current-project-path arg)
+  ;; Set the current project path to new directory with removing trailing slash
+  (setq projectable-current-project-path (replace-regexp-in-string "/$" "" arg))
   ;; Reset project specific variables
   (setq tags-table-list nil)
   (setq projectable-project-hash nil)
@@ -216,15 +217,13 @@ Mainly for debugging of the package."
   (setq projectable-file-alist (make-hash-table :test 'equal))
   (setq projectable-test-alist (make-hash-table :test 'equal))
 
-  (if (and (not (file-directory-p projectable-current-project-path))
-           (assoc (file-name-base projectable-current-project-path) projectable-cache-alist))
-      (projectable-restore-cache (file-name-base projectable-current-project-path))
+  (if (assoc projectable-current-project-path projectable-cache-alist)
+      (projectable-restore-cache projectable-current-project-path)
     (projectable-refresh)))
 
 (defun projectable-restore-cache (cache-id)
   "Reset all of the projectable variables for CACHE-ID."
   (let ((project-cache (cdr (assoc cache-id projectable-cache-alist))))
-    (setq projectable-current-project-path (cdr (assoc 'cpp project-cache)))
     (setq projectable-project-hash (cdr (assoc 'pph project-cache)))
     (setq projectable-project-alist (cdr (assoc 'ppa project-cache)))
     (setq projectable-id (cdr (assoc 'id project-cache)))
@@ -235,9 +234,8 @@ Mainly for debugging of the package."
 
 (defun projectable-cache-current-project ()
   "Append or ammend a cache (for a session) for the current project."
-  (let ((cache-id (file-name-base projectable-current-project-path))
-        (cache-alist `((cpp . ,projectable-current-project-path)
-                       (pph . ,projectable-project-hash)
+  (let ((cache-id projectable-current-project-path)
+        (cache-alist `((pph . ,projectable-project-hash)
                        (ppa . ,projectable-project-alist)
                        (id . ,projectable-id)
                        (pa . ,projectable-all-alist)
@@ -349,15 +347,6 @@ t)
 
 (defun projectable-load-from-path ()
   "Load a project from a given directory."
-  ;; Remove trailing slash on directory variable if it exists
-  (setq projectable-current-project-path
-        (with-temp-buffer
-          (insert projectable-current-project-path)
-          (goto-char (point-min))
-          (while (re-search-forward "/$" nil t)
-            (replace-match ""))
-          (buffer-string)))
-
   ;; Set project ID
   (let ((id (file-name-nondirectory projectable-current-project-path)))
     (setq projectable-id id)
@@ -549,7 +538,6 @@ in more than one directory, select directory.  Lastly the file is opened using F
          (test-p (car (-non-nil (mapcar (lambda (r) (when (string-match r file-name) r)) filters))))
          (neutral-file-name (replace-regexp-in-string (or test-p "") "\\1" (file-name-nondirectory file-name)))
          (result (assoc neutral-file-name (if test-p projectable-all-alist projectable-test-alist))))
-    (message "%s" neutral-file-name)
     (cond
      ((= 2 (length result)) (funcall find-f (cadr result)))
      ((> (length result) 2) (funcall find-f
