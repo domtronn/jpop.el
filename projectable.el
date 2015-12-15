@@ -189,8 +189,10 @@ Mainly for debugging of the package."
 (defvar projectable-file-alist nil)
 (defvar projectable-all-alist nil)
 (defvar projectable-test-alist nil)
-(defvar projectable-id)
+(defvar projectable-id nil)
 (defvar projectable-mode-line " [P>x]")
+
+(defvar projectable-cache-alist nil)
 
 (defvar projectable-indent-level
   2 "The level of indentation to be used.")
@@ -202,6 +204,9 @@ Mainly for debugging of the package."
   "Change project path to ARG and refresh the cache."
   (interactive (list (ido-read-file-name "Enter path to Project file: "
                                          projectable-project-directory)))
+  ;; Cache the old project
+  (when projectable-id (projectable-cache-current-project))
+
   ;; Set the current project path to new directory
   (setq projectable-current-project-path arg)
   ;; Reset project specific variables
@@ -211,7 +216,36 @@ Mainly for debugging of the package."
   (setq projectable-file-alist (make-hash-table :test 'equal))
   (setq projectable-test-alist (make-hash-table :test 'equal))
 
-  (projectable-refresh))
+  (if (and (not (file-directory-p projectable-current-project-path))
+           (assoc (file-name-base projectable-current-project-path) projectable-cache-alist))
+      (projectable-restore-cache (file-name-base projectable-current-project-path))
+    (projectable-refresh)))
+
+(defun projectable-restore-cache (cache-id)
+  "Reset all of the projectable variables for CACHE-ID."
+  (let ((project-cache (cdr (assoc cache-id projectable-cache-alist))))
+    (setq projectable-current-project-path (cdr (assoc 'cpp project-cache)))
+    (setq projectable-project-hash (cdr (assoc 'pph project-cache)))
+    (setq projectable-project-alist (cdr (assoc 'ppa project-cache)))
+    (setq projectable-id (cdr (assoc 'id project-cache)))
+    (setq projectable-all-alist (cdr (assoc 'pa project-cache)))
+    (setq projectable-file-alist (cdr (assoc 'pf project-cache)))
+    (setq projectable-test-alist (cdr (assoc 'pt project-cache)))
+    (projectable-message (format "Restored project from cache [%s]" projectable-current-project-path) t)))
+
+(defun projectable-cache-current-project ()
+  "Append or ammend a cache (for a session) for the current project."
+  (let ((cache-id (file-name-base projectable-current-project-path))
+        (cache-alist `((cpp . ,projectable-current-project-path)
+                       (pph . ,projectable-project-hash)
+                       (ppa . ,projectable-project-alist)
+                       (id . ,projectable-id)
+                       (pa . ,projectable-all-alist)
+                       (pf . ,projectable-file-alist)
+                       (pt . ,projectable-test-alist))))
+    (when (assoc cache-id projectable-cache-alist)
+      (setf (cdr (assoc cache-id projectable-cache-alist)) cache-alist))
+    (add-to-list 'projectable-cache-alist (cons cache-id cache-alist))))
 
 (defun projectable-refresh ()
   "Parse a json project file to create a cache for that project.
@@ -253,14 +287,14 @@ This will just cache all of the files contained in that directory."
            (use-gitignore (if gitignore-from-hash
                               (not (eq :json-false gitignore-from-hash))
                             projectable-use-gitignore)))
-      
-            (projectable-set-project-alist
+
+      (projectable-set-project-alist
        (when (and use-gitignore projectable-use-gitignore)
          (projectable-get-all-gitignore-filter (gethash "dirs" json-hash))))
-            (projectable-set-test-alist
-             (when (and use-gitignore projectable-use-gitignore)
+      (projectable-set-test-alist
+       (when (and use-gitignore projectable-use-gitignore)
          (projectable-get-all-gitignore-filter (gethash "dirs" json-hash))))))
-  t)
+t)
 
 (defun projectable-get-all-gitignore-filter (project-list)
   "Get a distinct list of regexps to gitignore in the PROJECT-LIST files."
@@ -396,7 +430,7 @@ t => spaces nil => tabs"
     (progn
       (projectable-message (format "Using tabs for project [%s]" projectable-id))
       (setq projectable-indent-object (list :tabs "	" (projectable-build-space-string)))))
-	t)
+  t)
 
 (defun projectable-stylise (indent &optional use-spaces)
   "Allow use to interactively set styling easily.
@@ -426,7 +460,7 @@ will use tabs vs spaces.  Otherwise they will be prompted."
   t)
 ;; Set a hook to set up the local project styles for project buffers
 (add-hook 'find-file-hook
-					'(lambda () (when (projectable-project-contains (buffer-file-name))
+          '(lambda () (when (projectable-project-contains (buffer-file-name))
                    (projectable-set-local-styles))))
 
 ;; Utility functions
@@ -515,7 +549,7 @@ in more than one directory, select directory.  Lastly the file is opened using F
          (test-p (car (-non-nil (mapcar (lambda (r) (when (string-match r file-name) r)) filters))))
          (neutral-file-name (replace-regexp-in-string (or test-p "") "\\1" (file-name-nondirectory file-name)))
          (result (assoc neutral-file-name (if test-p projectable-all-alist projectable-test-alist))))
-    
+    (message "%s" neutral-file-name)
     (cond
      ((= 2 (length result)) (funcall find-f (cadr result)))
      ((> (length result) 2) (funcall find-f
@@ -554,7 +588,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
   (let* ((project-buffers (projectable-get-project-buffers)))
     (if project-buffers
         (let ((kill (yes-or-no-p
-										 (format "[%s] Kill %d buffers (%s)? " projectable-id (length project-buffers) (mapconcat 'buffer-name project-buffers ", ")))))
+                     (format "[%s] Kill %d buffers (%s)? " projectable-id (length project-buffers) (mapconcat 'buffer-name project-buffers ", ")))))
           (when kill (mapc (lambda (buf) (kill-buffer buf)) project-buffers)))
       (projectable-message "You currently have no buffers open associated with this project" t))))
 
