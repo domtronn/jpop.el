@@ -477,6 +477,15 @@ If called with boolean OVERRIDE, this will override the verbose setting."
 ;;; Utility Functions
 ;;  A bunch of functions to help with project navigation and set up.
 
+(defun projectable-switch ()
+  "Switch between cached projects quickly."
+  (interactive)
+  (let* ((projects (-map
+                   (lambda (elt) (cons (file-name-nondirectory (car elt)) (car elt)))
+                   projectable-cache-alist))
+         (project (completing-read "Switch to Cached Project: " projects)))
+    (projectable-restore-cache (cdr (assoc project projects)))))
+
 (defun projectable-switch-buffer (&optional f)
   "Using `completing-read`, interactively switch between project buffers.
 
@@ -630,6 +639,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
 (defvar projectable-command-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "c") 'projectable-change)
+    (define-key map (kbd "C") 'projectable-switch)
     (define-key map (kbd "r") 'projectable-refresh)
     (define-key map (kbd "e") 'projectable-extended-find-file)
     (define-key map (kbd "E") 'projectable-extended-find-file-other-window)
