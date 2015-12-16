@@ -482,13 +482,15 @@ If called with boolean OVERRIDE, this will override the verbose setting."
 (defun projectable-switch ()
   "Switch between cached projects quickly."
   (interactive)
-  (let* ((projects (-map
-                   (lambda (elt) (cons (file-name-nondirectory (car elt)) (car elt)))
-                   projectable-cache-alist))
-         (project (completing-read "Switch to Cached Project: " projects)))
-    (projectable-restore-cache (cdr (assoc project projects)))))
   (if (and projectable-id projectable-use-caching)
     (projectable-cache-current-project))
+  (if (> (length projectable-cache-alist) 0)
+      (let* ((projects (-map
+                        (lambda (elt) (cons (file-name-nondirectory (car elt)) (car elt)))
+                        projectable-cache-alist))
+             (project (completing-read "Switch to Cached Project: " projects)))
+        (projectable-restore-cache (cdr (assoc project projects))))
+    (call-interactively 'projectable-change)))
 
 (defun projectable-switch-buffer (&optional f)
   "Using `completing-read`, interactively switch between project buffers.
