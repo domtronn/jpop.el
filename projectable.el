@@ -239,6 +239,7 @@ Mainly for debugging of the package."
 (defun projectable-restore-cache (cache-id)
   "Reset all of the projectable variables for CACHE-ID."
   (let ((project-cache (cdr (assoc cache-id projectable-cache-alist))))
+    (setq projectable-current-project-path (cdr (assoc 'cpp project-cache)))
     (setq projectable-project-hash (cdr (assoc 'pph project-cache)))
     (setq projectable-project-alist (cdr (assoc 'ppa project-cache)))
     (setq projectable-id (cdr (assoc 'id project-cache)))
@@ -250,7 +251,8 @@ Mainly for debugging of the package."
 (defun projectable-cache-current-project ()
   "Append or ammend a cache (for a session) for the current project."
   (let ((cache-id projectable-current-project-path)
-        (cache-alist `((pph . ,projectable-project-hash)
+        (cache-alist `((cpp . ,projectable-current-project-path)
+                       (pph . ,projectable-project-hash)
                        (ppa . ,projectable-project-alist)
                        (id . ,projectable-id)
                        (pa . ,projectable-all-alist)
@@ -480,6 +482,7 @@ If called with boolean OVERRIDE, this will override the verbose setting."
 (defun projectable-switch ()
   "Switch between cached projects quickly."
   (interactive)
+  (projectable-cache-current-project)
   (let* ((projects (-map
                    (lambda (elt) (cons (file-name-nondirectory (car elt)) (car elt)))
                    projectable-cache-alist))
