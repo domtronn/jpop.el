@@ -92,7 +92,8 @@ If you enable `projectable-global-mode` you will have access to the following ke
 
 Key Binding | Command | Effect 
 --- | --- | ---
-<kbd>C-x p c</kbd> | `projectable-change` | Change to a new project file/directory 
+<kbd>C-x p c</kbd> | `projectable-change` | Change to a new project file/directory
+<kbd>C-x p C</kbd> | `projectable-switch` | Switch between projects that have been Cached
 <kbd>C-x p r</kbd> | `projectable-refresh` | Refresh the list of files cached 
 <kbd>C-x p f</kbd> | `projectable-find-file` | Open a file from the cache 
 <kbd>C-x p F</kbd> | `projectable-find-file-other-window` | Open a file from the cache in the other window
