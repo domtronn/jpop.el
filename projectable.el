@@ -31,7 +31,7 @@
 
 ;; Packages are defined by json files which can be loaded in.
 
-;; This is perhaps not the best data strucutre for projects but
+;; This is perhaps not the best data structure for projects but
 ;; works well for require.js with name setups
 
 ;;; Code:
@@ -52,7 +52,7 @@
 (defcustom projectable-project-directory (expand-file-name (getenv "HOME"))
   "The directory where project json files are kept.
 
-By default it looks in the hte HOME folder as defined by `getenv`"
+By default it looks in the the HOME folder as defined by `getenv`"
   :group 'projectable
   :type 'string)
 
