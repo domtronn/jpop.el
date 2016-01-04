@@ -654,7 +654,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
     (define-key map (kbd "t") 'projectable-toggle-open-test)
     (define-key map (kbd "T") 'projectable-toggle-open-test-other-window)
     (define-key map (kbd "l") 'projectable-reformat-file)
-    (define-key map (kbd "L") '(lambda () (projectable-reformat-file t)))
+    (define-key map (kbd "L") '(lambda (interactive) (projectable-reformat-file t)))
     (define-key map (kbd "p") 'projectable-visit-project-file)
     (define-key map (kbd "b") 'projectable-switch-buffer)
     (define-key map (kbd "B") 'projectable-switch-buffer-other-window)
