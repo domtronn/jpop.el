@@ -95,10 +95,12 @@ Key Binding | Command | Effect
 <kbd>C-x p c</kbd> | `projectable-change` | Change to a new project file/directory
 <kbd>C-x p C</kbd> | `projectable-switch` | Switch between projects that have been Cached
 <kbd>C-x p r</kbd> | `projectable-refresh` | Refresh the list of files cached 
-<kbd>C-x p f</kbd> | `projectable-find-file` | Open a file from the cache 
-<kbd>C-x p F</kbd> | `projectable-find-file-other-window` | Open a file from the cache in the other window
-<kbd>C-x p e</kbd> | `projectable-extended-find-file` | Open a file from the any declared library cache
-<kbd>C-x p E</kbd> | `projectable-extended-find-file-other-window` | Open a file from the any declared library cache in the other window
+<kbd>C-x p f f</kbd> | `projectable-find-file` | Open a file from the cache 
+<kbd>C-x p f F</kbd> | `projectable-find-file-other-window` | Open a file from the cache in the other window
+<kbd>C-x p f t</kbd> | `projectable-find-test` | Open file from a list of _(what projectable thinks are)_ tests in the cache
+<kbd>C-x p f T</kbd> | `projectable-find-test-other-window` | Open file from a list of _(what projectable thinks are)_ tests in the cache in the other window
+<kbd>C-x p f e</kbd> | `projectable-extended-find-file` | Open a file from the any declared library cache
+<kbd>C-x p f E</kbd> | `projectable-extended-find-file-other-window` | Open a file from the any declared library cache in the other window
 <kbd>C-x p t</kbd> | `projectable-toggle-open-test` | Try and find the related test file
 <kbd>C-x p T</kbd> | `projectable-toggle-open-test-other-window` | Try and find the related test file in the other window
 <kbd>C-x p l</kbd> | `projectable-reformat-file` | Reformat the current file to use appropriate indentation
