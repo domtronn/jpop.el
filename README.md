@@ -101,6 +101,10 @@ Key Binding | Command | Effect
 <kbd>C-x p f T</kbd> | `projectable-find-test-other-window` | Open file from a list of _(what projectable thinks are)_ tests in the cache in the other window
 <kbd>C-x p f e</kbd> | `projectable-extended-find-file` | Open a file from the any declared library cache
 <kbd>C-x p f E</kbd> | `projectable-extended-find-file-other-window` | Open a file from the any declared library cache in the other window
+<kbd>C-x p g f</kbd> | `projectable-git-find-file` | Creates a project out of the containing Git project and tries to open file
+<kbd>C-x p g F</kbd> | `projectable-git-find-file-other-window` | Creates a project out of the containing Git project and tries to open file in the other window
+<kbd>C-x p g t</kbd> | `projectable-git-find-test` | Creates a project out of the containing Git project and tries to open test
+<kbd>C-x p g T</kbd> | `projectable-git-find-test-other-window` | Creates a project out of the containing Git project and tries to open test in the other window
 <kbd>C-x p t</kbd> | `projectable-toggle-open-test` | Try and find the related test file
 <kbd>C-x p T</kbd> | `projectable-toggle-open-test-other-window` | Try and find the related test file in the other window
 <kbd>C-x p l</kbd> | `projectable-reformat-file` | Reformat the current file to use appropriate indentation

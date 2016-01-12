@@ -507,7 +507,6 @@ Optionally called F as the function used to switch the buffer."
   (interactive)
   (projectable-switch-buffer 'switch-to-buffer-other-window))
 
-
 (defun projectable-find-file ()
   "Call `projectable--find-file` for FILE with `find-file` as function call."
   (interactive)
@@ -576,6 +575,35 @@ in more than one directory, select directory.  Lastly the file is opened using F
      (t (if projectable-toggle-test-fallback-hook
             (run-hooks 'projectable-toggle-test-fallback-hook)
           (projectable-message (format "Could not find the test/src file for [%s]" file-name) t))))))
+
+;; Finding Files in Git Repos
+
+(defun projectable--find-file-git (find-f)
+  "Create a project quickly out of contained Git project and call FIND-F."
+  (let ((git-repo (locate-dominating-file (buffer-file-name) ".git")))
+    (if (and (projectable-change git-repo) (funcall find-f))
+        (projectable-message (format "File is not part of a git project [%s]"
+                          (file-name-nondirectory (buffer-file-name))) t))))
+
+(defun projectable-git-find-file ()
+  "Find a file in a git repository without having to change projets."
+  (interactive)
+  (projectable--find-file-git 'projectable-find-file))
+
+(defun projectable-git-find-file-other-window ()
+  "Find a file in a git repository without having to change projets."
+  (interactive)
+  (projectable--find-file-git 'projectable-find-file-other-window))
+
+(defun projectable-git-find-test ()
+  "Find a file in a git repository without having to change projets."
+  (interactive)
+  (projectable--find-file-git 'projectable-find-test))
+
+(defun projectable-git-find-test-other-window ()
+  "Find a file in a git repository without having to change projets."
+  (interactive)
+  (projectable--find-file-git 'projectable-find-test-other-window))
 
 (defun projectable-reformat-file (&optional force)
   "Reformat tabs/spaces into correct format for current file.
@@ -653,6 +681,10 @@ i.e.  If indent level was 4, the indent string would be '    '."
     (define-key map (kbd "f F") 'projectable-find-file-other-window)
     (define-key map (kbd "f t") 'projectable-find-test)
     (define-key map (kbd "f T") 'projectable-find-test-other-window)
+    (define-key map (kbd "g f") 'projectable-git-find-file)
+    (define-key map (kbd "g F") 'projectable-git-find-file-other-window)
+    (define-key map (kbd "g t") 'projectable-git-find-test)
+    (define-key map (kbd "g T") 'projectable-git-find-test-other-window)
     (define-key map (kbd "t") 'projectable-toggle-open-test)
     (define-key map (kbd "T") 'projectable-toggle-open-test-other-window)
     (define-key map (kbd "l") 'projectable-reformat-file)
