@@ -214,6 +214,8 @@ Mainly for debugging of the package."
   (list :tabs "	" "  ") "Definiton of indentation type with the indent character.")
 
 ;;; Function Definitions
+
+;;;###autoload
 (defun projectable-change (arg)
   "Change project path to ARG and refresh the cache."
   (interactive (list (ido-read-file-name "Enter path to Project file: "
@@ -235,6 +237,13 @@ Mainly for debugging of the package."
            (assoc projectable-current-project-path projectable-cache-alist))
       (projectable-restore-cache projectable-current-project-path)
     (projectable-refresh)))
+
+;;;###autoload
+(defun projectable-change-and-find-file ()
+  "Switch project before calling `projectable-find-file`."
+  (interactive)
+  (call-interactively 'projectable-change)
+  (call-interactively 'projectable-find-file))
 
 (defun projectable-restore-cache (cache-id)
   "Reset all of the projectable variables for CACHE-ID."
@@ -491,12 +500,6 @@ If called with boolean OVERRIDE, this will override the verbose setting."
              (project (completing-read "Switch to Cached Project: " projects)))
         (projectable-restore-cache (cdr (assoc project projects))))
     (call-interactively 'projectable-change)))
-
-(defun projectable-change-and-find-file ()
-  "Switch project before calling `projectable-find-file`."
-  (interactive)
-  (call-interactively 'projectable-change)
-  (call-interactively 'projectable-find-file))
 
 (defun projectable-switch-buffer (&optional f)
   "Using `completing-read`, interactively switch between project buffers.
