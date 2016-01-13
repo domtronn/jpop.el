@@ -492,6 +492,12 @@ If called with boolean OVERRIDE, this will override the verbose setting."
         (projectable-restore-cache (cdr (assoc project projects))))
     (call-interactively 'projectable-change)))
 
+(defun projectable-change-and-find-file ()
+  "Switch project before calling `projectable-find-file`."
+  (interactive)
+  (call-interactively 'projectable-change)
+  (call-interactively 'projectable-find-file))
+
 (defun projectable-switch-buffer (&optional f)
   "Using `completing-read`, interactively switch between project buffers.
 
@@ -675,6 +681,7 @@ i.e.  If indent level was 4, the indent string would be '    '."
     (define-key map (kbd "c") 'projectable-change)
     (define-key map (kbd "C") 'projectable-switch)
     (define-key map (kbd "r") 'projectable-refresh)
+    (define-key map (kbd "f c") 'projectable-change-and-find-file)
     (define-key map (kbd "f e") 'projectable-extended-find-file)
     (define-key map (kbd "f E") 'projectable-extended-find-file-other-window)
     (define-key map (kbd "f f") 'projectable-find-file)
