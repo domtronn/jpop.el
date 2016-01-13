@@ -95,6 +95,7 @@ Key Binding | Command | Effect
 <kbd>C-x p c</kbd> | `projectable-change` | Change to a new project file/directory
 <kbd>C-x p C</kbd> | `projectable-switch` | Switch between projects that have been Cached
 <kbd>C-x p r</kbd> | `projectable-refresh` | Refresh the list of files cached 
+<kbd>C-x p f c</kbd> | `projectable-change-and-find-file` | Change to a new project file/directory and then open a file from that cache
 <kbd>C-x p f f</kbd> | `projectable-find-file` | Open a file from the cache 
 <kbd>C-x p f F</kbd> | `projectable-find-file-other-window` | Open a file from the cache in the other window
 <kbd>C-x p f t</kbd> | `projectable-find-test` | Open file from a list of _(what projectable thinks are)_ tests in the cache
