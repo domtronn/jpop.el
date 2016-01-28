@@ -280,8 +280,9 @@ Mainly for debugging of the package."
 (defvar projectable-last-buffer nil)
 (defun projectable--auto-change-project-hook ()
   "Hook function to automatically change to the project."
-  (when (and (not (minibuffer-window-active-p (get-buffer-window (current-buffer))))
-             (not (eq projectable-last-buffer (current-buffer))))
+  (when (and (buffer-file-name)                                                      ;; Buffer visiting a file
+             (not (minibuffer-window-active-p (get-buffer-window (current-buffer)))) ;; Buffer not in the minibuffer
+             (not (eq projectable-last-buffer (current-buffer))))                               ;; Buffer has changed
     (setq projectable-last-buffer (current-buffer))
     (projectable-change-to-project-intelligently)))
 
