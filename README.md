@@ -30,6 +30,7 @@ efficiencies sake.
 * Create throw-away project instances from directories
 * Switch between buffers in a project
 * Per Instance Caching of projects for quick switching
+* Auto project switching when changing to project files
 
 # Installation #
 
@@ -140,6 +141,20 @@ settings can be restored instantly without regenerating the file alist.
 
 If the `projectable` file lists become stale, you can force a refresh
 of the project with `projectable-refresh`.
+
+### Auto Project Switching ###
+
+When using caching, you can turn on auto project changing. When
+switching between buffers, `projectable` will restore the cache of the
+project containing that file. When switching to buffers that _are not
+part of any_ project, you will remain in the project you are currently
+in.
+
+To enable/disable this, call
+```
+M-x projectable-enable-auto-change-projects
+M-x projectable-disable-auto-change-projects
+```
 
 # Ctags and JavaScript #
 
