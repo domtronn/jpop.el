@@ -253,7 +253,7 @@ Mainly for debugging of the package."
   (if (and (bound-and-true-p projectable-use-caching)
            (bound-and-true-p projectable-cache-alist))
 
-      (let* ((file-name (buffer-file-name))
+      (let* ((file-name (file-truename (buffer-file-name)))
              (project-contains-file (apply-partially 'projectable--cache-hash-contains file-name))
              (project-caches  (-non-nil (mapcar #'(lambda (cache) (when (cdr (assoc 'pph (cdr cache))) cache))
                                  projectable-cache-alist)))
