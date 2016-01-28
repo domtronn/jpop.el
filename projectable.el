@@ -238,6 +238,49 @@ Mainly for debugging of the package."
       (projectable-restore-cache projectable-current-project-path)
     (projectable-refresh)))
 
+;; Project auto changing
+
+(defun projectable--cache-hash-contains (file cache)
+  "Check whether FILE is contained within any of the projects directory paths of CACHE."
+  (when file
+    (let ((p-hash (cdr (assoc 'pph (cdr cache)))))
+      (-any? (lambda (r) (string-match (expand-file-name r) file))
+             (-concat (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "libs" p-hash))
+                      (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "dirs" p-hash)))))))
+
+(defun projectable-change-to-project-intelligently ()
+  "Hook function to restor project intelligently based on the file you've opened."
+  (if (and (bound-and-true-p projectable-use-caching)
+           (bound-and-true-p projectable-cache-alist))
+
+      (let* ((file-name (buffer-file-name))
+             (project-contains-file (apply-partially 'projectable--cache-hash-contains file-name))
+             (project-caches  (-non-nil (mapcar #'(lambda (cache) (when (cdr (assoc 'pph (cdr cache))) cache))
+                                 projectable-cache-alist)))
+             (project-cache-ids (-map 'car project-caches))
+             (containing-file (-non-nil (-zip-with (lambda (a b) (and a b)) (mapcar project-contains-file project-caches) project-cache-ids))))
+
+        (when (and (not (eq nil containing-file))
+                   (not (-contains? containing-file projectable-current-project-path)))
+          (projectable-cache-current-project)
+          (projectable-restore-cache (car containing-file))))
+
+    (error "[projectable] You need to have caching enabled and have projects in your cache to use this feature")))
+
+(defun projectable-enable-auto-change-project () "Add auto changing of projects." (interactive)
+       (add-hook 'buffer-list-update-hook 'projectable--auto-change-project-hook))
+
+(defun projectable-disable-auto-change-project () "Add auto changing of projects." (interactive)
+       (remove-hook 'buffer-list-update-hook 'projectable--auto-change-project-hook))
+
+(defvar projectable-last-buffer nil)
+(defun projectable--auto-change-project-hook ()
+  "Hook function to automatically change to the project."
+  (when (and (not (minibuffer-window-active-p (get-buffer-window (current-buffer))))
+             (not (eq projectable-last-buffer (current-buffer))))
+    (setq projectable-last-buffer (current-buffer))
+    (projectable-change-to-project-intelligently)))
+
 ;;;###autoload
 (defun projectable-change-and-find-file ()
   "Switch project before calling `projectable-find-file`."
@@ -260,13 +303,13 @@ Mainly for debugging of the package."
 (defun projectable-cache-current-project ()
   "Append or ammend a cache (for a session) for the current project."
   (let ((cache-id projectable-current-project-path)
-        (cache-alist `((cpp . ,projectable-current-project-path)
-                       (pph . ,projectable-project-hash)
-                       (ppa . ,projectable-project-alist)
-                       (id . ,projectable-id)
-                       (pa . ,projectable-all-alist)
-                       (pf . ,projectable-file-alist)
-                       (pt . ,projectable-test-alist))))
+        (cache-alist `((cpp . ,projectable-current-project-path) ;; Current Project Path
+                       (pph . ,projectable-project-hash)         ;; Project Hash
+                       (ppa . ,projectable-project-alist)        ;; Project Alist
+                       (id . ,projectable-id)                    ;; Project ID
+                       (pa . ,projectable-all-alist)             ;; All Files Alist
+                       (pf . ,projectable-file-alist)            ;; Main File Alist
+                       (pt . ,projectable-test-alist))))         ;; Test File Alist
     (when (assoc cache-id projectable-cache-alist)
       (setf (cdr (assoc cache-id projectable-cache-alist)) cache-alist))
     (add-to-list 'projectable-cache-alist (cons cache-id cache-alist))))
