@@ -268,10 +268,14 @@ Mainly for debugging of the package."
     (error "[projectable] You need to have caching enabled and have projects in your cache to use this feature")))
 
 (defun projectable-enable-auto-change-project () "Add auto changing of projects." (interactive)
-       (add-hook 'buffer-list-update-hook 'projectable--auto-change-project-hook))
+       (if (projectable-use-caching)
+           (add-hook 'buffer-list-update-hook 'projectable--auto-change-project-hook)
+         (error "[projectable] You need to have caching enabled to use this feature")))
 
 (defun projectable-disable-auto-change-project () "Add auto changing of projects." (interactive)
-       (remove-hook 'buffer-list-update-hook 'projectable--auto-change-project-hook))
+       (if (projectable-use-caching)
+           (remove-hook 'buffer-list-update-hook 'projectable--auto-change-project-hook)
+         (error "[projectable] You need to have caching enabled to use this feature")))
 
 (defvar projectable-last-buffer nil)
 (defun projectable--auto-change-project-hook ()
