@@ -303,6 +303,14 @@ Mainly for debugging of the package."
     (setq projectable-all-alist (cdr (assoc 'pa project-cache)))
     (setq projectable-file-alist (cdr (assoc 'pf project-cache)))
     (setq projectable-test-alist (cdr (assoc 'pt project-cache)))
+
+
+    (let* ((f (lambda (it) (when (gethash "create-tags" it)
+                        (format "%s/%s" (gethash "dir" it) projectable-tags-file))))
+           (tags (-concat (mapcar f (gethash "dirs" projectable-project-hash))
+                          (mapcar f (gethash "libs" projectable-project-hash)))))
+      (setq tags-table-list tags))
+
     (projectable-message (format "Restored project from cache [%s]" projectable-current-project-path) t)))
 
 (defun projectable-cache-current-project ()
