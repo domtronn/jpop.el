@@ -98,7 +98,7 @@ By default, it uses the python script provided with this package."
   :type 'string)
 
 (defvar projectable-find-cmd-format
-  "find %s -type f | grep -E \"%s\" | grep -vE \"%s\" | xargs %s"
+  "find %s -type f  -not -size +64k | grep -E \"%s\" | grep -vE \"%s\" | xargs %s"
   "Command format of find command used to pass to tags cmd.
 
 The formats should be replaced, in order, by
