@@ -98,7 +98,7 @@ By default, it uses the python script provided with this package."
   :type 'string)
 
 (defvar projectable-find-cmd-format
-  "find %s -type f | grep -E \"%s\" | grep -vE \"%s\" | xargs %s"
+  "find %s -type f  -not -size +64k | grep -E \"%s\" | grep -vE \"%s\" | xargs %s"
   "Command format of find command used to pass to tags cmd.
 
 The formats should be replaced, in order, by
@@ -124,7 +124,7 @@ tests.")
   :group 'projectable
   :type 'string)
 (defcustom projectable-ctags-cmd-format
-  (format "ctags -f %s/%s -e" "%s -not -size +16k" projectable-tags-file)
+  (format "ctags -f %s/%s -e" "%s" projectable-tags-file)
   "Specify the ctags command to pipe a list of files into.
 
 -e is required to create an Emacs style tags file."
