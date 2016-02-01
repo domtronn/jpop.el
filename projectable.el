@@ -124,7 +124,7 @@ tests.")
   :group 'projectable
   :type 'string)
 (defcustom projectable-ctags-cmd-format
-  (format "ctags -f %s/%s -e" "%s" projectable-tags-file)
+  (format "ctags -f %s/%s -e" "%s -not -size +16k" projectable-tags-file)
   "Specify the ctags command to pipe a list of files into.
 
 -e is required to create an Emacs style tags file."
