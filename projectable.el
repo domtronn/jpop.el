@@ -554,6 +554,10 @@ Optionally called F as the function used to switch the buffer."
 Select a file matched using `completing-read` against the contents
 of FILE-ALIST.  Options are displayed using READ-F.  If the file exists
 in more than one directory, select directory.  Lastly the file is opened using FIND-F."
+
+  (unless projectable-id
+    (error "ERROR: You haven't set a project yet, set a project by calling projectable-find-file (C-x p c)"))
+
   (let* ((file (completing-read "File: " (mapcar projectable-completion-func file-alist)))
          (record (assoc (file-name-nondirectory file) file-alist)))
     (funcall find-f
