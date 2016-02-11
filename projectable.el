@@ -243,7 +243,7 @@ Mainly for debugging of the package."
 (defun projectable--cache-hash-contains (file cache)
   "Check whether FILE is contained within any of the projects directory paths of CACHE."
   (when file
-    (let ((p-hash (cdr (assoc 'pph (cdr cache)))))
+    (let ((p-hash (cdr (assoc 'hash (cdr cache)))))
       (-any? (lambda (r) (string-match (expand-file-name r) file))
              (-concat (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "libs" p-hash))
                       (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "dirs" p-hash)))))))
@@ -255,7 +255,7 @@ Mainly for debugging of the package."
 
       (let* ((file-name (file-truename (buffer-file-name)))
              (project-contains-file (apply-partially 'projectable--cache-hash-contains file-name))
-             (project-caches  (-non-nil (mapcar #'(lambda (cache) (when (cdr (assoc 'pph (cdr cache))) cache))
+             (project-caches  (-non-nil (mapcar #'(lambda (cache) (when (cdr (assoc 'hash (cdr cache))) cache))
                                  projectable-cache-alist)))
              (project-cache-ids (-map 'car project-caches))
              (containing-file (-non-nil (-zip-with (lambda (a b) (and a b)) (mapcar project-contains-file project-caches) project-cache-ids))))
@@ -296,13 +296,13 @@ Mainly for debugging of the package."
 (defun projectable-restore-cache (cache-id)
   "Reset all of the projectable variables for CACHE-ID."
   (let ((project-cache (cdr (assoc cache-id projectable-cache-alist))))
-    (setq projectable-current-project-path (cdr (assoc 'cpp project-cache)))
-    (setq projectable-project-hash (cdr (assoc 'pph project-cache)))
-    (setq projectable-project-alist (cdr (assoc 'ppa project-cache)))
+    (setq projectable-current-project-path (cdr (assoc 'path project-cache)))
+    (setq projectable-project-hash (cdr (assoc 'hash project-cache)))
+    (setq projectable-project-alist (cdr (assoc 'alist project-cache)))
     (setq projectable-id (cdr (assoc 'id project-cache)))
-    (setq projectable-all-alist (cdr (assoc 'pa project-cache)))
-    (setq projectable-file-alist (cdr (assoc 'pf project-cache)))
-    (setq projectable-test-alist (cdr (assoc 'pt project-cache)))
+    (setq projectable-all-alist (cdr (assoc 'all project-cache)))
+    (setq projectable-file-alist (cdr (assoc 'files project-cache)))
+    (setq projectable-test-alist (cdr (assoc 'tests project-cache)))
 
     (when (hash-table-p projectable-project-hash)
       (let* ((f (lambda (it) (when (gethash "create-tags" it)
@@ -316,13 +316,13 @@ Mainly for debugging of the package."
 (defun projectable-cache-current-project ()
   "Append or ammend a cache (for a session) for the current project."
   (let ((cache-id projectable-current-project-path)
-        (cache-alist `((cpp . ,projectable-current-project-path) ;; Current Project Path
-                       (pph . ,projectable-project-hash)         ;; Project Hash
-                       (ppa . ,projectable-project-alist)        ;; Project Alist
+        (cache-alist `((path . ,projectable-current-project-path) ;; Current Project Path
+                       (hash . ,projectable-project-hash)         ;; Project Hash
+                       (alist . ,projectable-project-alist)        ;; Project Alist
                        (id . ,projectable-id)                    ;; Project ID
-                       (pa . ,projectable-all-alist)             ;; All Files Alist
-                       (pf . ,projectable-file-alist)            ;; Main File Alist
-                       (pt . ,projectable-test-alist))))         ;; Test File Alist
+                       (all . ,projectable-all-alist)             ;; All Files Alist
+                       (files . ,projectable-file-alist)            ;; Main File Alist
+                       (tests . ,projectable-test-alist))))         ;; Test File Alist
     (when (assoc cache-id projectable-cache-alist)
       (setf (cdr (assoc cache-id projectable-cache-alist)) cache-alist))
     (add-to-list 'projectable-cache-alist (cons cache-id cache-alist))))
