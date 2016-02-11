@@ -239,6 +239,11 @@ Mainly for debugging of the package."
 
 ;; Project auto changing
 
+(defun projectable-invalidate-cache ()
+  "Invalidate the entire project cache."
+  (interactive)
+  (setq projectable-cache-alist nil))
+
 (defun projectable--cache-hash-contains (file cache)
   "Check whether FILE is contained within any of the projects directory paths of CACHE."
   (when file
