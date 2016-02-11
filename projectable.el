@@ -252,6 +252,18 @@ Mainly for debugging of the package."
              (-concat (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "libs" p-hash))
                       (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "dirs" p-hash)))))))
 
+(defun projectable--cache-contains (file cache)
+  "Check whether FILE is contained within CACHE.
+
+If this a json/hash cache, then it will call
+  `projectable--cache-hash-contains`, otherwise, revert to
+  checking whether file is contained within a path."
+  (let ((hash (cdr (assoc 'hash cache)))
+        (path (cdr (assoc 'path cache))))
+    (when file
+      (if hash (projectable--cache-hash-contains file cache)
+        (string-match (expand-file-name path) file)))))
+
 (defun projectable-change-to-project-intelligently ()
   "Hook function to restor project intelligently based on the file you've opened."
   (if (and (bound-and-true-p projectable-use-caching)
