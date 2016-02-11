@@ -65,13 +65,13 @@ An example JSON project file would look like this:
 		{ "dir":"~/path/to/project", "create-tags": true},
 		{ "dir":"~/path/to/another/project", "create-tags":false }
 	],
-    "libs":[
-        { "dir":"~/path/to/library", "create-tags": true, "id":"library-id"},
-    ],
-    "style":{
-        "tabs":false,
-        "indent":2
-    }
+	"libs":[
+		{ "dir":"~/path/to/library", "create-tags": true, "id":"library-id"},
+	],
+	"style":{
+		"tabs":false,
+		"indent":2
+	}
 }
 ```
 
@@ -91,13 +91,13 @@ take priority over the global variable.
 # Usage #
 If you enable `projectable-global-mode` you will have access to the following keybindings:
 
-Key Binding | Command | Effect 
+Key Binding | Command | Effect
 --- | --- | ---
 <kbd>C-x p c</kbd> | `projectable-change` | Change to a new project file/directory
 <kbd>C-x p C</kbd> | `projectable-switch` | Switch between projects that have been Cached
-<kbd>C-x p r</kbd> | `projectable-refresh` | Refresh the list of files cached 
+<kbd>C-x p r</kbd> | `projectable-refresh` | Refresh the list of files cached
 <kbd>C-x p p</kbd> | `projectable-change-and-find-file` | Change to a new project file/directory and then open a file from that cache
-<kbd>C-x p f f</kbd> | `projectable-find-file` | Open a file from the cache 
+<kbd>C-x p f f</kbd> | `projectable-find-file` | Open a file from the cache
 <kbd>C-x p f F</kbd> | `projectable-find-file-other-window` | Open a file from the cache in the other window
 <kbd>C-x p f t</kbd> | `projectable-find-test` | Open file from a list of _(what projectable thinks are)_ tests in the cache
 <kbd>C-x p f T</kbd> | `projectable-find-test-other-window` | Open file from a list of _(what projectable thinks are)_ tests in the cache in the other window
@@ -107,6 +107,8 @@ Key Binding | Command | Effect
 <kbd>C-x p g F</kbd> | `projectable-git-find-file-other-window` | Creates a project out of the containing Git project and tries to open file in the other window
 <kbd>C-x p g t</kbd> | `projectable-git-find-test` | Creates a project out of the containing Git project and tries to open test
 <kbd>C-x p g T</kbd> | `projectable-git-find-test-other-window` | Creates a project out of the containing Git project and tries to open test in the other window
+<kbd>C-x p f a</kbd> | `projectable-find-file-from-all-projects` | Open a file from any of the currently cached/opened projects
+<kbd>C-x p f A</kbd> | `projectable-find-file-from-all-projects-other-window` | Open a file from any of the currently cached/opened projects in the other window
 <kbd>C-x p t</kbd> | `projectable-toggle-open-test` | Try and find the related test file
 <kbd>C-x p T</kbd> | `projectable-toggle-open-test-other-window` | Try and find the related test file in the other window
 <kbd>C-x p l</kbd> | `projectable-reformat-file` | Reformat the current file to use appropriate indentation
@@ -114,7 +116,7 @@ Key Binding | Command | Effect
 <kbd>C-x p b</kbd> | `projectable-switch-buffer` | Switch between buffers in the current project
 <kbd>C-x p B</kbd> | `projectable-switch-buffer-other-window` | Switch between buffers in the current project and open in the other window
 <kbd>C-x p k</kbd> | `projectable-kill-project-buffers` | Kill all of the buffers related to the current project
-    
+
 It is well worth looking through `customize-group RET projectable` to see what you can customise.
 
 
@@ -194,12 +196,13 @@ I'm trying to get this project in a nicer state for my own purposes, future feat
 - [x] `.gitignore` integration for filtering
 - [x] Some form of Caching
 - [ ] Dynamic updating of project
+- [x] Dynamic/Smart switching of projects
 - [x] Better integration for test
-    - [x] opening
-    - [ ] running
+	- [x] opening
+	- [ ] running
 - [x] Tags generation Integration
-    - [x] Ctags
-    - [ ] Etags
+	- [x] Ctags
+	- [ ] Etags
 - [ ] Hosting on [Melpa](http://melpa.org/#/)
 - [x] Project grouped buffers
 

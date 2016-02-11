@@ -622,15 +622,24 @@ in more than one directory, select directory.  Lastly the file is opened using F
         (completing-read
          (format "Find %s in dir:" file) (cdr record))))))
 
+(defun projectable--get-all-project-files (f)
+  "Gets all files across cached projects and creats an alist in form (F . filepath)."
+  (-reduce 'append
+           (--map (let ((id (cdr (assoc 'id it)))
+                        (all (cdr (assoc 'all it))))
+                    (--map (cons (format f id (car it)) (cdr it)) all)) projectable-cache-alist)))
+
 (defun projectable-find-file-from-all-projects ()
   "Call `projectable--find-file` for files contained within any currently cached projects."
   (interactive)
-  (let ((all-project-files-alist
-         (-reduce 'append
-                  (--map (let ((id (cdr (assoc 'id it)))
-                               (all (cdr (assoc 'all it))))
-                           (--map (cons (format "[%s] %s" id (car it)) (cdr it)) all)) projectable-cache-alist))))
+  (let ((all-project-files-alist (projectable--get-all-project-files "[%s] %s")))
     (projectable--find-file all-project-files-alist 'find-file)))
+
+(defun projectable-find-file-from-all-projects-other-window ()
+  "Call `projectable--find-file-other-window` for files contained within any currently cached projects."
+  (interactive)
+  (let ((all-project-files-alist (projectable--get-all-project-files "[%s] %s")))
+    (projectable--find-file all-project-files-alist 'find-file-other-window)))
 
 (defun projectable-find-dired ()
   "Interactively find a directory in your project.
@@ -785,6 +794,8 @@ i.e.  If indent level was 4, the indent string would be '    '."
     (define-key map (kbd "f F") 'projectable-find-file-other-window)
     (define-key map (kbd "f t") 'projectable-find-test)
     (define-key map (kbd "f T") 'projectable-find-test-other-window)
+    (define-key map (kbd "f a") 'projectable-find-file-from-all-projects)
+    (define-key map (kbd "f A") 'projectable-find-file-from-all-projects-other-window)
     (define-key map (kbd "g f") 'projectable-git-find-file)
     (define-key map (kbd "g F") 'projectable-git-find-file-other-window)
     (define-key map (kbd "g t") 'projectable-git-find-test)
