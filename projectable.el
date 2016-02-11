@@ -622,6 +622,18 @@ in more than one directory, select directory.  Lastly the file is opened using F
         (completing-read
          (format "Find %s in dir:" file) (cdr record))))))
 
+(defun projectable-find-dired ()
+  "Interactively find a directory in your project.
+
+Select a directory matched using `completing-read` against the contents
+of `projectable-file-alist` filtered to only include unique direcotries."
+	(interactive)
+  (unless projectable-id
+    (error "ERROR: You haven't set a project yet, set a project by calling projectable-find-file (C-x p c)"))
+
+  (let* ((dired (completing-read "Dired: " (-uniq (--map (file-name-directory (cadr it)) projectable-file-alist)))))
+    (find-file dired)))
+
 (defun projectable-toggle-open-test-other-window ()
   "Open associated test class if it exists in the other window."
   (interactive)
