@@ -654,10 +654,9 @@ of `projectable-file-alist` filtered to only include unique direcotries."
           (mapcar
            (lambda (item)
              (let* ((limit 6)
-                    (split-dir (reverse (-take limit (reverse (s-split "/" item))))))
-               (cons (if (< limit (length split-dir))
-                         (format "/%s" (s-join "/" split-dir))
-                       (format ".../%s" (s-join "/" split-dir))) item)))
+                    (split-dir (reverse (-take limit (reverse (split-string item "/")))))
+                    (dir (mapconcat 'identity split-dir "/")))
+               (cons (format (if (< limit (length split-dir)) "/%s" ".../%s") dir) item)))
            (-uniq (--map (file-name-directory (cadr it)) (-concat projectable-all-alist projectable-test-alist)))))
          (read-dir (completing-read "Dired: " dir-list))
          (dir (cdr (assoc read-dir dir-list))))
