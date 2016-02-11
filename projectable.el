@@ -622,6 +622,16 @@ in more than one directory, select directory.  Lastly the file is opened using F
         (completing-read
          (format "Find %s in dir:" file) (cdr record))))))
 
+(defun projectable-find-file-from-all-projects ()
+  "Call `projectable--find-file` for files contained within any currently cached projects."
+  (interactive)
+  (let ((all-project-files-alist
+         (-reduce 'append
+                  (--map (let ((id (cdr (assoc 'id it)))
+                               (all (cdr (assoc 'all it))))
+                           (--map (cons (format "[%s] %s" id (car it)) (cdr it)) all)) projectable-cache-alist))))
+    (projectable--find-file all-project-files-alist 'find-file)))
+
 (defun projectable-find-dired ()
   "Interactively find a directory in your project.
 
