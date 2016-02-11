@@ -713,10 +713,20 @@ of `projectable-file-alist` filtered to only include unique direcotries."
 
 (defun projectable--find-file-git (find-f)
   "Create a project quickly out of contained Git project and call FIND-F."
-  (let ((git-repo (locate-dominating-file (buffer-file-name) ".git")))
-    (if (and (projectable-change git-repo) (funcall find-f))
-        (projectable-message (format "File is not part of a git project [%s]"
-                          (file-name-nondirectory (buffer-file-name))) t))))
+  (let* ((file-name (buffer-file-name))
+         (git-repo (locate-dominating-file file-name ".git"))
+         (cache-containing-file (projectable-cache-containing file-name)))
+
+    (when (not (or git-repo cache-containing-file))
+      (error (format "[projectable] File is not part of a git project [%s]"
+                     (file-name-nondirectory (buffer-file-name))) t))
+
+    (if (not cache-containing-file)
+        (projectable-change git-repo)
+      (projectable-message (format "Cowardly using project find file for [%s]" cache-containing-file) t)
+      (projectable-restore-cache cache-containing-file))
+
+    (funcall find-f)))
 
 (defun projectable-git-find-file ()
   "Find a file in a git repository without having to change projets."
@@ -786,7 +796,8 @@ i.e.  If indent level was 4, the indent string would be '    '."
 (defun projectable-cache-containing (file)
   "Find the ID of the first project cache containing FILE.
 
-This algorithm prioritizes hash/json projects over anonymous directory based ones."
+This algorithm prioritizes hash/json projects over anonymous
+directory based ones."
   (unless file (error "[projectable] File is nil"))
 
   (let* ((cache-containers
