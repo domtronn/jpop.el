@@ -756,10 +756,10 @@ i.e.  If indent level was 4, the indent string would be '    '."
   "Open the project file currently being used."
   (interactive)
   (when projectable-current-project-path
-    (if (not (file-directory-p projectable-current-project-path))
-        (find-file projectable-current-project-path)
+    (when (not (file-directory-p projectable-current-project-path))
       (projectable-message
-       (format "Current project is an anonymous path, not a project file [%s]" projectable-current-project-path) t))))
+       (format "Current project is an anonymous path, not a project file [%s]" projectable-current-project-path) t))
+    (find-file projectable-current-project-path)))
 
 (defun projectable-get-ctags-supported-languages ()
   "Flatten and concatenate all supported languages for find command."

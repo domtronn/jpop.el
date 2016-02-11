@@ -96,7 +96,7 @@ Key Binding | Command | Effect
 <kbd>C-x p c</kbd> | `projectable-change` | Change to a new project file/directory
 <kbd>C-x p C</kbd> | `projectable-switch` | Switch between projects that have been Cached
 <kbd>C-x p r</kbd> | `projectable-refresh` | Refresh the list of files cached 
-<kbd>C-x p f c</kbd> | `projectable-change-and-find-file` | Change to a new project file/directory and then open a file from that cache
+<kbd>C-x p p</kbd> | `projectable-change-and-find-file` | Change to a new project file/directory and then open a file from that cache
 <kbd>C-x p f f</kbd> | `projectable-find-file` | Open a file from the cache 
 <kbd>C-x p f F</kbd> | `projectable-find-file-other-window` | Open a file from the cache in the other window
 <kbd>C-x p f t</kbd> | `projectable-find-test` | Open file from a list of _(what projectable thinks are)_ tests in the cache
@@ -110,7 +110,7 @@ Key Binding | Command | Effect
 <kbd>C-x p t</kbd> | `projectable-toggle-open-test` | Try and find the related test file
 <kbd>C-x p T</kbd> | `projectable-toggle-open-test-other-window` | Try and find the related test file in the other window
 <kbd>C-x p l</kbd> | `projectable-reformat-file` | Reformat the current file to use appropriate indentation
-<kbd>C-x p p</kbd> | `projectable-visit-project-file` | Open the current project file for editing
+<kbd>C-x p o</kbd> | `projectable-visit-project-file` | Open the current project file for editing or the anonymous directory
 <kbd>C-x p b</kbd> | `projectable-switch-buffer` | Switch between buffers in the current project
 <kbd>C-x p B</kbd> | `projectable-switch-buffer-other-window` | Switch between buffers in the current project and open in the other window
 <kbd>C-x p k</kbd> | `projectable-kill-project-buffers` | Kill all of the buffers related to the current project
