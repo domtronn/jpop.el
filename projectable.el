@@ -454,7 +454,7 @@ string."
                 (mapconcat 'identity (append (split-string (projectable-get-filter-regexps) "|") gitignore-filter-regexps) ",")))
          (result (json-read-from-string (shell-command-to-string cmd))))
             (projectable-message cmd)
-            (setq projectable-test-alist (-reduce (lambda (a b) (append (cdr a) (cdr b))) result))
+            (setq projectable-test-alist (-filter 'consp (--reduce (append (cdr acc) (cdr it)) result)))
     t))
 
 (defun projectable-set-project-alist (&optional gitignore-filter-regexps)
@@ -476,7 +476,7 @@ the filter string set in the customisations."
     (projectable-message cmd)
     (setq projectable-project-alist result)
     (setq projectable-file-alist (cdr (assoc projectable-id result)))
-    (setq projectable-all-alist (-reduce (lambda (a b) (append (cdr a) (cdr b))) result))
+    (setq projectable-all-alist (-filter 'consp (--reduce (append (cdr acc) (cdr it)) result)))
     t))
 
 (defun projectable-get-gitignore-filter (gitignore-dir)
@@ -580,7 +580,7 @@ Optionally called F as the function used to switch the buffer."
 (defun projectable-find-test ()
   "Call `projectable--find-file` for TEST-ALIST with `find-file` as function call."
   (interactive)
-  (projectable--find-file (--map (cons (file-name-nondirectory (cadr it)) (cdr it)) (cdr projectable-test-alist)) 'find-file))
+  (projectable--find-file (--map (cons (file-name-nondirectory (cadr it)) (cdr it)) projectable-test-alist) 'find-file))
 
 (defun projectable-extended-find-file (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
@@ -596,7 +596,7 @@ Optionally called F as the function used to switch the buffer."
 (defun projectable-find-test-other-window ()
   "Call `projectable--find-file` for TEST-ALIST with `find-file-other-window` as function call."
   (interactive)
-  (projectable--find-file (--map (cons (file-name-nondirectory (cadr it)) (cdr it)) (cdr projectable-test-alist)) 'find-file))
+  (projectable--find-file (--map (cons (file-name-nondirectory (cadr it)) (cdr it)) projectable-test-alist) 'find-file))
 
 (defun projectable-extended-find-file-other-window (file-alist-id)
   "Call `projectable--find-file` after prompting user to narrow down the alist using FILE-ALIST-ID."
@@ -631,8 +631,9 @@ of `projectable-file-alist` filtered to only include unique direcotries."
   (unless projectable-id
     (error "ERROR: You haven't set a project yet, set a project by calling projectable-find-file (C-x p c)"))
 
-  (let* ((dired (completing-read "Dired: " (-uniq (--map (file-name-directory (cadr it)) projectable-file-alist)))))
-    (find-file dired)))
+  (let* ((dir-list (-concat projectable-all-alist projectable-test-alist))
+         (dir (completing-read "Dired: " (-uniq (--map (file-name-directory (cadr it)) dir-list)))))
+    (find-file dir)))
 
 (defun projectable-toggle-open-test-other-window ()
   "Open associated test class if it exists in the other window."
