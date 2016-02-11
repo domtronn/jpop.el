@@ -783,6 +783,21 @@ i.e.  If indent level was 4, the indent string would be '    '."
              (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "dirs" projectable-project-hash))
            (and projectable-current-project-path (list projectable-current-project-path)))))
 
+(defun projectable-cache-containing (file)
+  "Find the ID of the first project cache containing FILE.
+
+This algorithm prioritizes hash/json projects over anonymous directory based ones."
+  (unless file (error "[projectable] File is nil"))
+
+  (let* ((cache-containers
+          (--sort (hash-table-p (cdr (assoc 'hash it)))
+                  projectable-cache-alist))
+
+         (first-cache-containing-file
+          (--first (projectable--cache-contains file it) cache-containers)))
+
+    (car first-cache-containing-file)))
+
 (defun projectable-visit-project-file ()
   "Open the project file currently being used."
   (interactive)
