@@ -623,7 +623,7 @@ of FILE-ALIST.  Options are displayed using READ-F.  If the file exists
 in more than one directory, select directory.  Lastly the file is opened using FIND-F."
 
   (unless projectable-id
-    (error "ERROR: You haven't set a project yet, set a project by calling projectable-find-file (C-x p c)"))
+    (error "[projectable] You have not set a project yet - Set one by calling `projectable-find-file`"))
 
   (let* ((file (completing-read "File: " (mapcar projectable-completion-func file-alist)))
          (record (assoc (file-name-nondirectory file) file-alist)))
@@ -659,7 +659,7 @@ Select a directory matched using `completing-read` against the contents
 of `projectable-file-alist` filtered to only include unique direcotries."
   (interactive)
   (unless projectable-id
-    (error "ERROR: You haven't set a project yet, set a project by calling projectable-find-file (C-x p c)"))
+    (error "[projectable] You have not set a project yet - Set one by calling `projectable-find-file`"))
 
   (let* ((dir-list
           (mapcar
