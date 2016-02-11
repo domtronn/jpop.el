@@ -220,9 +220,6 @@ Mainly for debugging of the package."
   "Change project path to ARG and refresh the cache."
   (interactive (list (ido-read-file-name "Enter path to Project file: "
                                          projectable-project-directory)))
-  ;; Cache the old project
-  (when (and projectable-id projectable-use-caching)
-    (projectable-cache-current-project))
 
   ;; Set the current project path to new directory with removing trailing slash
   (setq projectable-current-project-path (replace-regexp-in-string "/$" "" arg))
@@ -236,7 +233,9 @@ Mainly for debugging of the package."
   (if (and projectable-use-caching
            (assoc projectable-current-project-path projectable-cache-alist))
       (projectable-restore-cache projectable-current-project-path)
-    (projectable-refresh)))
+    (projectable-refresh)
+    (when (and projectable-id projectable-use-caching)
+      (projectable-cache-current-project))))
 
 ;; Project auto changing
 
@@ -316,13 +315,14 @@ Mainly for debugging of the package."
 (defun projectable-cache-current-project ()
   "Append or ammend a cache (for a session) for the current project."
   (let ((cache-id projectable-current-project-path)
-        (cache-alist `((path . ,projectable-current-project-path) ;; Current Project Path
-                       (hash . ,projectable-project-hash)         ;; Project Hash
-                       (alist . ,projectable-project-alist)        ;; Project Alist
-                       (id . ,projectable-id)                    ;; Project ID
-                       (all . ,projectable-all-alist)             ;; All Files Alist
+        (cache-alist `((path  . ,projectable-current-project-path)  ;; Current Project Path
+                       (hash  . ,projectable-project-hash)          ;; Project Hash
+                       (alist . ,projectable-project-alist)         ;; Project Alist
+                       (id    . ,projectable-id)                    ;; Project ID
+                       (all   . ,projectable-all-alist)             ;; All Files Alist
                        (files . ,projectable-file-alist)            ;; Main File Alist
                        (tests . ,projectable-test-alist))))         ;; Test File Alist
+
     (when (assoc cache-id projectable-cache-alist)
       (setf (cdr (assoc cache-id projectable-cache-alist)) cache-alist))
     (add-to-list 'projectable-cache-alist (cons cache-id cache-alist))))
