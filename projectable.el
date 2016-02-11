@@ -627,12 +627,22 @@ in more than one directory, select directory.  Lastly the file is opened using F
 
 Select a directory matched using `completing-read` against the contents
 of `projectable-file-alist` filtered to only include unique direcotries."
-	(interactive)
+  (interactive)
   (unless projectable-id
     (error "ERROR: You haven't set a project yet, set a project by calling projectable-find-file (C-x p c)"))
 
-  (let* ((dir-list (-concat projectable-all-alist projectable-test-alist))
-         (dir (completing-read "Dired: " (-uniq (--map (file-name-directory (cadr it)) dir-list)))))
+  (let* ((dir-list
+          (mapcar
+           (lambda (item)
+             (let* ((limit 6)
+                    (split-dir (reverse (-take limit (reverse (s-split "/" item))))))
+               (cons (if (< limit (length split-dir))
+                         (format "/%s" (s-join "/" split-dir))
+                       (format ".../%s" (s-join "/" split-dir))) item)))
+           (-uniq (--map (file-name-directory (cadr it)) (-concat projectable-all-alist projectable-test-alist)))))
+         (read-dir (completing-read "Dired: " dir-list))
+         (dir (cdr (assoc read-dir dir-list))))
+
     (find-file dir)))
 
 (defun projectable-toggle-open-test-other-window ()
