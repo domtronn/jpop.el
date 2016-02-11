@@ -1,6 +1,8 @@
-# projectable.el #
+# jpop.el #
 
-**Projectable** is a lightweight _declarative_ project interaction
+## Json Portrayal of Projects ##
+
+**Jpop** is a lightweight _declarative_ project interaction
 package for Emacs. It is designed to let users _define_ their
 projects in json files in a similar fashion to _Sublime_ and
 _Atom_. It allows you to group a few directories together as a
@@ -39,19 +41,19 @@ the file:
 
 ```
 (add-to-list 'load-path "/path/to/cloned/repo")
-(require 'projectable)
+(require 'jpop)
 ```
 
 Then enable it globally to load the key mappings
 
 ```
-(projectable-global-mode)
+(jpop-global-mode)
 ```
 
 # Defining a project #
 
 This package *(currently only)* defines projects using JSON files.  It
-defaults to looking in `projectable-project-directory` first.
+defaults to looking in `jpop-project-directory` first.
 
 If you load a *directory*, instead of a JSON file, it will just cache
 all of the files recursively within that directory.
@@ -89,73 +91,73 @@ You can also override the use of `gitignore` on a project level, add a
 take priority over the global variable.
 
 # Usage #
-If you enable `projectable-global-mode` you will have access to the following keybindings:
+If you enable `jpop-global-mode` you will have access to the following keybindings:
 
 Key Binding | Command | Effect
 --- | --- | ---
-<kbd>C-x p c</kbd> | `projectable-change` | Change to a new project file/directory
-<kbd>C-x p C</kbd> | `projectable-switch` | Switch between projects that have been Cached
-<kbd>C-x p r</kbd> | `projectable-refresh` | Refresh the list of files cached
-<kbd>C-x p p</kbd> | `projectable-change-and-find-file` | Change to a new project file/directory and then open a file from that cache
-<kbd>C-x p f f</kbd> | `projectable-find-file` | Open a file from the cache
-<kbd>C-x p f F</kbd> | `projectable-find-file-other-window` | Open a file from the cache in the other window
-<kbd>C-x p f t</kbd> | `projectable-find-test` | Open file from a list of _(what projectable thinks are)_ tests in the cache
-<kbd>C-x p f T</kbd> | `projectable-find-test-other-window` | Open file from a list of _(what projectable thinks are)_ tests in the cache in the other window
-<kbd>C-x p f e</kbd> | `projectable-extended-find-file` | Open a file from the any declared library cache
-<kbd>C-x p f E</kbd> | `projectable-extended-find-file-other-window` | Open a file from the any declared library cache in the other window
-<kbd>C-x p g f</kbd> | `projectable-git-find-file` | Creates a project out of the containing Git project and tries to open file
-<kbd>C-x p g F</kbd> | `projectable-git-find-file-other-window` | Creates a project out of the containing Git project and tries to open file in the other window
-<kbd>C-x p g t</kbd> | `projectable-git-find-test` | Creates a project out of the containing Git project and tries to open test
-<kbd>C-x p g T</kbd> | `projectable-git-find-test-other-window` | Creates a project out of the containing Git project and tries to open test in the other window
-<kbd>C-x p f a</kbd> | `projectable-find-file-from-all-projects` | Open a file from any of the currently cached/opened projects
-<kbd>C-x p f A</kbd> | `projectable-find-file-from-all-projects-other-window` | Open a file from any of the currently cached/opened projects in the other window
-<kbd>C-x p t</kbd> | `projectable-toggle-open-test` | Try and find the related test file
-<kbd>C-x p T</kbd> | `projectable-toggle-open-test-other-window` | Try and find the related test file in the other window
-<kbd>C-x p l</kbd> | `projectable-reformat-file` | Reformat the current file to use appropriate indentation
-<kbd>C-x p o</kbd> | `projectable-visit-project-file` | Open the current project file for editing or the anonymous directory
-<kbd>C-x p b</kbd> | `projectable-switch-buffer` | Switch between buffers in the current project
-<kbd>C-x p B</kbd> | `projectable-switch-buffer-other-window` | Switch between buffers in the current project and open in the other window
-<kbd>C-x p k</kbd> | `projectable-kill-project-buffers` | Kill all of the buffers related to the current project
+<kbd>C-x p c</kbd> | `jpop-change` | Change to a new project file/directory
+<kbd>C-x p C</kbd> | `jpop-switch` | Switch between projects that have been Cached
+<kbd>C-x p r</kbd> | `jpop-refresh` | Refresh the list of files cached
+<kbd>C-x p p</kbd> | `jpop-change-and-find-file` | Change to a new project file/directory and then open a file from that cache
+<kbd>C-x p f f</kbd> | `jpop-find-file` | Open a file from the cache
+<kbd>C-x p f F</kbd> | `jpop-find-file-other-window` | Open a file from the cache in the other window
+<kbd>C-x p f t</kbd> | `jpop-find-test` | Open file from a list of _(what jpop thinks are)_ tests in the cache
+<kbd>C-x p f T</kbd> | `jpop-find-test-other-window` | Open file from a list of _(what jpop thinks are)_ tests in the cache in the other window
+<kbd>C-x p f e</kbd> | `jpop-extended-find-file` | Open a file from the any declared library cache
+<kbd>C-x p f E</kbd> | `jpop-extended-find-file-other-window` | Open a file from the any declared library cache in the other window
+<kbd>C-x p g f</kbd> | `jpop-git-find-file` | Creates a project out of the containing Git project and tries to open file
+<kbd>C-x p g F</kbd> | `jpop-git-find-file-other-window` | Creates a project out of the containing Git project and tries to open file in the other window
+<kbd>C-x p g t</kbd> | `jpop-git-find-test` | Creates a project out of the containing Git project and tries to open test
+<kbd>C-x p g T</kbd> | `jpop-git-find-test-other-window` | Creates a project out of the containing Git project and tries to open test in the other window
+<kbd>C-x p f a</kbd> | `jpop-find-file-from-all-projects` | Open a file from any of the currently cached/opened projects
+<kbd>C-x p f A</kbd> | `jpop-find-file-from-all-projects-other-window` | Open a file from any of the currently cached/opened projects in the other window
+<kbd>C-x p t</kbd> | `jpop-toggle-open-test` | Try and find the related test file
+<kbd>C-x p T</kbd> | `jpop-toggle-open-test-other-window` | Try and find the related test file in the other window
+<kbd>C-x p l</kbd> | `jpop-reformat-file` | Reformat the current file to use appropriate indentation
+<kbd>C-x p o</kbd> | `jpop-visit-project-file` | Open the current project file for editing or the anonymous directory
+<kbd>C-x p b</kbd> | `jpop-switch-buffer` | Switch between buffers in the current project
+<kbd>C-x p B</kbd> | `jpop-switch-buffer-other-window` | Switch between buffers in the current project and open in the other window
+<kbd>C-x p k</kbd> | `jpop-kill-project-buffers` | Kill all of the buffers related to the current project
 
-It is well worth looking through `customize-group RET projectable` to see what you can customise.
+It is well worth looking through `customize-group RET jpop` to see what you can customise.
 
 
 ### Opening Tests ###
 
-The `projectable-toggle-open-test` functions try and guess the
+The `jpop-toggle-open-test` functions try and guess the
 appropriate test for the current file you're in, however, if it fails
 to find a test, it will run the hooks
-`projectable-toggle-test-fallback-hook`.
+`jpop-toggle-test-fallback-hook`.
 
 As fallback behaviour you can have it _find test_ from your
 project. Add the following snippet to your init file;
 
 ```elisp
-(add-hook 'projectable-toggle-test-fallback-hook 'projectable-find-test)
+(add-hook 'jpop-toggle-test-fallback-hook 'jpop-find-test)
 ```
 
 ### Caching ###
 
-When switching between between projects using `projectable-change`,
-`projectable` will _cache_ the results of the project you're changing
+When switching between between projects using `jpop-change`,
+`jpop` will _cache_ the results of the project you're changing
 from. This is so that when/if you _change back_ to that project its
 settings can be restored instantly without regenerating the file alist.
 
-If the `projectable` file lists become stale, you can force a refresh
-of the project with `projectable-refresh`.
+If the `jpop` file lists become stale, you can force a refresh
+of the project with `jpop-refresh`.
 
 ### Auto Project Switching ###
 
 When using caching, you can turn on auto project changing. When
-switching between buffers, `projectable` will restore the cache of the
+switching between buffers, `jpop` will restore the cache of the
 project containing that file. When switching to buffers that _are not
 part of any_ project, you will remain in the project you are currently
 in.
 
 To enable/disable this, call
 ```
-M-x projectable-enable-auto-change-projects
-M-x projectable-disable-auto-change-projects
+M-x jpop-enable-auto-change-projects
+M-x jpop-disable-auto-change-projects
 ```
 
 # Ctags and JavaScript #

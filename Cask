@@ -1,7 +1,7 @@
 (source gnu)
 (source melpa)
 
-(package-file "projectable.el")
+(package-file "jpop.el")
 
 (development
  (depends-on "f")
