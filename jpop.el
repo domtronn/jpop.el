@@ -375,8 +375,9 @@ This will just cache all of the files contained in that directory."
       (jpop-message (format "Project ID: [%s]" id)))
 
     ;; Create tags
-    (jpop-create-tags (-flatten (list (plist-get json-plist :dirs) (plist-get json-plist :libs))))
-
+    (jpop-create-tags (-flatten-n 1 (list
+                                 (append (plist-get json-plist :dirs) nil)      ;; Convert vetor to list
+                                 (append (plist-get json-plist :libs) nil))))
     (when (plist-get json-plist :style)
       (jpop-set-styling (plist-get json-plist :style)))
 
