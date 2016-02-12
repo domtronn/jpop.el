@@ -199,7 +199,7 @@ Mainly for debugging of the package."
 ;;; Variable Definitions
 (defvar jpop-current-project-path nil)
 (defvar jpop-project-alist nil)
-(defvar jpop-project-hash nil)
+(defvar jpop-project-plist nil)
 (defvar jpop-file-alist nil)
 (defvar jpop-all-alist nil)
 (defvar jpop-test-alist nil)
@@ -225,10 +225,10 @@ Mainly for debugging of the package."
   (setq jpop-current-project-path (replace-regexp-in-string "/$" "" arg))
   ;; Reset project specific variables
   (setq tags-table-list nil)
-  (setq jpop-project-hash nil)
-  (setq jpop-project-alist (make-hash-table :test 'equal))
-  (setq jpop-file-alist (make-hash-table :test 'equal))
-  (setq jpop-test-alist (make-hash-table :test 'equal))
+  (setq jpop-project-plist nil)
+  (setq jpop-project-alist nil)
+  (setq jpop-file-alist nil)
+  (setq jpop-test-alist nil)
 
   (if (and jpop-use-caching
            (assoc jpop-current-project-path jpop-cache-alist))
@@ -244,24 +244,24 @@ Mainly for debugging of the package."
   (interactive)
   (setq jpop-cache-alist nil))
 
-(defun jpop--cache-hash-contains (file cache)
+(defun jpop--cache-plist-contains (file cache)
   "Check whether FILE is contained within any of the projects directory paths of CACHE."
   (when file
-    (let ((p-hash (cdr (assoc 'hash (cdr cache)))))
+    (let ((p-plist (cdr (assoc 'plist (cdr cache)))))
       (-any? (lambda (r) (string-match (expand-file-name r) file))
-             (-concat (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "libs" p-hash))
-                      (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "dirs" p-hash)))))))
+             (-concat (mapcar (lambda (elt) (plist-get elt :dir)) (plist-get p-plist :libs))
+                      (mapcar (lambda (elt) (plist-get elt :dir)) (plist-get p-plist :dirs)))))))
 
 (defun jpop--cache-contains (file cache)
   "Check whether FILE is contained within CACHE.
 
-If this a json/hash cache, then it will call
-  `jpop--cache-hash-contains`, otherwise, revert to
+If this a json/plist cache, then it will call
+  `jpop--cache-plist-contains`, otherwise, revert to
   checking whether file is contained within a path."
-  (let ((hash (cdr (assoc 'hash cache)))
+  (let ((plist (cdr (assoc 'plist cache)))
         (path (cdr (assoc 'path cache))))
     (when file
-      (if hash (jpop--cache-hash-contains file cache)
+      (if plist (jpop--cache-plist-contains file cache)
         (string-match (expand-file-name path) file)))))
 
 (defun jpop-change-to-project-intelligently ()
@@ -270,8 +270,8 @@ If this a json/hash cache, then it will call
            (bound-and-true-p jpop-cache-alist))
 
       (let* ((file-name (file-truename (buffer-file-name)))
-             (project-contains-file (apply-partially 'jpop--cache-hash-contains file-name))
-             (project-caches  (-non-nil (mapcar #'(lambda (cache) (when (cdr (assoc 'hash (cdr cache))) cache))
+             (project-contains-file (apply-partially 'jpop--cache-plist-contains file-name))
+             (project-caches  (-non-nil (mapcar #'(lambda (cache) (when (cdr (assoc 'plist (cdr cache))) cache))
                                  jpop-cache-alist)))
              (project-cache-ids (-map 'car project-caches))
              (containing-file (-non-nil (-zip-with (lambda (a b) (and a b)) (mapcar project-contains-file project-caches) project-cache-ids))))
@@ -313,18 +313,18 @@ If this a json/hash cache, then it will call
   "Reset all of the jpop variables for CACHE-ID."
   (let ((project-cache (cdr (assoc cache-id jpop-cache-alist))))
     (setq jpop-current-project-path (cdr (assoc 'path project-cache)))
-    (setq jpop-project-hash (cdr (assoc 'hash project-cache)))
+    (setq jpop-project-plist (cdr (assoc 'plist project-cache)))
     (setq jpop-project-alist (cdr (assoc 'alist project-cache)))
     (setq jpop-id (cdr (assoc 'id project-cache)))
     (setq jpop-all-alist (cdr (assoc 'all project-cache)))
     (setq jpop-file-alist (cdr (assoc 'files project-cache)))
     (setq jpop-test-alist (cdr (assoc 'tests project-cache)))
 
-    (when (hash-table-p jpop-project-hash)
-      (let* ((f (lambda (it) (when (gethash "create-tags" it)
-                          (format "%s/%s" (gethash "dir" it) jpop-tags-file))))
-             (tags (-concat (mapcar f (gethash "dirs" jpop-project-hash))
-                            (mapcar f (gethash "libs" jpop-project-hash)))))
+    (when (json-plist-p jpop-project-plist)
+      (let* ((f (lambda (it) (when (plist-get it :create-tags)
+                          (format "%s/%s" (plist-get it :dir) jpop-tags-file))))
+             (tags (-concat (mapcar f (plist-get jpop-project-plist :dirs))
+                            (mapcar f (plist-get jpop-project-plist :libs)))))
         (setq tags-table-list tags)))
 
     (jpop-message (format "Restored project from cache [%s]" jpop-current-project-path) t)))
@@ -333,7 +333,7 @@ If this a json/hash cache, then it will call
   "Append or ammend a cache (for a session) for the current project."
   (let ((cache-id jpop-current-project-path)
         (cache-alist `((path  . ,jpop-current-project-path)  ;; Current Project Path
-                       (hash  . ,jpop-project-hash)          ;; Project Hash
+                       (plist . ,jpop-project-plist)        ;; Project plist
                        (alist . ,jpop-project-alist)         ;; Project Alist
                        (id    . ,jpop-id)                    ;; Project ID
                        (all   . ,jpop-all-alist)             ;; All Files Alist
@@ -364,40 +364,40 @@ this directory to the file cache"
 (defun jpop-load-from-json (path)
   "Set the project by loading the json file on PATH.
 This will just cache all of the files contained in that directory."
-  (let* ((json-object-type 'hash-table)
-         (json-hash (json-read-file path)))
-    (setq jpop-project-hash json-hash)
+  (let* ((json-object-type 'plist)
+         (json-plist (json-read-file path)))
+    (setq jpop-project-plist json-plist)
 
     ;; Set project ID
-    (let ((id (gethash "id" json-hash)))
+    (let ((id (plist-get json-plist :id)))
       (setq jpop-id id)
       (setq jpop-mode-line (format " [P>%s]" id))
       (jpop-message (format "Project ID: [%s]" id)))
 
     ;; Create tags
-    (jpop-create-tags (list (gethash "dirs" json-hash) (gethash "libs" json-hash)))
+    (jpop-create-tags (-flatten (list (plist-get json-plist :dirs) (plist-get json-plist :libs))))
 
-    (when (gethash "style" json-hash)
-      (jpop-set-styling (gethash "style" json-hash)))
+    (when (plist-get json-plist :style)
+      (jpop-set-styling (plist-get json-plist :style)))
 
-    (let* ((gitignore-from-hash (gethash "gitignore" json-hash))
-           (use-gitignore (if gitignore-from-hash
-                              (not (eq :json-false gitignore-from-hash))
+    (let* ((gitignore-from-json (plist-get json-plist :gitignore))
+           (use-gitignore (if gitignore-from-json
+                              (not (eq :json-false gitignore-from-json))
                             jpop-use-gitignore)))
 
       (jpop-set-project-alist
        (when (and use-gitignore jpop-use-gitignore)
-         (jpop-get-all-gitignore-filter (gethash "dirs" json-hash))))
+         (jpop-get-all-gitignore-filter (plist-get json-plist :dirs))))
       (jpop-set-test-alist
        (when (and use-gitignore jpop-use-gitignore)
-         (jpop-get-all-gitignore-filter (gethash "dirs" json-hash))))))
+         (jpop-get-all-gitignore-filter (plist-get json-plist :dirs))))))
 t)
 
 (defun jpop-get-all-gitignore-filter (project-list)
   "Get a distinct list of regexps to gitignore in the PROJECT-LIST files."
   (let ((gitignore-filter-regexp (list)))
     (mapc (lambda (x)
-            (let ((location (locate-dominating-file (concat (gethash "dir" x) "/") ".gitignore")))
+            (let ((location (locate-dominating-file (concat (plist-get x :dir) "/") ".gitignore")))
               (when location
                 (setq gitignore-filter-regexp
                       (-distinct
@@ -405,21 +405,21 @@ t)
           project-list)
     gitignore-filter-regexp))
 
-(defun jpop-create-tags (hash-list)
-  "Create tags in the root projects based on a HASH-LIST of directories and flags."
-  (mapc (lambda (hash)
-          (mapc (lambda (elt)
-                  (let* ((dir (concat (gethash "dir" elt) "/"))
-                         (create-tags-p (not (eq :json-false (gethash "create-tags" elt)))))
-                    (when create-tags-p
-                      (jpop-message (format "Creating tags for [%s]" dir))
-                      (jpop-create-tags-in-directory dir)
-                      (when jpop-auto-visit-tags
-                        (let ((tags-file (format "%s%s" (file-truename dir) jpop-tags-file)))
-                          (when (not (member tags-file tags-table-list))
-                            (setq tags-table-list (append tags-table-list (list tags-file)))))
-                        )))
-                  ) hash)) hash-list))
+(defun jpop-create-tags (list)
+  "Create tags in the root projects based on a LIST of directories and flags."
+  (mapc (lambda (elt)
+          (let* ((dir (concat (plist-get elt :dir) "/"))
+                 (create-tags-p (not (eq :json-false (plist-get elt :create-tags)))))
+            
+            (when create-tags-p
+              (jpop-message (format "Creating tags for [%s]" dir))
+              (jpop-create-tags-in-directory dir)
+              (when jpop-auto-visit-tags
+                (let ((tags-file (format "%s%s" (file-truename dir) jpop-tags-file)))
+                  (when (not (member tags-file tags-table-list))
+                    (setq tags-table-list (append tags-table-list (list tags-file)))))))))
+        
+        list))
 
 (defun jpop-create-tags-in-directory (dir)
   "Build and run the create tags command in DIR."
@@ -435,14 +435,14 @@ t)
     (jpop-message cmd)
     (start-process-shell-command name buffer-name cmd)))
 
-(defun jpop-set-styling (style-hash)
-  "Set up variables associated with the styling from a STYLE-HASH."
+(defun jpop-set-styling (style-plist)
+  "Set up variables associated with the styling from a STYLE-PLIST."
   ;; Set the indent level
-  (when (gethash "indent" style-hash)
-    (setq jpop-indent-level (gethash "indent" style-hash)))
+  (when (plist-get style-plist :indent)
+    (setq jpop-indent-level (plist-get style-plist :indent)))
   ;; Set the tabs/spaces indent type
-  (when (gethash "tabs" style-hash)
-    (jpop-set-indent-object (eq :json-false (gethash "tabs" style-hash)))))
+  (when (plist-get style-plist :tabs)
+    (jpop-set-indent-object (eq :json-false (plist-get style-plist :tabs)))))
 
 (defun jpop-load-from-path (path)
   "Load a project from a given PATH directory."
@@ -789,19 +789,19 @@ i.e.  If indent level was 4, the indent string would be '    '."
 (defun jpop-project-contains (file)
   "Check whether FILE is contained within any of the projects directory paths."
   (-any? (lambda (r) (string-match (replace-regexp-in-string "~" "" r) file))
-         (if jpop-project-hash
-             (mapcar (lambda (elt) (gethash "dir" elt)) (gethash "dirs" jpop-project-hash))
+         (if jpop-project-plist
+             (mapcar (lambda (elt) (plist-get elt :dir)) (plist-get jpop-project-plist :dirs))
            (and jpop-current-project-path (list jpop-current-project-path)))))
 
 (defun jpop-cache-containing (file)
   "Find the ID of the first project cache containing FILE.
 
-This algorithm prioritizes hash/json projects over anonymous
+This algorithm prioritizes plist/json projects over anonymous
 directory based ones."
   (unless file (error "[jpop] File is nil"))
 
   (let* ((cache-containers
-          (--sort (hash-table-p (cdr (assoc 'hash it)))
+          (--sort (json-plist-p (cdr (assoc 'plist it)))
                   jpop-cache-alist))
 
          (first-cache-containing-file
