@@ -40,7 +40,7 @@
 (require 'ido)
 (require 'dash)
 
-(defconst jpop-dir (file-name-directory load-file-name))
+(defconst jpop-dir (unless (boundp 'jpop-dir) (file-name-directory load-file-name)))
 
 ;;; Group Definitions
 (defgroup jpop nil
@@ -353,19 +353,19 @@ this directory to the file cache"
   (when jpop-current-project-path
     (if (not (file-directory-p jpop-current-project-path))
         ;; Json file so load from json
-        (progn (jpop-load-from-json)
+        (progn (jpop-load-from-json jpop-current-project-path)
                (jpop-message (format "New project is [%s]" jpop-current-project-path) t))
       ;; A directory so load form directory
       (progn
         (jpop-message
          (format "Interpreting as directory - [%s] is not a file" jpop-current-project-path) t)
-        (jpop-load-from-path)))))
+        (jpop-load-from-path jpop-current-project-path)))))
 
-(defun jpop-load-from-json ()
-  "Set the project based on a path.
+(defun jpop-load-from-json (path)
+  "Set the project by loading the json file on PATH.
 This will just cache all of the files contained in that directory."
   (let* ((json-object-type 'hash-table)
-         (json-hash (json-read-file jpop-current-project-path)))
+         (json-hash (json-read-file path)))
     (setq jpop-project-hash json-hash)
 
     ;; Set project ID
@@ -444,10 +444,10 @@ t)
   (when (gethash "tabs" style-hash)
     (jpop-set-indent-object (eq :json-false (gethash "tabs" style-hash)))))
 
-(defun jpop-load-from-path ()
-  "Load a project from a given directory."
+(defun jpop-load-from-path (path)
+  "Load a project from a given PATH directory."
   ;; Set project ID
-  (let ((id (file-name-nondirectory jpop-current-project-path)))
+  (let ((id (file-name-nondirectory path)))
     (setq jpop-id id)
     (setq jpop-mode-line (format " [P>%s]" id))
     (jpop-message (format "Project ID: [%s]" id)))
