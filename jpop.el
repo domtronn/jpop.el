@@ -361,6 +361,12 @@ this directory to the file cache"
          (format "Interpreting as directory - [%s] is not a file" jpop-current-project-path) t)
         (jpop-load-from-path jpop-current-project-path)))))
 
+(defun jpop--get-project-dir-configs ()
+  "Return the flattened list of directories and libraries defined in a project json file."
+  (-flatten-n 1 (list
+                 (append (plist-get jpop-project-plist :dirs) nil)      ;; Convert vetor to list
+                 (append (plist-get jpop-project-plist :libs) nil))))
+
 (defun jpop-load-from-json (path)
   "Set the project by loading the json file on PATH.
 This will just cache all of the files contained in that directory."
@@ -375,9 +381,7 @@ This will just cache all of the files contained in that directory."
       (jpop-message (format "Project ID: [%s]" id)))
 
     ;; Create tags
-    (jpop-create-tags (-flatten-n 1 (list
-                                 (append (plist-get json-plist :dirs) nil)      ;; Convert vetor to list
-                                 (append (plist-get json-plist :libs) nil))))
+    (jpop-create-tags (jpop--get-project-dir-configs))
     (when (plist-get json-plist :style)
       (jpop-set-styling (plist-get json-plist :style)))
 
@@ -848,6 +852,14 @@ directory based ones."
       (unless (fboundp cmd) (error "[jpop] Lisp function `%s` is not defined" cmd))
       (apply cmd args))
      (t (jpop-message (format "Unknown command type '%s'" type))))))
+
+(defun jpop-get-requirejs-config ()
+  "Get the requirejs config from the current project json."
+  (interactive)
+  (let ((configs (jpop--get-project-dir-configs)))
+    (mapcar
+     (lambda (config) (cons (plist-get config :id) (plist-get config :dir)))
+     configs)))
 
 ;;; Jpop Mode
 ;;  Set up for the jpop minor-mode.
