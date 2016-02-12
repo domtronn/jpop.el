@@ -411,7 +411,7 @@ t)
   (mapc (lambda (elt)
           (let* ((dir (concat (plist-get elt :dir) "/"))
                  (create-tags-p (not (eq :json-false (plist-get elt :create-tags)))))
-            
+
             (when create-tags-p
               (jpop-message (format "Creating tags for [%s]" dir))
               (jpop-create-tags-in-directory dir)
@@ -419,7 +419,7 @@ t)
                 (let ((tags-file (format "%s%s" (file-truename dir) jpop-tags-file)))
                   (when (not (member tags-file tags-table-list))
                     (setq tags-table-list (append tags-table-list (list tags-file)))))))))
-        
+
         list))
 
 (defun jpop-create-tags-in-directory (dir)
@@ -828,6 +828,27 @@ directory based ones."
   (let ((local-completion-extensions (--mapcat (list (if (string-match "[a-z]$" it) (format "%s$" it) it)) completion-ignored-extensions)))
     (mapconcat 'regexp-quote (append local-completion-extensions jpop-filter-regexps) (or separator "|"))))
 
+(defun jpop-run ()
+  "Run commands associated with the projcet."
+  (interactive)
+  (unless (plist-get jpop-project-plist :commands)
+    (error "[jpop] Current project does not have any associated commands"))
+
+  (let* ((commands (plist-get jpop-project-plist :commands))
+         (command (completing-read
+                   "Run command: " (--map (substring (symbol-name it) 1) (-filter 'symbolp commands))))
+         (command-plist (plist-get commands (intern (format ":%s" command))))
+
+         (cmd  (intern (plist-get command-plist :cmd)))
+         (args (append (plist-get command-plist :args) nil))
+         (type (plist-get command-plist :type)))
+
+    (cond
+     ((string-equal type "lisp")
+      (unless (fboundp cmd) (error "[jpop] Lisp function `%s` is not defined" cmd))
+      (apply cmd args))
+     (t (jpop-message (format "Unknown command type '%s'" type))))))
+
 ;;; Jpop Mode
 ;;  Set up for the jpop minor-mode.
 (defvar jpop-command-map
@@ -859,6 +880,7 @@ directory based ones."
     (define-key map (kbd "B") 'jpop-switch-buffer-other-window)
     (define-key map (kbd "k") 'jpop-kill-project-buffers)
     (define-key map (kbd "s") 'jpop-stylise)
+    (define-key map (kbd "x") 'jpop-jpop-run)
     map)
   "Keymap for Jpop commands after `jpop-keymap-prefix'.")
 (fset 'jpop-command-map jpop-command-map)

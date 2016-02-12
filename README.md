@@ -118,6 +118,8 @@ Key Binding | Command | Effect
 <kbd>C-x p b</kbd> | `jpop-switch-buffer` | Switch between buffers in the current project
 <kbd>C-x p B</kbd> | `jpop-switch-buffer-other-window` | Switch between buffers in the current project and open in the other window
 <kbd>C-x p k</kbd> | `jpop-kill-project-buffers` | Kill all of the buffers related to the current project
+<kbd>C-x p s</kbd> | `jpop-stylise` | Style the current buffers/projects tabs spaces and indent width
+<kbd>C-x p x</kbd> | `jpop-run` | Run commands that are defined in the project JSON
 
 It is well worth looking through `customize-group RET jpop` to see what you can customise.
 
@@ -201,7 +203,7 @@ I'm trying to get this project in a nicer state for my own purposes, future feat
 - [x] Dynamic/Smart switching of projects
 - [x] Better integration for test
 	- [x] opening
-	- [ ] running
+	- [x] running
 - [x] Tags generation Integration
 	- [x] Ctags
 	- [ ] Etags
