@@ -56,7 +56,9 @@ def create_from_path( path, filter_regexp, invert_regexp ):
 def create_from_json( project_file, filter_regexp, invert_regexp ):
     project_json = json.loads(open(project_file).read())
 
-    project_dict = { project_json['id']: project_json['dirs'] }
+    project_dict = {}
+    for d in project_json['dirs']:
+        project_dict[ d['id'] ] = [ d ]
     if 'libs' in project_json:
         for lib in project_json['libs']:
             project_dict[ lib['id'] ] = [ lib ]
