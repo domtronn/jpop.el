@@ -497,14 +497,9 @@ the filter string set in the customisations."
          (result (json-read-from-string (shell-command-to-string cmd))))
     (jpop-message cmd)
     (setq jpop-project-alist result)
-    (setq jpop-file-alist (jpop--get-main-file-alist))
+    (setq jpop-file-alist (cdr (assoc jpop-id result)))
     (setq jpop-all-alist (-filter 'consp (--reduce (append (cdr acc) (cdr it)) result)))
     t))
-
-(defun jpop--get-main-file-alist ()
-  "Create the file alist the json main directories."
-  (let ((main-ids (mapcar (lambda (it) (plist-get it :id)) (append (plist-get jpop-project-plist :dirs) nil))))
-    (-flatten-n 1 (mapcar 'cdr (--filter (-contains? main-ids (car it)) jpop-project-alist)))))
 
 (defun jpop-get-gitignore-filter (gitignore-dir)
   "Produce regexps filters by based on a .gitignore files found in GITIGNORE-DIR."
