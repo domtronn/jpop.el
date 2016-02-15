@@ -64,11 +64,11 @@ An example JSON project file would look like this:
 {
 	"id":"My Project",
 	"dirs":[
-		{ "dir":"~/path/to/project", "create-tags": true},
-		{ "dir":"~/path/to/another/project", "create-tags":false }
+		{ "dir":"~/path/to/project", "tags": true},
+		{ "dir":"~/path/to/another/project", "tags":false }
 	],
 	"libs":[
-		{ "dir":"~/path/to/library", "create-tags": true, "id":"library-id"},
+		{ "dir":"~/path/to/library", "tags": true, "id":"library-id"},
 	],
 	"style":{
 		"tabs":false,

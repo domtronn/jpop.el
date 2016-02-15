@@ -321,7 +321,7 @@ If this a json/plist cache, then it will call
     (setq jpop-test-alist (cdr (assoc 'tests project-cache)))
 
     (when (json-plist-p jpop-project-plist)
-      (let* ((f (lambda (it) (when (plist-get it :create-tags)
+      (let* ((f (lambda (it) (when (plist-get it :tags)
                           (format "%s/%s" (plist-get it :dir) jpop-tags-file))))
              (tags (-concat (mapcar f (plist-get jpop-project-plist :dirs))
                             (mapcar f (plist-get jpop-project-plist :libs)))))
@@ -414,7 +414,7 @@ t)
   "Create tags in the root projects based on a LIST of directories and flags."
   (mapc (lambda (elt)
           (let* ((dir (concat (plist-get elt :dir) "/"))
-                 (create-tags-p (not (eq :json-false (plist-get elt :create-tags)))))
+                 (create-tags-p (not (eq :json-false (plist-get elt :tags)))))
 
             (when create-tags-p
               (jpop-message (format "Creating tags for [%s]" dir))
@@ -856,10 +856,8 @@ directory based ones."
 (defun jpop-get-requirejs-config ()
   "Get the requirejs config from the current project json."
   (interactive)
-  (let ((configs (jpop--get-project-dir-configs)))
-    (mapcar
-     (lambda (config) (cons (plist-get config :id) (plist-get config :dir)))
-     configs)))
+  (let ((configs (append (plist-get jpop-project-plist :libs) nil)))
+    (mapcar (lambda (config) (cons (plist-get config :id) (plist-get config :dir))) configs)))
 
 ;;; Jpop Mode
 ;;  Set up for the jpop minor-mode.
