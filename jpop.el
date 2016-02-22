@@ -469,15 +469,15 @@ t)
 Can be passed a list GITIGNORE-FILTER-REGEXPS of regexps to append to the filter
 string."
     (let* ((json-object-type 'alist) (json-array-type 'list) (json-key-type 'string)
-         (cmd (format "%s -i \"%s\" %s \"%s\""
-                (shell-quote-argument jpop-alist-cmd)
-                (mapconcat 'identity (mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) jpop-test-filter-regexps) ",")
-                (shell-quote-argument (expand-file-name jpop-current-project-path))
-                (mapconcat 'identity (append (split-string (jpop-get-filter-regexps) "|") gitignore-filter-regexps) ",")))
-         (result (json-read-from-string (shell-command-to-string cmd))))
-            (jpop-message cmd)
-            (setq jpop-test-alist (-filter 'consp (--reduce (append (cdr acc) (cdr it)) result)))
-    t))
+           (cmd (format "%s -i \"%s\" %s \"%s\""
+                  (shell-quote-argument jpop-alist-cmd)
+                  (mapconcat 'identity (mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) jpop-test-filter-regexps) ",")
+                  (shell-quote-argument (expand-file-name jpop-current-project-path))
+                  (mapconcat 'identity (append (split-string (jpop-get-filter-regexps) "|") gitignore-filter-regexps) ",")))
+           (result (json-read-from-string (shell-command-to-string cmd))))
+      (jpop-message (format "jpop-set-test-alist: %s" cmd))
+      (setq jpop-test-alist (-filter 'consp (--reduce (append (cdr acc) (cdr it)) result)))
+      t))
 
 (defun jpop-set-project-alist (&optional gitignore-filter-regexps)
   "Set `jpop-project-alist` by usings `jpop-alist-cmd`.
@@ -486,16 +486,16 @@ Can be passed a list GITIGNORE-FILTER-REGEXPS to append to
 the filter string set in the customisations."
   (let* ((json-object-type 'alist) (json-array-type 'list) (json-key-type 'string)
          (cmd (format "%s %s \"%s\""
-               (shell-quote-argument jpop-alist-cmd)
-               (shell-quote-argument (expand-file-name jpop-current-project-path))
-               (mapconcat 'identity (append
-                                     (split-string (jpop-get-filter-regexps) "|")
-                                     gitignore-filter-regexps
-                                     (and jpop-filter-tests
-                                          (mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) jpop-test-filter-regexps)))
-                          ",")))
+                (shell-quote-argument jpop-alist-cmd)
+                (shell-quote-argument (expand-file-name jpop-current-project-path))
+                (mapconcat 'identity (append
+                                      (split-string (jpop-get-filter-regexps) "|")
+                                      gitignore-filter-regexps
+                                      (and jpop-filter-tests
+                                           (mapcar (lambda (r) (concat r "\(\\.[a-z]+$\)")) jpop-test-filter-regexps)))
+                           ",")))
          (result (json-read-from-string (shell-command-to-string cmd))))
-    (jpop-message cmd)
+    (jpop-message (format "jpop-set-project-alist: %s" cmd))
     (setq jpop-project-alist result)
     (setq jpop-file-alist (cdr (assoc jpop-id result)))
     (setq jpop-all-alist (-filter 'consp (--reduce (append (cdr acc) (cdr it)) result)))
