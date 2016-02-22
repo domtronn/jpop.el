@@ -333,7 +333,7 @@ If this a json/plist cache, then it will call
   "Append or ammend a cache (for a session) for the current project."
   (let ((cache-id jpop-current-project-path)
         (cache-alist `((path  . ,jpop-current-project-path)  ;; Current Project Path
-                       (plist . ,jpop-project-plist)        ;; Project plist
+                       (plist . ,jpop-project-plist)         ;; Project plist
                        (alist . ,jpop-project-alist)         ;; Project Alist
                        (id    . ,jpop-id)                    ;; Project ID
                        (all   . ,jpop-all-alist)             ;; All Files Alist
@@ -853,9 +853,9 @@ directory based ones."
       (apply cmd args))
      (t (jpop-message (format "Unknown command type '%s'" type))))))
 
+;;; Get things to do with the project
 (defun jpop-get-requirejs-config ()
   "Get the requirejs config from the current project json."
-  (interactive)
   (let ((configs (append (plist-get jpop-project-plist :libs) nil)))
     (mapcar (lambda (config) (cons (plist-get config :id) (plist-get config :dir))) configs)))
 
