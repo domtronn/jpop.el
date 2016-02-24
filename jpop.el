@@ -97,6 +97,14 @@ By default, it uses the python script provided with this package."
   :group 'jpop
   :type 'string)
 
+(defcustom jpop-offset-vars
+  '(c-basic-offset css-indent-offset js2-basic-offset tab-width js-indent-level
+    web-mode-css-indent-offset web-mode-code-indent-offset
+    web-mode-markup-indent-offset)
+	 "A list of variables that define the indent level of a project to be set locally."
+	 :group 'jpop
+	 :type 'list)
+
 (defvar jpop-find-cmd-format
   "find %s -type f  -not -size +64k | grep -E \"%s\" | grep -vE \"%s\" | xargs %s"
   "Command format of find command used to pass to tags cmd.
@@ -114,6 +122,10 @@ The formats should be replaced, in order, by
 If `jpop-toggle-open-test` does not guess a correct test file, it will
 run this function, the idea being to prompt the user out of all the
 tests.")
+
+(defvar jpop-stylised nil "Whether or not the current file is stylised.
+This variable allows you to stylise a buffer without
+the `find-file` hook overriding the settings.")
 
 (defcustom jpop-auto-visit-tags t
   "Whether to visit the tags file upon creation of a tags file."
@@ -209,7 +221,7 @@ Mainly for debugging of the package."
 (defvar jpop-cache-alist nil)
 
 (defvar jpop-indent-level
-  2 "The level of indentation to be used.")
+  4 "The level of indentation to be used.")
 (defvar jpop-indent-object
   (list :tabs "	" "  ") "Definiton of indentation type with the indent character.")
 
@@ -530,31 +542,25 @@ t => spaces nil => tabs"
 
 Sets the indent level to INDENT and if USE-SPACES is provided,
 will use tabs vs spaces.  Otherwise they will be prompted."
-  (interactive "sIndent Level : ")
-  (let ((use-spaces (or use-spaces (y-or-n-p "Use spaces (n for Tabs)? "))))
-    (setq jpop-indent-level (string-to-number indent))
-    (jpop-set-indent-object use-spaces)
-    (jpop-set-local-styles)))
+  (interactive
+   (list (read-string "sIndent Level : ")
+         (y-or-n-p "Use spaces (n for Tabs)? ")))
+  (let ((indent (if (stringp indent) (string-to-number indent) indent)))
+    (setq-local jpop-stylised t)
+    (jpop-set-local-styles indent use-spaces)))
 
-(defun jpop-set-local-styles ()
-  "Set the indent level and indent type."
-  (setq-local indent-tabs-mode (eq :tabs (car jpop-indent-object)))
-  (setq-local c-basic-offset jpop-indent-level)
-  (setq-local css-indent-offset jpop-indent-level)
-  (setq-local js-indent-level jpop-indent-level)
-  (setq-local basic-offset jpop-indent-level)
-  (setq tab-width jpop-indent-level)
-  (when (fboundp 'js2-mode) (setq-local js2-basic-offset jpop-indent-level))
-  (when (fboundp 'web-mode)
-    (setq-local web-mode-markup-indent-offset jpop-indent-level)
-    (setq-local web-mode-css-indent-offset jpop-indent-level)
-    (setq-local web-mode-code-indent-offset jpop-indent-level))
-  (jpop-message (format "Setting indent level to %s" jpop-indent-level))
-  t)
+(defun jpop-set-local-styles (indent-level use-spaces)
+  "Set the INDENT-LEVEL and whether to USE-SPACES."
+  (dolist (it jpop-offset-vars) (eval `(setq-local ,it ,indent-level)))
+  (setq-local indent-tabs-mode use-spaces)
+  (jpop-message (format "Setting indent level to %s" jpop-indent-level)))
+
 ;; Set a hook to set up the local project styles for project buffers
 (add-hook 'find-file-hook
-          '(lambda () (when (jpop-project-contains (buffer-file-name))
-                   (jpop-set-local-styles))))
+          '(lambda ()
+             (unless jpop-stylised
+               (when (jpop-project-contains (buffer-file-name))
+                 (jpop-set-local-styles jpop-indent-level (eq (car jpop-indent-object) :spaces))))))
 
 ;; Utility functions
 (defun jpop-message (string &optional override)
@@ -806,8 +812,8 @@ directory based ones."
   (unless file (error "[jpop] File is nil"))
 
   (let* ((cache-containers
-          (--sort (json-plist-p (cdr (assoc 'plist it)))
-                  jpop-cache-alist))
+          (-flatten-n 1 (--separate (json-plist-p (cdr (assoc 'plist it)))
+                                    jpop-cache-alist)))
 
          (first-cache-containing-file
           (--first (jpop--cache-contains file it) cache-containers)))
