@@ -552,7 +552,7 @@ will use tabs vs spaces.  Otherwise they will be prompted."
 (defun jpop-set-local-styles (indent-level use-spaces)
   "Set the INDENT-LEVEL and whether to USE-SPACES."
   (dolist (it jpop-offset-vars) (eval `(setq-local ,it ,indent-level)))
-  (setq-local indent-tabs-mode use-spaces)
+  (setq-local indent-tabs-mode (not use-spaces))
   (jpop-message (format "Setting indent level to %s" jpop-indent-level)))
 
 ;; Set a hook to set up the local project styles for project buffers
