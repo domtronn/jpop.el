@@ -177,7 +177,7 @@ files."
   :type 'booelan)
 
 (defcustom jpop-test-filter-regexps
-  (quote ("[-_]*[tT]est" "Spec" "\.spec" "\/script-tests\/.*"))
+  (quote ("[-_]*[tT]est" "[-_]*[sS]pec" "Spec" "\.spec" "\/script-tests\/.*"))
   "Specify a list of regexps to filter out test files.
 
 This is a priority ordered list, so more likely matches should be first."
