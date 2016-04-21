@@ -230,8 +230,14 @@ Mainly for debugging of the package."
 ;;;###autoload
 (defun jpop-change (arg)
   "Change project path to ARG and refresh the cache."
-  (interactive (list (ido-read-file-name "Enter path to Project file: "
-                                         jpop-project-directory)))
+  (interactive
+   (list
+    (if (equal completing-read-function 'ivy-completing-read)
+        (ivy-read "Path to Project file: "
+                  'read-file-name-internal
+                  :initial-input (concat jpop-project-directory "/"))
+        (ido-read-file-name "Enter path to Project file: "
+                            jpop-project-directory))))
 
   ;; Set the current project path to new directory with removing trailing slash
   (setq jpop-current-project-path (replace-regexp-in-string "/$" "" arg))
