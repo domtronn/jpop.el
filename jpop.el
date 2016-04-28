@@ -232,12 +232,14 @@ Mainly for debugging of the package."
   "Change project path to ARG and refresh the cache."
   (interactive
    (list
-    (if (equal completing-read-function 'ivy-completing-read)
-        (ivy-read "Path to Project file: "
-                  'read-file-name-internal
-                  :initial-input (concat jpop-project-directory "/"))
-        (ido-read-file-name "Enter path to Project file: "
-                            jpop-project-directory))))
+    (cond
+     ((equal completing-read-function 'ivy-completing-read)
+      (ivy-read "Path to Project file: "
+                'read-file-name-internal
+                :initial-input (concat jpop-project-directory "/")))
+     ((equal completing-read-function 'ido-completing-read)
+      (ido-read-file-name "Path to Project file: " jpop-project-directory))
+     (t (read-file-name "Path to Project file: " jpop-project-directory)))))
 
   ;; Set the current project path to new directory with removing trailing slash
   (setq jpop-current-project-path (replace-regexp-in-string "/$" "" arg))
