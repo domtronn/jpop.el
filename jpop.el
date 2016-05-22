@@ -551,7 +551,9 @@ t => spaces nil => tabs"
 Sets the indent level to INDENT and if USE-SPACES is provided,
 will use tabs vs spaces.  Otherwise they will be prompted."
   (interactive
-   (list (read-string "sIndent Level : ")
+   (list (-
+          (read-char-choice "Indent Level : "
+                            (number-sequence 49 57)) 48)
          (y-or-n-p "Use spaces (n for Tabs)? ")))
   (let ((indent (if (stringp indent) (string-to-number indent) indent)))
     (setq-local jpop-stylised t)
