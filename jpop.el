@@ -466,8 +466,9 @@ t)
   (when (plist-get style-plist :indent)
     (setq jpop-indent-level (plist-get style-plist :indent)))
   ;; Set the tabs/spaces indent type
-  (when (plist-get style-plist :tabs)
-    (jpop-set-indent-object (eq :json-false (plist-get style-plist :tabs)))))
+  (if (plist-get style-plist :tabs)
+      (jpop-set-indent-object (eq :json-false (plist-get style-plist :tabs)))
+    (jpop-set-indent-object t)))
 
 (defun jpop-load-from-path (path)
   "Load a project from a given PATH directory."
