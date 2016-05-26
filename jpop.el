@@ -221,9 +221,9 @@ Mainly for debugging of the package."
 (defvar jpop-cache-alist nil)
 
 (defvar jpop-indent-level
-  4 "The level of indentation to be used.")
+  2 "The level of indentation to be used.")
 (defvar jpop-indent-object
-  (list :tabs "	" "  ") "Definiton of indentation type with the indent character.")
+  (list :spaces " " "  ") "Definiton of indentation type with the indent character.")
 
 ;;; Function Definitions
 
@@ -564,6 +564,7 @@ will use tabs vs spaces.  Otherwise they will be prompted."
   "Set the INDENT-LEVEL and whether to USE-SPACES."
   (dolist (it jpop-offset-vars) (eval `(setq-local ,it ,indent-level)))
   (setq-local indent-tabs-mode (not use-spaces))
+  (jpop-message (format "Setting indent to %s" (if (not use-spaces) "tabs" "spaces")))
   (jpop-message (format "Setting indent level to %s" jpop-indent-level)))
 
 ;; Set a hook to set up the local project styles for project buffers
