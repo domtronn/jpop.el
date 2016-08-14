@@ -41,6 +41,8 @@
 (require 'dash)
 (require 'cl-lib)
 
+(declare-function ivy-read "ivy")
+
 (defconst jpop-dir (unless (boundp 'jpop-dir) (file-name-directory load-file-name)))
 
 ;;; Group Definitions
