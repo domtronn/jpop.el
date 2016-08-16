@@ -1,4 +1,4 @@
-;;; jpop.el --- Lightweight project cacheing and navigation framework -*- lexical-binding: t -*-
+;;; jpop.el --- Lightweight project caching and navigation framework -*- lexical-binding: t -*-
 
 ;; Copyright © 2015  Dom Charlesworth <dgc336@gmail.com>
 
