@@ -7,7 +7,7 @@
 ;; Version: 1.0.0
 ;; Package-Version: 20150724-1604
 ;; Keywords: project, convenience
-;; Package-Requires: ((emacs "24") (dash "2.11.0"))
+;; Package-Requires: ((emacs "24") (dash "2.11.0") (cl-lib "0.5"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -39,6 +39,9 @@
 (require 'json)
 (require 'ido)
 (require 'dash)
+(require 'cl-lib)
+
+(declare-function ivy-read "ivy")
 
 (defconst jpop-dir (unless (boundp 'jpop-dir) (file-name-directory load-file-name)))
 
@@ -781,7 +784,7 @@ If FORCE is non-nil then ignore the constrain effect."
       (with-current-buffer (buffer-name)
         (save-excursion
           (goto-char (point-min))
-          (while (search-forward (caddr jpop-indent-object) (point-max) t)
+          (while (search-forward (cl-caddr jpop-indent-object) (point-max) t)
             (replace-match (cadr jpop-indent-object))))
         (indent-region (point-min) (point-max))
         (jpop-message
