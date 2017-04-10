@@ -3,7 +3,7 @@
 ;; Copyright © 2015  Dom Charlesworth <dgc336@gmail.com>
 
 ;; Author: Dom Charlesworth <dgc336@gmail.com>
-;; URL: https://github.com/domtronn/jpop
+;; URL: https://github.com/domtronn/jpop.el
 ;; Version: 1.0.0
 ;; Package-Version: 20150724-1604
 ;; Keywords: project, convenience
